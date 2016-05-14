@@ -1,0 +1,10 @@
+{
+  "version": 3,
+  "file": "local-styles-element-spec.js",
+  "sourceRoot": "",
+  "sources": [
+    "local-styles-element-spec.coffee"
+  ],
+  "names": [],
+  "mappings": ";AAAA,IAAA;;AAAA,kBAAA,GAAqB,OAAA,CAAQ,6BAAR;;AAErB,QAAA,CAAS,oBAAT,EAA+B,SAAA;EAE7B,CAAA;IAAA,kBAAA,EAAoB,IAApB;GAAA;EAEA,UAAA,CAAW,SAAA;WACT,IAAC,CAAA,kBAAD,GAA0B,IAAA,kBAAA,CAAA;EADjB,CAAX;SAGA,EAAA,CAAG,YAAH,EAAiB,SAAA;WACf,MAAA,CAAO,IAAC,CAAA,kBAAkB,CAAC,IAApB,CAAA,CAAP,CAAkC,CAAC,OAAnC,CAA2C,CAA3C;EADe,CAAjB;AAP6B,CAA/B"
+}

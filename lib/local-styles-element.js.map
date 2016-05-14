@@ -1,0 +1,10 @@
+{
+  "version": 3,
+  "file": "local-styles-element.js",
+  "sourceRoot": "",
+  "sources": [
+    "local-styles-element.coffee"
+  ],
+  "names": [],
+  "mappings": ";AAAA,IAAA;;AAAA,CAAA,GAAI,MAAA,GAAS,OAAA,CAAQ,QAAR;;AAEb,MAAM,CAAC,OAAP,GACQ;EAES,4BAAA,GAAA;;+BAEb,IAAA,GAAM,SAAA;WACJ;EADI"
+}

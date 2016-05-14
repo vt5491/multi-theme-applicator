@@ -1,0 +1,10 @@
+{
+  "version": 3,
+  "file": "multi-theme-applicator-main-spec.js",
+  "sourceRoot": "",
+  "sources": [
+    "multi-theme-applicator-main-spec.coffee"
+  ],
+  "names": [],
+  "mappings": ";AAAA,IAAA;;AAAA,oBAAA,GAAuB,OAAA,CAAQ,+BAAR;;AAGvB,QAAA,CAAS,2BAAT,EAAsC,SAAA;EACpC,CAAA;IAAA,oBAAA,EAAsB,IAAtB;GAAA;EAEA,UAAA,CAAW,SAAA,GAAA,CAAX;SAIA,EAAA,CAAG,YAAH,EAAiB,SAAA;WAEf,MAAA,CAAO,oBAAoB,CAAC,IAArB,CAAA,CAAP,CAAmC,CAAC,OAApC,CAA4C,CAA5C;EAFe,CAAjB;AAPoC,CAAtC"
+}
