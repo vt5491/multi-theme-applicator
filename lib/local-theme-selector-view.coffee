@@ -1,4 +1,5 @@
 $ = jQuery = require 'jquery'
+# Utils = require './utils'
 
 module.exports =
   class LocalThemeSelectorView
