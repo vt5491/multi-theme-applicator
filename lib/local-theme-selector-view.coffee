@@ -1,5 +1,6 @@
 $ = jQuery = require 'jquery'
 # Utils = require './utils'
+LocalThemeManager = require './local-theme-manager'
 
 module.exports =
   class LocalThemeSelectorView
@@ -7,6 +8,8 @@ module.exports =
 
     #constructor: (serializedState)  ->
     constructor:  ->
+      # create all the supporting services we may need to call
+      @localThemeManager = new LocalThemeManager()
       # create container element for the form
       @selectorView = document.createElement('div')
       @selectorView.classList.add('local-theme-selector-view')
@@ -25,8 +28,10 @@ module.exports =
         value: 'Apply Local Theme'
       ).appendTo(form)
 
+    # Come here on submit
     applyLocalTheme: ->
       console.log('ThemeSelector.applyLocalTheme: entered')
+      @localThemeManager.getThemeCss()
 
     destroy: ->
       # this.element.remove()

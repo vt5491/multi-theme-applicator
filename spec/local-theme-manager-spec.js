@@ -37,15 +37,49 @@ fdescribe('LocalThemeManager', function() {
     atom.packages.getActivePackages();
     return expect(this.localThemeManager.doIt()).toEqual(7);
   });
-  it('getActiveSyntaxTheme returns proper theme', function() {
+  return it('getActiveSyntaxTheme returns proper theme', function() {
     return expect(this.localThemeManager.getActiveSyntaxTheme()).toEqual("test-syntax-theme");
   });
-  return fit('deleteThemeNode works', function() {
+});
+
+fdescribe('LocalThemeManager with complex atom-text-editor style tree', function() {
+  beforeEach(function() {
+    var gutterStyle, mySpy, packageManager, spellCheckStyle, textEditor, textEditorSpy, themeStyle;
+    this.localThemeManager = new LocalThemeManager();
+    this.utils = new Utils();
+    packageManager = atom.packages;
+    mySpy = spyOn(packageManager, "getActivePackages");
+    mySpy.andReturn([
+      {
+        metadata: {
+          theme: "syntax",
+          name: "test-syntax-theme"
+        }
+      }
+    ]);
+    textEditor = atom.workspace.buildTextEditor();
+    spellCheckStyle = document.createElement('style');
+    spellCheckStyle.setAttribute('source-path', '/tmp/.atom/packages/spellCheck/index.less');
+    spellCheckStyle.setAttribute('priority', '0');
+    gutterStyle = document.createElement('style');
+    gutterStyle.setAttribute('source-path', '/tmp/.atom/packages/gutter/gutter.less');
+    gutterStyle.setAttribute('priority', '0');
+    themeStyle = document.createElement('style');
+    themeStyle.setAttribute('source-path', '/tmp/.atom/packages/test-theme/index.less');
+    themeStyle.setAttribute('priority', '1');
+    textEditor.getElement().shadowRoot.querySelector('atom-styles').appendChild(spellCheckStyle);
+    textEditor.getElement().shadowRoot.querySelector('atom-styles').appendChild(gutterStyle);
+    textEditor.getElement().shadowRoot.querySelector('atom-styles').appendChild(themeStyle);
+    return textEditorSpy = spyOn(atom.workspace, "getActiveTextEditor").andReturn(textEditor);
+  });
+  return it('deleteThemeStyleNode works', function() {
     var shadowRoot;
-    console.log('local-theme-manager-spec: testing deleteThemeNode');
-    this.localThemeManager.deleteThemeNode();
+    console.log('local-theme-manager-spec: testing deleteThemeStyleNode');
+    this.localThemeManager.deleteThemeStyleNode();
     shadowRoot = this.utils.getActiveShadowRoot();
-    return expect($(shadowRoot).find('atom-styles').find('style')).not.toExist();
+    expect($(shadowRoot).find('atom-styles').find('style').length).toEqual(2);
+    expect($(shadowRoot).find('atom-styles').find('style').eq(0).attr('source-path')).toMatch("spellCheck");
+    return expect($(shadowRoot).find('atom-styles').find('style').eq(1).attr('source-path')).toMatch("gutter");
   });
 });
 

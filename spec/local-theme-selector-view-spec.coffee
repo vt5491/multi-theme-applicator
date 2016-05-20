@@ -1,5 +1,6 @@
 LocalThemeSelectorView = require '../lib/local-theme-selector-view'
 MultiThemeApplicator = require '../lib/multi-theme-applicator'
+LocalThemeManager = require '../lib/local-theme-manager'
 # `import ThemeSelectorView from '../lib/theme-selector-view'`
 
 describe 'LocalThemeSelectorView', () ->
@@ -20,6 +21,11 @@ describe 'LocalThemeSelectorView', () ->
 
     # console.log "theme-selector-view-spec.beforeEach: back from promise"
     # mock up packages.getActivePackages (packages is a package-manager)
+
+  it 'ctor works', () ->
+    #expect(@localThemeSelectorView.localThemeManager).not.toExist()
+    expect(@localThemeSelectorView.localThemeManager).toBeDefined()
+    expect(@localThemeSelectorView.localThemeManager).toBeInstanceOf(LocalThemeManager)
 
   it 'doIt works', () ->
     # console.log "theme-selector-view-spec.doIt: themeSelectorView=" + themeSelectorView

@@ -56,9 +56,63 @@ fdescribe 'LocalThemeManager', () ->
     # expect(atom.packages.getActivePackages).toHaveBeenCalled()
     expect(@localThemeManager.getActiveSyntaxTheme()).toEqual("test-syntax-theme")
 
-  fit 'deleteThemeNode works', () ->
-    console.log('local-theme-manager-spec: testing deleteThemeNode')
-    @localThemeManager.deleteThemeNode()
+  # it 'deleteThemeStyleNode works', () ->
+  #   console.log('local-theme-manager-spec: testing deleteThemeStyleNode')
+  #   @localThemeManager.deleteThemeStyleNode()
+  #
+  #   shadowRoot = @utils.getActiveShadowRoot()
+  #   expect($(shadowRoot).find('atom-styles').find('style')).not.toExist()
+
+
+# here we test a more "real" style tree attached to the mock editor
+fdescribe 'LocalThemeManager with complex atom-text-editor style tree', () ->
+  beforeEach ->
+    @localThemeManager = new LocalThemeManager()
+    @utils = new Utils()
+
+    packageManager = atom.packages
+    mySpy = spyOn(packageManager, "getActivePackages")
+    mySpy.andReturn([ { metadata: { theme: "syntax", name: "test-syntax-theme"}}])
+
+    textEditor = atom.workspace.buildTextEditor()
+
+    # create some "pad" style elements that precede the the theme's style element
+    # we use 'spellCheck' and 'gutter' just because these are two actual shadowRootatomStyles
+    # that are attached to text-editor
+    spellCheckStyle = document.createElement('style')
+    spellCheckStyle.setAttribute('source-path', '/tmp/.atom/packages/spellCheck/index.less')
+    spellCheckStyle.setAttribute('priority', '0')
+
+    gutterStyle = document.createElement('style')
+    gutterStyle.setAttribute('source-path', '/tmp/.atom/packages/gutter/gutter.less')
+    gutterStyle.setAttribute('priority', '0')
+
+    themeStyle = document.createElement('style')
+    themeStyle.setAttribute('source-path', '/tmp/.atom/packages/test-theme/index.less')
+    themeStyle.setAttribute('priority', '1')
+
+    textEditor.getElement().shadowRoot.querySelector('atom-styles').appendChild(spellCheckStyle)
+    textEditor.getElement().shadowRoot.querySelector('atom-styles').appendChild(gutterStyle)
+    textEditor.getElement().shadowRoot.querySelector('atom-styles').appendChild(themeStyle)
+
+    textEditorSpy = spyOn(atom.workspace, "getActiveTextEditor")
+      .andReturn(textEditor)
+
+
+  it 'deleteThemeStyleNode works', () ->
+    console.log('local-theme-manager-spec: testing deleteThemeStyleNode')
+    @localThemeManager.deleteThemeStyleNode()
 
     shadowRoot = @utils.getActiveShadowRoot()
-    expect($(shadowRoot).find('atom-styles').find('style')).not.toExist()
+    expect($(shadowRoot).find('atom-styles').find('style').length).toEqual(2)
+    expect($(shadowRoot)
+      .find('atom-styles')
+      .find('style')
+      .eq(0)
+      .attr('source-path')).toMatch("spellCheck")
+
+    expect($(shadowRoot)
+      .find('atom-styles')
+      .find('style')
+      .eq(1)
+      .attr('source-path')).toMatch("gutter")

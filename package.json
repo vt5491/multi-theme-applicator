@@ -3,8 +3,7 @@
   "main": "./lib/multi-theme-applicator",
   "version": "0.0.1",
   "description": "Apply Multiple Themes to your Atom Editor",
-  "keywords": [
-  ],
+  "keywords": [],
   "activationCommands": {
     "atom-workspace": "multi-theme-applicator:toggle"
   },
@@ -14,6 +13,9 @@
     "atom": ">=1.0.0 <2.0.0"
   },
   "dependencies": {
-    "jquery": "^2.0.0" 
+    "fs": "0.0.2",
+    "jquery": "^2.0.0",
+    "less": "^2.7.1",
+    "path": "^0.12.7"
   }
 }
