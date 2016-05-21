@@ -37,3 +37,23 @@ atom-text-editor, :host {
     re = new RegExp(cssRegexSafe, "m")
     expect($result.text().match(re)).not.toBeNull()
     # expect($result.text).toMatch(re)
+
+# we need a second describe, because in this block we hook 'getActiveTextEditor'
+# and we don't necessarily want that behavior in other describe blocks
+describe 'LocalStylesElement2', () ->
+  localStylesElement: null
+  textEditor: null
+
+  beforeEach ->
+    @localStylesElement = new LocalStylesElement()
+
+    @textEditor = atom.workspace.buildTextEditor()
+
+    spyOn(atom.workspace, "getActiveTextEditor")
+      .andReturn(@textEditor)
+
+  xit 'setEditorBackgroundColor works', () ->
+    @localStylesElement.setEditorBackgroundColor('#123456')
+
+    expect($(@textEditor).css('background-color').toEqual('#123456'))
+    

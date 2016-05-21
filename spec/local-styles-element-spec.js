@@ -33,4 +33,20 @@ describe('LocalStylesElement', function() {
   });
 });
 
+describe('LocalStylesElement2', function() {
+  ({
+    localStylesElement: null,
+    textEditor: null
+  });
+  beforeEach(function() {
+    this.localStylesElement = new LocalStylesElement();
+    this.textEditor = atom.workspace.buildTextEditor();
+    return spyOn(atom.workspace, "getActiveTextEditor").andReturn(this.textEditor);
+  });
+  return xit('setEditorBackgroundColor works', function() {
+    this.localStylesElement.setEditorBackgroundColor('#123456');
+    return expect($(this.textEditor).css('background-color').toEqual('#123456'));
+  });
+});
+
 //# sourceMappingURL=local-styles-element-spec.js.map

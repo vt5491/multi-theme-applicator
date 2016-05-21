@@ -6,7 +6,6 @@ describe 'Utils', () ->
     @utils = new Utils()
 
     console.log('utils-spec: now in beforeEach')
-    # textEditor = new TextEditor()
     textEditor = atom.workspace.buildTextEditor()
     #textEditorEl = document.createElement('atom-text-editor')
     textEditorEl = textEditor.getElement()

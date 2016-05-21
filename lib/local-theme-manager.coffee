@@ -9,12 +9,14 @@ module.exports =
 
     constructor: ->
       @utils = new Utils()
+      #@activeShadowRoot = @utils.getActiveShadowRoot()
 
     doIt: ->
       getActivePackages = atom.packages.getActivePackages
       7
 
     # return the active theme as a string
+    # Note: this is defunct with the per buffer replacment design
     getActiveSyntaxTheme: ->
       console.log('LocalThemeManager.getActiveSyntaxTheme: entered')
       getActivePackages = atom.packages.getActivePackages
@@ -30,6 +32,28 @@ module.exports =
 
       activeTheme
 
+      # node1 = $('.pane').eq(1)
+      # shadowRoot = $('.pane').eq(1).find('atom-text-editor').eq(0)[0].shadowRoot
+      # #console.log('deleteThemeNode: shadowRoot=' + shadowRoot)
+      #
+      # node3 = $(shadowRoot)
+      #   .find('atom-styles')
+      #   .find('style').eq(2)
+      #
+      # console.log('injectClonedNode: node3=' + node3)
+      # node4 = node3[0].parentNode.appendChild(clonedNode[0])
+    addStyleElementToEditor: (styleElement)->
+      shadowRoot = @utils.getActiveShadowRoot()
+
+      $shadowRoot = $(shadowRoot)
+
+      themeNode = $shadowRoot
+        .find('[context="atom-text-editor"]')
+        .filter('atom-styles')
+        .append(styleElement)
+        # .find('[priority="1"]')
+        # .filter('[source-path*="index.less"]')
+
     deleteThemeStyleNode: ->
       console.log('LocalThemeManager.deleteThemeNode: now in deleteThemeNode')
       #node = $('atom-pane-axis:nth-child(2)')
@@ -41,6 +65,7 @@ module.exports =
       #node2 = $('.pane:eq(1) atom-text-editor:eq(1)')
       # shadowRoot = $('.pane').eq(1).find('atom-text-editor').eq(0)[0].shadowRoot
       shadowRoot = @utils.getActiveShadowRoot()
+      #shadowRoot = @activeShadowRoot
       # shadowRoot = $('.pane').eq(1)
       #   .find('atom-text-editor::shadow').eq(0)
       console.log('deleteThemeNode: shadowRoot=' + shadowRoot)
@@ -119,14 +144,37 @@ module.exports =
  #                console.log('done');
  #            });
  #        });
- #    });   # generate the css style text from the themes .less filej
+ #    });
+    # getThemeCss: ->
+    #   console.log('LocalThemeManager.getThemeCss: entered')
+    #   basePath = '/home/vturner/.atom/packages/'
+    #   lessPath = basePath + 'humane-syntax/index.less'
+    #
+    #   fs.readFile lessPath,
+    #     (err, data) ->
+    #       throw "cat: error reading from #{fn}: #{err}" if err
+    #
+    #       console.log "data=" + data
+    #       data = data.toString()
+    #
+    #       options = {
+    #         paths : ['/home/vturner/.atom/packages/humane-syntax/']
+    #         filename : "index.less"
+    #       }
+    #
+    #       less.render data, options, (e, css) ->
+    #         console.log "genned css=" + css
+    #         css
+
+    # generate the css style text from the themes .less filej
+    # TODO: I think I need to update this to return a promise
     getThemeCss: ->
       console.log('LocalThemeManager.getThemeCss: entered')
       basePath = '/home/vturner/.atom/packages/'
       lessPath = basePath + 'humane-syntax/index.less'
 
-      fs.readFile lessPath,
-        (err, data) ->
+      promise = new Promise (resolve, reject) ->
+        fs.readFile lessPath, (err, data) ->
           throw "cat: error reading from #{fn}: #{err}" if err
 
           console.log "data=" + data
@@ -137,5 +185,44 @@ module.exports =
             filename : "index.less"
           }
 
-          less.render data, options, (e, css) ->
-            console.log "genned css=" + css
+          less.render data, options, (err, css) ->
+            if err
+              reject err
+            else
+              console.log "genned css=" + css
+              resolve css
+
+          #promise
+
+    # updateParentBGColor: ->
+    #   console.log('now in updateParentBGColor')
+    #   node1 = $('.pane').eq(1)
+    #   shadowRoot = $('.pane').eq(1).find('atom-text-editor').eq(0)[0].shadowRoot
+    #
+    #   node3 = $(shadowRoot)
+    #   .find('atom-styles')
+    #   .find('style').last()
+    #
+    #   console.log('updateParentBGColor: node3=' + node3)
+    #   #node3
+    #   bgColor = node3[0].sheet.rules[0].style.backgroundColor
+    #   console.log('updateParentBGColor: bgColor=' + bgColor)
+    #
+    #   baseEl = $('.pane').eq(1).find('atom-text-editor')
+    #     .attr('style', 'background-color: ' + bgColor)
+    #   console.log('updateParentBGColor: baseEl=' + baseEl)
+    syncEditorBackgroundColor: () ->
+      shadowRoot = @utils.getActiveShadowRoot()
+
+      # drill down to the background-color set by the local theme
+      # This is a pretty convaluted way that was empirically determined.
+      # There should probably be a better way.
+      localStyleNode = $(shadowRoot)
+        .find('atom-styles')
+        .find('style').last()
+
+      localBgColor = localStyleNode[0].sheet.rules[0].style.backgroundColor
+      console.log 'syncEditorBackgroundColor: localBgColor=' + localBgColor
+
+      activeTextEditor = atom.workspace.getActiveTextEditor()
+      $(activeTextEditor).attr('style', 'background-color: ' + localBgColor)

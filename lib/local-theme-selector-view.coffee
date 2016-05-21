@@ -1,6 +1,7 @@
 $ = jQuery = require 'jquery'
-# Utils = require './utils'
+Utils = require './utils'
 LocalThemeManager = require './local-theme-manager'
+LocalStylesElement  = require './local-styles-element'
 
 module.exports =
   class LocalThemeSelectorView
@@ -10,6 +11,8 @@ module.exports =
     constructor:  ->
       # create all the supporting services we may need to call
       @localThemeManager = new LocalThemeManager()
+      @localStylesElement = new LocalStylesElement()
+      @utils = new Utils()
       # create container element for the form
       @selectorView = document.createElement('div')
       @selectorView.classList.add('local-theme-selector-view')
@@ -31,7 +34,27 @@ module.exports =
     # Come here on submit
     applyLocalTheme: ->
       console.log('ThemeSelector.applyLocalTheme: entered')
-      @localThemeManager.getThemeCss()
+      # css = ''
+      # @localThemeManager.getThemeCss().then (result) =>
+      #   css = result
+      # , (err) ->
+      #   console.log "promise returned with err=" + err
+      css = @utils.getHumaneCssString()
+
+      console.log "css=" + css
+      # LSE.createStyleElement
+      # p.s. the sourcePath is just important for cosmetic reasons.  It could
+      # actualy be anything
+      sourcePath = '/home/vturner/.atom/packages/humane-syntax/index.less'
+      newStyleElement = @localStylesElement.createStyleElement(css, sourcePath)
+      # LTM.deleteThemeStyleNode
+      # This goes against the active editor
+      # TODO: change name of method to indicate more clearly it *is* the active editor
+      @localThemeManager.deleteThemeStyleNode()
+      # LTM.addStyleElementToEditor
+      @localThemeManager.addStyleElementToEditor(newStyleElement)
+      # LTM.syncEditorBackgroundColor
+      @localThemeManager.syncEditorBackgroundColor()
 
     destroy: ->
       # this.element.remove()
