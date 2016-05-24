@@ -1,6 +1,6 @@
 $ = jQuery = require 'jquery'
 Utils = require './utils'
-fs = require 'fs'
+fs = require 'fs-plus'
 path = require 'path'
 less = require 'less'
 
@@ -168,49 +168,69 @@ module.exports =
 
     # generate the css style text from the themes .less filej
     # TODO: I think I need to update this to return a promise
-    getThemeCss: ->
+    # this is the promise version
+    # getThemeCss: ->
+    #   console.log('LocalThemeManager.getThemeCss: entered')
+    #   basePath = '/home/vturner/.atom/packages/'
+    #   lessPath = basePath + 'humane-syntax/index.less'
+    #
+    #   promise = new Promise (resolve, reject) ->
+    #     fs.readFile lessPath, (err, data) ->
+    #       throw "cat: error reading from #{fn}: #{err}" if err
+    #
+    #       console.log "data=" + data
+    #       data = data.toString()
+    #
+    #       options = {
+    #         paths : ['/home/vturner/.atom/packages/humane-syntax/']
+    #         filename : "index.less"
+    #       }
+    #
+    #       less.render data, options, (err, css) ->
+    #         if err
+    #           reject err
+    #         else
+    #           console.log "genned css=" + css
+    #           resolve css
+    #
+    #       #promise
+    getThemeCss: (basePath) ->
       console.log('LocalThemeManager.getThemeCss: entered')
-      basePath = '/home/vturner/.atom/packages/'
-      lessPath = basePath + 'humane-syntax/index.less'
+      #basePath = '/home/vturner/.atom/packages/'
+      #lessPath = basePath + 'humane-syntax/index.less'
+      #lessPath = sourcePath || basePath + 'humane-syntax/index.less'
+      lessPath = basePath + "/index.less"
+
+      #promise = new Promise (resolve, reject) ->
+      data = fs.readFileSync(lessPath, 'utf8')
+
+      # fs.readFile lessPath, (err, data) ->
+      #   throw "cat: error reading from #{fn}: #{err}" if err
+
+      console.log "data=" + data
+      data = data.toString()
+
+      options = {
+        #paths : ['.', './styles']
+        paths : [basePath, basePath + '/styles']
+        filename : "index.less"
+      }
 
       promise = new Promise (resolve, reject) ->
-        fs.readFile lessPath, (err, data) ->
-          throw "cat: error reading from #{fn}: #{err}" if err
+        console.log "about to call less.render"
+        less.render data, options, (err, result) ->
+          console.log "now in less.render function handler"
+          if err
+            reject err
+          else
+            console.log "genned css=" + result.css.substring(0, 100)
+            resolve result.css.toString()
 
-          console.log "data=" + data
-          data = data.toString()
+    # getThemeCss: (sourcePath)->
+    #   console.log('LocalThemeManager.getThemeCss: entered')
+    #   basePath = '/home/vturner/.atom/packages/'
+    #   lessPath = sourcePath || basePath + 'humane-syntax/index.less'
 
-          options = {
-            paths : ['/home/vturner/.atom/packages/humane-syntax/']
-            filename : "index.less"
-          }
-
-          less.render data, options, (err, css) ->
-            if err
-              reject err
-            else
-              console.log "genned css=" + css
-              resolve css
-
-          #promise
-
-    # updateParentBGColor: ->
-    #   console.log('now in updateParentBGColor')
-    #   node1 = $('.pane').eq(1)
-    #   shadowRoot = $('.pane').eq(1).find('atom-text-editor').eq(0)[0].shadowRoot
-    #
-    #   node3 = $(shadowRoot)
-    #   .find('atom-styles')
-    #   .find('style').last()
-    #
-    #   console.log('updateParentBGColor: node3=' + node3)
-    #   #node3
-    #   bgColor = node3[0].sheet.rules[0].style.backgroundColor
-    #   console.log('updateParentBGColor: bgColor=' + bgColor)
-    #
-    #   baseEl = $('.pane').eq(1).find('atom-text-editor')
-    #     .attr('style', 'background-color: ' + bgColor)
-    #   console.log('updateParentBGColor: baseEl=' + baseEl)
     syncEditorBackgroundColor: () ->
       shadowRoot = @utils.getActiveShadowRoot()
 

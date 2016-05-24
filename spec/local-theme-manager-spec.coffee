@@ -106,19 +106,30 @@ atom-text-editor, :host {
     """
     spyOn(fs, "readFile").andReturn(cssSnippet)
 
-    #promise = @localThemeManager.getThemeCss()
+    promise = @localThemeManager.getThemeCss('/home/vturner/.atom/packages/humane-syntax')
 
-    #expect(promise).toBeInstanceOf(Promise)
+    expect(promise).toBeInstanceOf(Promise)
 
-    @localThemeManager.getThemeCss().then (result) ->
-        console.log "promise return: css=" + css
-      ,(err) ->
-        console.log "promise returner err" + err
+    cssResult = null
+    #@localThemeManager.getThemeCss('/home/vturner/.atom/packages/humane-syntax/index.less').then (result) ->
+    #@localThemeManager.getThemeCss('/home/vturner/.atom/packages/humane-syntax').then (result) ->
+    promise
+      .then(
+        (result) ->
+          console.log "->promise return: css=" + result.substring(0,200)
+          cssResult = result
+          expect(cssResult).not.toBeNull()
+        ,(err) ->
+          console.log "promise returner err" + err
+      )
       #expect(css).toMatch(cssSnippet)
 
-    console.log "now post promise then"
-    waitsForPromise ->
-      console.log "waitsForPromise is satisfied"
+    # console.log "now post promise then"
+    # waitsForPromise ->
+    #   console.log "waitsForPromise is satisfied"
+    #   console.log("waitsForPromise: cssResult=" + cssResult)
+
+    #console.log("last message: cssResult=" + cssResult)
 
 
   # it 'deleteThemeStyleNode works', () ->

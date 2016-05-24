@@ -65,17 +65,18 @@ describe('LocalThemeManager', function() {
     return expect(this.localThemeManager.getActiveSyntaxTheme()).toEqual("test-syntax-theme");
   });
   return fit('getThemeCss does promises correctly', function() {
-    var cssSnippet;
+    var cssResult, cssSnippet, promise;
     cssSnippet = "atom-text-editor, :host {\n  background-color: #e3d5c1;\n  color: #000000;";
     spyOn(fs, "readFile").andReturn(cssSnippet);
-    this.localThemeManager.getThemeCss().then(function(result) {
-      return console.log("promise return: css=" + css);
+    promise = this.localThemeManager.getThemeCss('/home/vturner/.atom/packages/humane-syntax');
+    expect(promise).toBeInstanceOf(Promise);
+    cssResult = null;
+    return promise.then(function(result) {
+      console.log("->promise return: css=" + result.substring(0, 200));
+      cssResult = result;
+      return expect(cssResult).not.toBeNull();
     }, function(err) {
       return console.log("promise returner err" + err);
-    });
-    console.log("now post promise then");
-    return waitsForPromise(function() {
-      return console.log("waitsForPromise is satisfied");
     });
   });
 });

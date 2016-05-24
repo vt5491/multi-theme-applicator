@@ -19,7 +19,7 @@ module.exports = MultiThemeApplicator =
     # @themeSelector = new themeSelector(state.themeSelectorState)
     #@themeSelector = new themeSelector
     #@themeSelectorView = new ThemeSelectorView(state.ThemeSelectorViewState);
-    @localThemeSelectorView = new LocalThemeSelectorView()
+    @localThemeSelectorView = new LocalThemeSelectorView(this)
 
     # @modalPanel = atom.workspace.addModalPanel(
     #   item: @themeSelectorView.getElement(),
