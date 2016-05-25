@@ -1,9 +1,10 @@
 $ = jQuery = require 'jquery'
+{CompositeDisposable} = require 'atom'
 Utils = require './utils'
 LocalThemeManager = require './local-theme-manager'
 LocalStylesElement  = require './local-styles-element'
 fs = require('fs-plus')
-async = require('async')
+# async = require('async')
 
 module.exports =
   class LocalThemeSelectorView
@@ -24,20 +25,33 @@ module.exports =
       # create container element for the form
       @selectorView = document.createElement('div')
       @selectorView.classList.add('local-theme-selector-view')
+      $('.local-theme-selector-view').attr( tabindex: '0')
 
-      form = $('<form/>').attr( id: 'input-form').submit( (@applyLocalTheme.bind @) )
+      form = $('<form/>')
+        .attr( id: 'input-form', class: 'apply-theme-form')
+        .submit( (@applyLocalTheme.bind @) )
+
+      # form.on 'keypress', 'input', (e) =>
+      #   console.log "keypress detected e.which=#{e.which}"
+      #   if e.which == 13
+      #     $('#apply-theme-submit').click()
 
       form.appendTo(@selectorView)
 
-      $('<input/>').attr(
-        type: 'text'
-        name: 'theme'
-      ).appendTo(form)
+      $('<label>').text('Syntax Theme:').appendTo(form)
+      # $('<input/>').attr(
+      #   type: 'text'
+      #   name: 'theme'
+      #   id: 'themeText'
+      # ).appendTo(form)
+      #
+      # #$('#themeText').attr( tabindex: 0)
+      # $('#themeText').on "click", () ->
+      #   console.log "now in themeText click handler"
+      #   $(this).html("abc")
+      #
+      # $('#themeText').trigger( "click")
 
-      $('<input/>').attr(
-        type: 'submit'
-        value: 'Apply Local Theme'
-      ).appendTo(form)
 #       var s = $("<select id=\"selectId\" name=\"selectName\" />");
 # for(var val in data) {
 #     $("<option />", {value: val, text: data[val]}).appendTo(s);
@@ -48,7 +62,27 @@ module.exports =
       # @themeLookup.push {themeName: 'humane-syntax', baseDir: "#{packageBaseDir}/humane-syntax" }
       # @themeLookup.push {themeName: 'seti-syntax', baseDir: "#{packageBaseDir}/seti-syntax" }
 
+      @dropDownBorderWidthDefault
       themeDropdown = $('<select id="themeDropdown" name="selectTheme">')
+      themeDropdown.focus =>
+        console.log "now in themeDropdown focus handler"
+        @dropDownBorderWidthDefault = $('#themeDropdown').css('borderWidth')
+        console.log "dropDownBorderWidthDefault=" + @dropDownBorderWidthDefault
+        newBorderWidth = parseInt(@dropDownBorderWidthDefault) * 2.0
+        console.log "newBorderWidth=#{newBorderWidth}"
+        #$(this).css('borderWidth', @dropDownBorderWidth * 2);
+        #$('#themeDropdown').css('borderWidth', @dropDownBorderWidthDefault * 7);
+        $('#themeDropdown').css('borderWidth', newBorderWidth.toString());
+        #$('#themeDropdown').css('borderWidth', '7px');
+        # $(this).css('background-color', 'red');
+        console.log "now leaving themeDropdown focus handler"
+        console.log "this.css.borderWidth=" + $('#themeDropdown').css('borderWidth')
+        console.log "now leaving themeDropdown focus handler-2"
+
+      themeDropdown.blur =>
+        console.log "now in themeDropdown blur handler"
+        #$(this).css('borderWidth', '2px');
+        $('#themeDropdown').css('borderWidth', @dropDownBorderWidthDefault);
 
       #for i in LocalThemeSelectorView::ThemeLookup
       for theme in LocalThemeSelectorView::ThemeLookup
@@ -63,6 +97,62 @@ module.exports =
         .appendTo(themeDropdown)
 
       themeDropdown.appendTo(form)
+      #$('<br/>').appendTo(form)
+
+      $('<input id="apply-theme-submit"/>').attr(
+        type: 'submit'
+        value: 'Apply Local Theme'
+      ).appendTo(form)
+
+      # seed the initial active element.  This value will change as the user
+      # selects via key bindings or mouse the selected theme in the dropdown.
+      @themeLookupActiveIndex = 0
+      #themeDropdown.val(2)
+
+      @subscriptions = new CompositeDisposable
+
+      # Register command that toggles this view
+      #@subscriptions.add atom.commands.add 'apply-theme-form',
+      #@subscriptions.add atom.commands.add 'local-theme-selector-view',
+      @subscriptions.add atom.commands.add 'atom-workspace',
+        'multi-theme-applicator:applyLocalTheme':  => @applyLocalTheme()
+        'local-theme-selector-view:focusModalPanel':  => @focusModalPanel()
+
+      @subscriptions.add atom.commands.add '.local-theme-selector-view',
+        'local-theme-selector-view:applyLocalTheme':  => @applyLocalTheme()
+        'local-theme-selector-view:selectPrevTheme':  => @selectPrevTheme()
+        'local-theme-selector-view:selectNextTheme':  => @selectNextTheme()
+
+      # this has no effect when you do it as part of the constructor
+      #$('#themeText').focus()
+
+    selectNextTheme: ->
+      #console.log "LocalThemeSelectorView.selectNextTheme: entered"
+      @themeLookupActiveIndex++
+      @themeLookupActiveIndex %= LocalThemeSelectorView::ThemeLookup.length
+      #console.log "LocalThemeSelectorView.selectNextTheme: themeLookupActiveIndex=#{@themeLookupActiveIndex}"
+      #console.log "LocalThemeSelectorView.selectNextTheme: length=#{LocalThemeSelectorView::ThemeLookup.length}"
+      #$("#themeDropdown").val("/home/vturner/.atom/packages//humane-syntax")
+      $("#themeDropdown")
+        .val(LocalThemeSelectorView::ThemeLookup[@themeLookupActiveIndex].baseDir)
+
+    selectPrevTheme: ->
+      console.log "LocalThemeSelectorView.selectPrevTheme: entered"
+      @themeLookupActiveIndex--
+      if @themeLookupActiveIndex < 0
+        @themeLookupActiveIndex = LocalThemeSelectorView::ThemeLookup.length - 1
+      console.log "LocalThemeSelectorView.selectPrevTheme: themeLookupActiveIndex=#{@themeLookupActiveIndex}"
+      console.log "LocalThemeSelectorView.selectPrevTheme: length=#{LocalThemeSelectorView::ThemeLookup.length}"
+      #$("#themeDropdown").val("/home/vturner/.atom/packages//humane-syntax")
+
+      $("#themeDropdown")
+        .val(LocalThemeSelectorView::ThemeLookup[@themeLookupActiveIndex].baseDir)
+
+    focusModalPanel: () ->
+      console.log "LocalThemeSelectorView.focusModalPanel: entered"
+      #$('#themeText').trigger( "click")
+      #$('#themeText').focus()
+      $('#themeDropdown').focus()
 
     # Come here on submit
     applyLocalTheme: ->

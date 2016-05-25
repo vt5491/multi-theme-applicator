@@ -55,5 +55,12 @@ module.exports = MultiThemeApplicator =
     else
       #@modalPanel.show()
       @localThemeSelectorPanel.show()
+      @localThemeSelectorPanel.getElement().focus()
+      #$("#themeDropdown").focus()
+      #$("#themeText").get(0).focus()
+      $("#themeText")[0].focus()
+      #@localThemeSelectorPanel  .
   # serialize: () ->
   #   vtAtomPkgTestViewState: @vtAtomPkgTestView.serialize()
+  # applyTheme: () ->
+  #   console.log "MultiThemeApplicator.applyTheme: entered"

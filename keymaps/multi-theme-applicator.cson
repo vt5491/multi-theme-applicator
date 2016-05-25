@@ -1,0 +1,12 @@
+"atom-workspace":
+  "ctrl-alt-v": "multi-theme-applicator:toggle"
+  #"ctrl-alt-shift-v": "multi-theme-applicator:applyLocalTheme"
+  "alt-shift-v": "local-theme-selector-view:focusModalPanel"
+#"apply-theme-form":
+".local-theme-selector-view":
+#"atom-workspace":
+  #"ctrl-alt-shift-w": "local-theme-selector-view:applyLocalTheme"
+  #"ctrl-alt-shift-x": "local-theme-selector-view:selectNextTheme"
+  "enter": "local-theme-selector-view:applyLocalTheme"
+  "ctrl-p": "local-theme-selector-view:selectPrevTheme"
+  "ctrl-n": "local-theme-selector-view:selectNextTheme"
