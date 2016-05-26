@@ -53,11 +53,9 @@ describe('LocalThemeManager', function() {
     return textEditorSpy = spyOn(atom.workspace, "getActiveTextEditor").andReturn(this.textEditor);
   });
   it('ctor works', function() {
-    console.log('utils=' + this.localThemeManager.utils);
     return expect(this.localThemeManager.utils).toBeInstanceOf(Utils);
   });
   it('doIt works', function() {
-    console.log('local-theme-manager-spec.doIt: testing doIt');
     atom.packages.getActivePackages();
     return expect(this.localThemeManager.doIt()).toEqual(7);
   });
@@ -72,7 +70,6 @@ describe('LocalThemeManager', function() {
     expect(promise).toBeInstanceOf(Promise);
     cssResult = null;
     return promise.then(function(result) {
-      console.log("->promise return: css=" + result.substring(0, 200));
       cssResult = result;
       return expect(cssResult).not.toBeNull();
     }, function(err) {
@@ -100,7 +97,6 @@ describe('LocalThemeManager with complex atom-text-editor style tree', function(
   });
   it('deleteThemeStyleNode works', function() {
     var shadowRoot;
-    console.log('local-theme-manager-spec: testing deleteThemeStyleNode');
     this.localThemeManager.deleteThemeStyleNode();
     shadowRoot = this.utils.getActiveShadowRoot();
     expect($(shadowRoot).find('atom-styles').find('style').length).toEqual(2);
@@ -109,7 +105,6 @@ describe('LocalThemeManager with complex atom-text-editor style tree', function(
   });
   it('addStyleElementToEditor', function() {
     var shadowRoot, styleElement;
-    console.log('local-theme-manager-spec: testing addStyleElementToEditor');
     styleElement = $('<style>').attr('source-path', '/tmp/dummy-path').attr('context', 'atom-text-editor').attr('priority', '1');
     this.localThemeManager.addStyleElementToEditor(styleElement);
     shadowRoot = this.utils.getActiveShadowRoot();

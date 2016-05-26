@@ -25,18 +25,14 @@ atom-text-editor, :host {
     result = @localStylesElement.createStyleElement(css, sourcePath)
     $result = $(result)
 
-    console.log 'LocalStylesElement.createStyleElement: result=' + result
     expect(result).toBeDefined()
     expect(result).toBeInstanceOf(HTMLElement)
-    # expect(result.getAttribute 'source-path').toEqual(sourcePath)
     expect($result.attr 'source-path').toEqual(sourcePath)
     expect($result.attr 'context').toEqual('atom-text-editor')
     expect($result.attr 'priority').toEqual('1')
-    #expect($result.text).toEqual(css)
-    # pattern = css
+
     re = new RegExp(cssRegexSafe, "m")
     expect($result.text().match(re)).not.toBeNull()
-    # expect($result.text).toMatch(re)
 
 # we need a second describe, because in this block we hook 'getActiveTextEditor'
 # and we don't necessarily want that behavior in other describe blocks
@@ -56,4 +52,3 @@ describe 'LocalStylesElement2', () ->
     @localStylesElement.setEditorBackgroundColor('#123456')
 
     expect($(@textEditor).css('background-color').toEqual('#123456'))
-    

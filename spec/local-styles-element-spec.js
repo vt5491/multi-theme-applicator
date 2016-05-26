@@ -22,7 +22,6 @@ describe('LocalStylesElement', function() {
     sourcePath = '/tmp/local-styles-element/index.less';
     result = this.localStylesElement.createStyleElement(css, sourcePath);
     $result = $(result);
-    console.log('LocalStylesElement.createStyleElement: result=' + result);
     expect(result).toBeDefined();
     expect(result).toBeInstanceOf(HTMLElement);
     expect($result.attr('source-path')).toEqual(sourcePath);

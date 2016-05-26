@@ -9,7 +9,6 @@ describe('Utils', function() {
   beforeEach(function() {
     var shadowRoot, textEditor, textEditorEl, textEditorSpy;
     this.utils = new Utils();
-    console.log('utils-spec: now in beforeEach');
     textEditor = atom.workspace.buildTextEditor();
     textEditorEl = textEditor.getElement();
     shadowRoot = document.createElement("shadow-root");
@@ -23,7 +22,6 @@ describe('Utils', function() {
     return expect(this.utils.doIt()).toEqual(7);
   });
   return it('getActiveShadowRoot works', function() {
-    console.log('ut: result=' + this.utils.getActiveShadowRoot().toString());
     return expect(this.utils.getActiveShadowRoot().toString()).toMatch(/ShadowRoot/);
   });
 });

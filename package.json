@@ -1,9 +1,18 @@
 {
   "name": "multi-theme-applicator",
   "main": "./lib/multi-theme-applicator",
-  "version": "0.0.1",
-  "description": "Apply Multiple Themes to your Atom Editor",
-  "keywords": [],
+  "version": "0.0.5",
+  "description": "Apply Multiple Syntax Themes to your Atom Editor",
+  "keywords": [
+    "atom",
+    "theme",
+    "syntax",
+    "themes",
+    "multi",
+    "multi-theme",
+    "theming",
+    "utility"
+  ],
   "activationCommands": {
     "atom-workspace": "multi-theme-applicator:toggle"
   },
@@ -13,7 +22,6 @@
     "atom": ">=1.0.0 <2.0.0"
   },
   "dependencies": {
-    "async": "^2.0.0-rc.5",
     "fs": "0.0.2",
     "fs-plus": "^2.8.2",
     "jquery": "^2.0.0",

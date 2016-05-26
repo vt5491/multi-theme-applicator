@@ -13,11 +13,8 @@ describe('LocalThemeSelectorView', function() {
     activationPromise: null
   });
   beforeEach(function() {
-    console.log("theme-selector-view-spec.beforeEach: entered");
     this.activationPromise = atom.packages.activatePackage('multi-theme-applicator');
-    console.log("theme-selector-view-spec.beforeEach: activationPromise=" + this.activationPromise);
-    this.localThemeSelectorView = new LocalThemeSelectorView();
-    return console.log("theme-selector-view-spec.beforeEach: localThemeSelectorView=" + this.localThemeSelectorView);
+    return this.localThemeSelectorView = new LocalThemeSelectorView();
   });
   it('ctor works', function() {
     expect(this.localThemeSelectorView.localThemeManager).toBeDefined();
@@ -28,8 +25,7 @@ describe('LocalThemeSelectorView', function() {
   });
   return it('getCurrentGlobalSyntaxTheme works', function() {
     var currentTheme;
-    currentTheme = this.localThemeSelectorView.getCurrentGlobalSyntaxTheme();
-    return console.log('currentTheme=' + currentTheme);
+    return currentTheme = this.localThemeSelectorView.getCurrentGlobalSyntaxTheme();
   });
 });
 
