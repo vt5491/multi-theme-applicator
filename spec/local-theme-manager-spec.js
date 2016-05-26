@@ -120,4 +120,37 @@ describe('LocalThemeManager with complex atom-text-editor style tree', function(
   });
 });
 
+describe("LocalThemeManager getSyntaxThemeLookup tests", function() {
+  var packageMetadataMock, packagePathsMock;
+  packageMetadataMock = [];
+  packageMetadataMock.push({
+    name: 'atom-beautify'
+  });
+  packageMetadataMock.push({
+    name: 'choco',
+    theme: 'syntax'
+  });
+  packageMetadataMock.push({
+    name: 'humane-syntax',
+    theme: 'syntax'
+  });
+  packagePathsMock = [];
+  packagePathsMock.push("/home/user/.atom/packages/atom-beautify");
+  packagePathsMock.push("/home/user/.atom/packages/choco");
+  packagePathsMock.push("/home/user/.atom/packages/humane-syntax");
+  beforeEach(function() {
+    this.localThemeManager = new LocalThemeManager();
+    spyOn(atom.packages, "getAvailablePackageMetadata").andReturn(packageMetadataMock);
+    return spyOn(atom.packages, "getAvailablePackagePaths").andReturn(packagePathsMock);
+  });
+  return it('getSyntaxThemeLookup works', function() {
+    var result;
+    result = this.localThemeManager.getSyntaxThemeLookup();
+    expect(result).toBeInstanceOf(Array);
+    expect(result.length).toEqual(2);
+    expect(result[0].themeName).toEqual("choco");
+    return expect(result[0].baseDir).toEqual("/home/user/.atom/packages/choco");
+  });
+});
+
 //# sourceMappingURL=local-theme-manager-spec.js.map

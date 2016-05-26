@@ -220,3 +220,30 @@ describe 'LocalThemeManager with complex atom-text-editor style tree', () ->
     # @localStylesElement.syncEditorBackgroundColor()
     #
     # expect($(@textEditor).css('background-color').toEqual('#123456'))
+
+describe "LocalThemeManager getSyntaxThemeLookup tests", () ->
+   packageMetadataMock = []
+   packageMetadataMock.push {name: 'atom-beautify'}
+   packageMetadataMock.push {name: 'choco', theme: 'syntax'}
+   packageMetadataMock.push {name: 'humane-syntax', theme: 'syntax'}
+
+   packagePathsMock = []
+   packagePathsMock.push "/home/user/.atom/packages/atom-beautify"
+   packagePathsMock.push "/home/user/.atom/packages/choco"
+   packagePathsMock.push "/home/user/.atom/packages/humane-syntax"
+
+   beforeEach ->
+     @localThemeManager = new LocalThemeManager()
+
+     spyOn(atom.packages, "getAvailablePackageMetadata")
+       .andReturn(packageMetadataMock)
+     spyOn(atom.packages, "getAvailablePackagePaths")
+       .andReturn(packagePathsMock)
+
+   it 'getSyntaxThemeLookup works', ->
+     result = @localThemeManager.getSyntaxThemeLookup()
+
+     expect(result).toBeInstanceOf(Array)
+     expect(result.length).toEqual(2)
+     expect(result[0].themeName).toEqual("choco")
+     expect(result[0].baseDir).toEqual("/home/user/.atom/packages/choco")

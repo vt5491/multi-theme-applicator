@@ -31,36 +31,10 @@ module.exports =
         .attr( id: 'input-form', class: 'apply-theme-form')
         .submit( (@applyLocalTheme.bind @) )
 
-      # form.on 'keypress', 'input', (e) =>
-      #   console.log "keypress detected e.which=#{e.which}"
-      #   if e.which == 13
-      #     $('#apply-theme-submit').click()
 
       form.appendTo(@selectorView)
 
       $('<label>').text('Syntax Theme:').appendTo(form)
-      # $('<input/>').attr(
-      #   type: 'text'
-      #   name: 'theme'
-      #   id: 'themeText'
-      # ).appendTo(form)
-      #
-      # #$('#themeText').attr( tabindex: 0)
-      # $('#themeText').on "click", () ->
-      #   console.log "now in themeText click handler"
-      #   $(this).html("abc")
-      #
-      # $('#themeText').trigger( "click")
-
-#       var s = $("<select id=\"selectId\" name=\"selectName\" />");
-# for(var val in data) {
-#     $("<option />", {value: val, text: data[val]}).appendTo(s);
-# }
-      # @themeLookup = []
-      # packageBaseDir = '/home/vturner/.atom/packages/'
-      # @themeLookup.push {themeName: 'choco', baseDir: "#{packageBaseDir}/choco" }
-      # @themeLookup.push {themeName: 'humane-syntax', baseDir: "#{packageBaseDir}/humane-syntax" }
-      # @themeLookup.push {themeName: 'seti-syntax', baseDir: "#{packageBaseDir}/seti-syntax" }
 
       @dropDownBorderWidthDefault
       themeDropdown = $('<select id="themeDropdown" name="selectTheme">')
@@ -85,13 +59,10 @@ module.exports =
         $('#themeDropdown').css('borderWidth', @dropDownBorderWidthDefault);
 
       #for i in LocalThemeSelectorView::ThemeLookup
-      for theme in LocalThemeSelectorView::ThemeLookup
-      #for i in this.ThemeLookup
-        # console.log "i=#{i}"
-        # console.log "baseDir=#{LocalThemeSelectorView::ThemeLookup[i].baseDir}"
+      @themeLookup = @localThemeManager.getSyntaxThemeLookup()
+      #for theme in LocalThemeSelectorView::ThemeLookup
+      for theme in @themeLookup
         $('<option>', {
-          # value: LocalThemeSelectorView::ThemeLookup[i].baseDir,
-          # text: LocalThemeSelectorView::ThemeLookup[i].themeName})
           value: theme.baseDir,
           text: theme.themeName})
         .appendTo(themeDropdown)
@@ -129,24 +100,23 @@ module.exports =
     selectNextTheme: ->
       #console.log "LocalThemeSelectorView.selectNextTheme: entered"
       @themeLookupActiveIndex++
-      @themeLookupActiveIndex %= LocalThemeSelectorView::ThemeLookup.length
-      #console.log "LocalThemeSelectorView.selectNextTheme: themeLookupActiveIndex=#{@themeLookupActiveIndex}"
-      #console.log "LocalThemeSelectorView.selectNextTheme: length=#{LocalThemeSelectorView::ThemeLookup.length}"
-      #$("#themeDropdown").val("/home/vturner/.atom/packages//humane-syntax")
+      # @themeLookupActiveIndex %= LocalThemeSelectorView::ThemeLookup.length
+      @themeLookupActiveIndex %= @themeLookup.length
+
       $("#themeDropdown")
-        .val(LocalThemeSelectorView::ThemeLookup[@themeLookupActiveIndex].baseDir)
+        # .val(LocalThemeSelectorView::ThemeLookup[@themeLookupActiveIndex].baseDir)
+        .val @themeLookup[@themeLookupActiveIndex].baseDir
 
     selectPrevTheme: ->
-      console.log "LocalThemeSelectorView.selectPrevTheme: entered"
+      # console.log "LocalThemeSelectorView.selectPrevTheme: entered"
       @themeLookupActiveIndex--
       if @themeLookupActiveIndex < 0
-        @themeLookupActiveIndex = LocalThemeSelectorView::ThemeLookup.length - 1
-      console.log "LocalThemeSelectorView.selectPrevTheme: themeLookupActiveIndex=#{@themeLookupActiveIndex}"
-      console.log "LocalThemeSelectorView.selectPrevTheme: length=#{LocalThemeSelectorView::ThemeLookup.length}"
-      #$("#themeDropdown").val("/home/vturner/.atom/packages//humane-syntax")
+        # @themeLookupActiveIndex = LocalThemeSelectorView::ThemeLookup.length - 1
+        @themeLookupActiveIndex = @themeLookup.length - 1
 
       $("#themeDropdown")
-        .val(LocalThemeSelectorView::ThemeLookup[@themeLookupActiveIndex].baseDir)
+        #.val(LocalThemeSelectorView::ThemeLookup[@themeLookupActiveIndex].baseDir)
+        .val(@themeLookup[@themeLookupActiveIndex].baseDir)
 
     focusModalPanel: () ->
       console.log "LocalThemeSelectorView.focusModalPanel: entered"
@@ -157,20 +127,6 @@ module.exports =
     # Come here on submit
     applyLocalTheme: ->
       console.log('ThemeSelector.applyLocalTheme: entered 2')
-      #$( "#myselect" ).val();
-      # $( "#themeDropdown" ).val();
-      # css = ''
-      # @localThemeManager.getThemeCss().then (result) =>
-      #   css = result
-      # , (err) ->
-      #   console.log "promise returned with err=" + err
-      # sourcePath = '/home/vturner/.atom/packages/humane-syntax/index.less'
-      #sourcePath = '/home/vturner/.atom/packages/humane-syntax/index.less'
-      #sourcePath = '/home/vturner/.atom/packages/choco/index.less'
-      #css = @utils.getHumaneCssString()
-      # css = fs.readFileSync(sourcePath, 'utf8')
-      #baseCssPath = '/home/vturner/.atom/packages/choco'
-      # baseCssPath = '/home/vturner/.atom/packages/humane-syntax'
       baseCssPath = $( "#themeDropdown" ).val();
       console.log("applyLocalTheme: baseCssPath=#{baseCssPath}")
       sourcePath = baseCssPath + '/index.less'
@@ -179,39 +135,6 @@ module.exports =
 
       cssResult = null
 
-      # try
-      #   async.waterfall [
-      #     () =>
-      #       promise = @localThemeManager.getThemeCss baseCssPath
-      #       promise
-      #       .then(
-      #         (result) ->
-      #           console.log "->promise return: css=" + result.substring(0,200)
-      #           cssResult = result
-      #         ,(err) ->
-      #             console.log "promise returner err" + err
-      #       )
-      #     ,
-      #     () =>
-      #       console.log "cssResult-2=" + cssResult.substring(0,200),
-      #     () =>
-      #       newStyleElement = @localStylesElement.createStyleElement(css, sourcePath)
-      #       # TODO: change name of method to indicate more clearly it *is* the active editor
-      #       @localThemeManager.deleteThemeStyleNode()
-      #       @localThemeManager.addStyleElementToEditor(newStyleElement)
-      #       @localThemeManager.syncEditorBackgroundColor()
-      #   ]
-      # catch err
-      #   console.log "async.waterfall error: #{err}"
-
-      # promise
-      #   .then(
-      #     (result) ->
-      #       console.log "->promise return: css=" + result.substring(0,200)
-      #       cssResult = result
-      #     ,(err) ->
-      #       console.log "promise returner err" + err
-      #   )
       promise
         .then(
           (result) =>
@@ -242,20 +165,6 @@ module.exports =
           ,(err) ->
             console.log "promise returner err" + err
         )
-
-      # #console.log "cssResult-2=" + cssResult.substring(0,200)
-      # # LSE.createStyleElement
-      # # p.s. the sourcePath is just important for cosmetic reasons.  It could
-      # # actualy be anything
-      # newStyleElement = @localStylesElement.createStyleElement(css, sourcePath)
-      # # LTM.deleteThemeStyleNode
-      # # This goes against the active editor
-      # # TODO: change name of method to indicate more clearly it *is* the active editor
-      # @localThemeManager.deleteThemeStyleNode()
-      # # LTM.addStyleElementToEditor
-      # @localThemeManager.addStyleElementToEditor(newStyleElement)
-      # # LTM.syncEditorBackgroundColor
-      # @localThemeManager.syncEditorBackgroundColor()
 
     destroy: ->
       # this.element.remove()

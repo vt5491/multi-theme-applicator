@@ -246,3 +246,19 @@ module.exports =
 
       activeTextEditor = atom.workspace.getActiveTextEditor()
       $(activeTextEditor).attr('style', 'background-color: ' + localBgColor)
+
+    getSyntaxThemeLookup: () ->
+      syntaxThemeLookup = []
+
+      packageMetadata = atom.packages.getAvailablePackageMetadata()
+      packagePaths = atom.packages.getAvailablePackagePaths()
+
+      # $.each packageMetadata, (pm, i) =>
+      i = 0
+      while i < packageMetadata.length
+        pm = packageMetadata[i]
+        if pm.theme? && pm.theme == 'syntax'
+          syntaxThemeLookup.push {themeName: pm.name, baseDir: packagePaths[i]}
+        i++
+
+      syntaxThemeLookup
