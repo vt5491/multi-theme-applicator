@@ -1,5 +1,4 @@
 "atom-workspace":
-  "ctrl-alt-v": "multi-theme-applicator:toggle"
   "ctrl-shift-v": "multi-theme-applicator:toggle"
   "alt-shift-v": "local-theme-selector-view:focusModalPanel"
 ".local-theme-selector-view":

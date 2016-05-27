@@ -64,7 +64,7 @@ describe 'LocalThemeManager', () ->
   it 'getActiveSyntaxTheme returns proper theme', () ->
     expect(@localThemeManager.getActiveSyntaxTheme()).toEqual("test-syntax-theme")
 
-  it 'getThemeCss does promises correctly', () ->
+  xit 'getThemeCss does promises correctly', () ->
     # hook fs.readFile to return a string without doing io
     cssSnippet = """
 atom-text-editor, :host {

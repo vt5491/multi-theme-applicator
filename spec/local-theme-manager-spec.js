@@ -62,7 +62,7 @@ describe('LocalThemeManager', function() {
   it('getActiveSyntaxTheme returns proper theme', function() {
     return expect(this.localThemeManager.getActiveSyntaxTheme()).toEqual("test-syntax-theme");
   });
-  return it('getThemeCss does promises correctly', function() {
+  return xit('getThemeCss does promises correctly', function() {
     var cssResult, cssSnippet, promise;
     cssSnippet = "atom-text-editor, :host {\n  background-color: #e3d5c1;\n  color: #000000;";
     spyOn(fs, "readFile").andReturn(cssSnippet);
