@@ -19,7 +19,7 @@ module.exports =
       @utils = new Utils()
       # create container element for the form
       @selectorView = document.createElement('div')
-      @selectorView.classList.add('local-theme-selector-view')
+      @selectorView.classList.add('multi-theme-applicator','local-theme-selector-view')
       $('.local-theme-selector-view').attr( tabindex: '0')
 
       form = $('<form/>')
@@ -70,6 +70,7 @@ module.exports =
         'local-theme-selector-view:applyLocalTheme':  => @applyLocalTheme()
         'local-theme-selector-view:selectPrevTheme':  => @selectPrevTheme()
         'local-theme-selector-view:selectNextTheme':  => @selectNextTheme()
+        'local-theme-selector-view:expandThemeDropdown':  => @expandThemeDropdown()
 
     selectNextTheme: ->
       @themeLookupActiveIndex++
@@ -88,6 +89,14 @@ module.exports =
 
     focusModalPanel: () ->
       $('#themeDropdown').focus()
+
+    # simulate a mouse click on the theme dropdown, so the user can see
+    # a larger selection.
+    expandThemeDropdown: () ->
+      element = $('#themeDropdown')[0]
+      event = document.createEvent 'MouseEvents'
+      event.initMouseEvent 'mousedown',true,true,window
+      element.dispatchEvent event
 
     # Come here on submit
     applyLocalTheme: ->

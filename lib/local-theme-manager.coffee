@@ -83,7 +83,13 @@ module.exports =
       localBgColor = localStyleNode[0].sheet.rules[0].style.backgroundColor
 
       activeTextEditor = atom.workspace.getActiveTextEditor()
-      $(activeTextEditor).attr('style', 'background-color: ' + localBgColor)
+      # We need to make sure we alter the style of the element of the javascript
+      # object, not the styl attribute in the Javascript object itself.  Altering
+      # the style of the javascript object works in some cases, but leads to
+      # trouble when you globally apply a new theme, or refresh (ctlr-alt-r) the
+      # editor.
+      #$(activeTextEditor).attr('style', 'background-color: ' + localBgColor)
+      $($(activeTextEditor)[0].element).attr('style', 'background-color: ' + localBgColor)
 
     getSyntaxThemeLookup: () ->
       syntaxThemeLookup = []
