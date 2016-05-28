@@ -14,7 +14,7 @@ This package allows you to apply any intalled syntax theme to the active buffer.
 [load-theme-buffer-local](https://github.com/vic/color-theme-buffer-local), you can now add this powerful feature to Atom, making a great browser even better.
 
 ## About
-_Multi-theme-Applicator_ sets the foundation to act as a sort of _shadow_ theme manager.
+_Multi-theme-Applicator_ lays the foundation to act as a sort of _shadow_ theme manager.
 
 When you activate the _multi-theme-applicator_ panel, you are presented with a list of the currently aviable themes.  The panel and theme selection can be entirely controlled with home-row friendly key bindings or via mouse.  Select the theme you want and click apply. You will then see the active editor assume that theme.  The dialog will stay active, allowing to quickly iterate through several themes, until you find just the right one.  When you're done, toggle the _multi-theme-applicator_ to close the modal dialog and resume working.
 
