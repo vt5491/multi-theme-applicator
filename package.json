@@ -16,7 +16,7 @@
   "activationCommands": {
     "atom-workspace": "multi-theme-applicator:toggle"
   },
-  "repository": "https://github.com/atom/multi-theme-applicator",
+  "repository": "https://github.com/vt5491/multi-theme-applicator",
   "license": "MIT",
   "engines": {
     "atom": ">=1.0.0 <2.0.0"
