@@ -15,11 +15,6 @@ Allowing multiple coloring themes allows you to group files, and serves as a vis
 _multi-theme-applicator_, in the spirit of the emacs package
 [load-theme-buffer-local](https://github.com/vic/color-theme-buffer-local) , allows you to apply any installed syntax theme to the active buffer (text editor) and, by extension, to each and every buffer in your editing session. With _multi-theme-applicator_, you now have this powerful capability available in Atom, making the best browser in its class that much better.
 
-## About
-_Multi-theme-Applicator_ lays the foundation to act as a sort of _shadow_ theme manager.
-
-
-
 ## Installation
 Install from the Atom control panel as you would do for any standard Atom package.
 
@@ -28,10 +23,34 @@ Install from the Atom control panel as you would do for any standard Atom packag
 When you activate the _multi-theme-applicator_ (MTA) panel, you are presented with a list of the currently available themes.  The panel and theme selection can be entirely controlled with home-row friendly key bindings or via mouse.  Select the theme you want and click apply. You will then see the active editor assume that theme.  The dialog will stay active, allowing to quickly iterate through several themes, until you find just the right one.  When you're done, toggle the _multi-theme-applicator_ to close the modal dialog and resume working.
 
 #### Typical Workflow
-(walk through a typical workflow, with screen prints)
+1. We start with a session with two panes and the monolithic default theme _atom-dark_:  
+<br/>
+![fig 1](assets/img/workflow_screen_shot_1.png)
+
+2. We want to apply the _humane_ theme to the left panel.  So make sure that is the active panel and type 'shift-ctrl-v' to activate the MTA modal panel:
+<br/>
+![](assets/img/workflow_screen_shot_2.png)
+
+3. In order to the manipulate the dialog, you need to give it focus.  You can either click on it with the mouse, or type 'alt-shift-v'.  
+![3](assets/img/workflow_screen_shot_3.png)
+<br/>
+Note how the syntax theme select item is a darker color and has a slightly larger border to denote it's selected.
+
+4. At this point, press 'ctrl-n' and 'ctrl-p' to scroll through the list.  Alternatively, you can press 'shift-alt-v' again to "expand" the full list of themes (Unforutnatley, if you expand the themes, you have ctrl-n and ctrl-p won't work for scrolling, and you have to use the arrow keys)  
+<br/>
+![4](assets/img/workflow_screen_shot_4.png)  
+<br/>  
+5. Hit Enter key, or press the "Apply Local Theme" button to activate the new theme.  Note: even after the theme is applied the dialog is still active, so you can scroll to another theme, hit Enter again, and apply that theme.  This allows you to quickly decide if you like the theme or not, without having to go through the whole selection process again.
+![5](assets/img/workflow_screen_shot_5.png)
+<br/>
+
+6. If you like your new theme, deactive the modal dialog by toggling MTA with ctrl-shift-v (or invoke ctrl-shift-p and search for "multi").  You now have a mixed theme session!  Repeat as desired to your other buffers.  
+<br/>
+![6](assets/img/workflow_screen_shot_6.png)
+<br/>
 
 #### Tips
-1. If you don't like all the different themes and want to return to the default, just press 'ctrl-alt-r' which will refresh Atom (while keeping your pane and file heirarchy) and restore the default theme to every panel i.e. no need to hard cycle the editor itself.   
+1. If you don't like all the different themes and want to return to the default, just press 'ctrl-alt-r' which will refresh Atom (while keeping your pane and file heirarchy) and restore the default theme to every panel i.e. no need to hard cycle (close and re-open) the editor itself.   
 
 
 #### Keybindings
@@ -56,4 +75,4 @@ What this means is that if you apply a new theme to the editor for a file, when 
 
 Future enhancements such as specifying a theme at the file level, or by file type (say all '.js' files are light themed, all 'java' are dark-themed etc), or physical theming at the window level are certainly possible.  The current iteration of this package provide the raw mechanism to set the theme at the individual "node" level, and a higher level application layer that keeps track of themes for logical groups can be added in the future.
 
-2) While the vast majority of themes work find, some themes don't work quite right.  Some themes don't properly "activate" until the MTA dialog is closed.  This is probably due to the fact that there is no standard DOM representation for themes.  Most themes use the same conventions, so it's not much of a problem.
+2) While the vast majority of themes work find, some themes don't work quite right.  Other themes don't properly "activate" until the MTA dialog is closed.  This is probably due to the fact that there is no standard DOM representation for themes.  Most themes use the same conventions, so it's not much of a problem.  MTA achieves its effect through standard DOM manipulation techniques.
