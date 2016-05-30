@@ -1,8 +1,7 @@
 # multi-theme-applicator package
 A package for the atom editor that allows you to apply multiple syntax themes to your editing session.  
 
-![fig 1](assets/img/multi_themed_screen_shot_1.png)
-
+![fig 1](https://github.com/vt5491/multi-theme-applicator/blob/master/assets/img/multi_themed_screen_shot_1.png)
 fig. 1: Screenshot of an Atom editing session with multiple syntax themes.
 
 ## Introduction
