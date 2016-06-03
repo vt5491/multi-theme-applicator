@@ -33,5 +33,6 @@ module.exports = MultiThemeApplicator =
   toggle: () ->
     if @localThemeSelectorPanel.isVisible()
       @localThemeSelectorPanel.hide()
+      atom.workspace.getActiveTextEditor().getElement().focus()
     else
       @localThemeSelectorPanel.show()
