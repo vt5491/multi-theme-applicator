@@ -12,7 +12,8 @@ module.exports =
     ThemeLookup: []
 
     constructor: (multiThemeApplicator) ->
-      @multiThemeApplicator = multiThemeApplicator
+      @multiThemeApplicator =  multiThemeApplicator
+
       # create all the supporting services we may need to call
       @localThemeManager = new LocalThemeManager()
       @localStylesElement = new LocalStylesElement()
@@ -24,7 +25,10 @@ module.exports =
 
       form = $('<form/>')
         .attr( id: 'input-form', class: 'apply-theme-form')
-        .submit( (@applyLocalTheme.bind @) )
+        .submit(
+          #(@applyLocalTheme.bind @)
+          (=> @applyLocalTheme),
+        )
 
       form.appendTo(@selectorView)
 
@@ -50,6 +54,17 @@ module.exports =
 
       themeDropdown.appendTo(form)
 
+      closeModalDialogButton = $("<span>")
+      closeModalDialogButton.attr(id: 'close-modal-dialog')
+      closeModalDialogButton.text('x')
+      closeModalDialogButton.appendTo(form)
+      closeModalDialogButton.click(
+        #=> @multiThemeApplicator.toggle
+        #-> @multiThemeApplicator.toggle
+        #@multiThemeApplicator.bind(@multiThemeApplicator).toggle
+        @multiThemeApplicator.toggle.bind(@multiThemeApplicator)
+      )
+
       $('<input id="apply-theme-submit"/>').attr(
         type: 'submit'
         value: 'Apply Local Theme'
@@ -71,6 +86,7 @@ module.exports =
         'local-theme-selector-view:selectPrevTheme':  => @selectPrevTheme()
         'local-theme-selector-view:selectNextTheme':  => @selectNextTheme()
         'local-theme-selector-view:expandThemeDropdown':  => @expandThemeDropdown()
+        'local-theme-selector-view:multiThemeApplicatorToggle': => @multiThemeApplicator.toggle()
 
     selectNextTheme: ->
       @themeLookupActiveIndex++
@@ -88,6 +104,7 @@ module.exports =
         .val(@themeLookup[@themeLookupActiveIndex].baseDir)
 
     focusModalPanel: () ->
+      console.log "LocalThemeSelectorView.focusModalPanel: now giving focus to themeDropdown"
       $('#themeDropdown').focus()
 
     # simulate a mouse click on the theme dropdown, so the user can see
@@ -120,9 +137,6 @@ module.exports =
 
             activeEditor = atom.workspace.getActiveTextEditor()
 
-            # hack to get the new theme to activate
-            @multiThemeApplicator.toggle()
-            @multiThemeApplicator.toggle()
           ,(err) ->
             console.log "promise returner err" + err
         )
