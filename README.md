@@ -94,3 +94,14 @@ What this means is that if you apply a new theme to the editor for a file, when 
 Future enhancements such as specifying a theme at the file level, or by file type (say all '.js' files are light themed, all 'java' are dark-themed etc), or physical theming at the window level are certainly possible.  The current iteration of this package provides the raw mechanism to set the theme at the individual "node" level. A higher level application layer that keeps track of themes for logical groups can be added in the future.
 
 2) While the vast majority of themes work fine, some themes don't work quite right.  Other themes don't properly "activate" until the MTA dialog is closed.  This is probably due to the fact that there is no standard DOM representation for themes.  Most themes use the same conventions, so it's not much of a problem.  MTA achieves its effect through standard DOM manipulation techniques.
+
+
+### Release History
+2016-06-09 - version 0.7.0  
+1. Improved key binding support  
+  * Modal dialog now comes up with focus -- no need to press _alt-shift-v_ first.
+  * _ESC_ key now closes the dialog.
+2. Added close button on modal dialog
+
+2016-05-29 - version 0.6.1
+- Initial release.
