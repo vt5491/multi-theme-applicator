@@ -36,3 +36,5 @@ module.exports = MultiThemeApplicator =
       atom.workspace.getActiveTextEditor().getElement().focus()
     else
       @localThemeSelectorPanel.show()
+      # and give the dropdown keyboard focus
+      @localThemeSelectorView.focusModalPanel()

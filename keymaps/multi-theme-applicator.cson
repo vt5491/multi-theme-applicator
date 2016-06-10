@@ -5,7 +5,6 @@
   "enter": "local-theme-selector-view:applyLocalTheme"
   "ctrl-p": "local-theme-selector-view:selectPrevTheme"
   "ctrl-n": "local-theme-selector-view:selectNextTheme"
-  "alt-ctrl-shift-y": "local-theme-selector-view:selectNextTheme"
   "escape": "local-theme-selector-view:multiThemeApplicatorToggle"
 "#themeDropdown":
   "ctrl-p": "local-theme-selector-view:selectPrevTheme"

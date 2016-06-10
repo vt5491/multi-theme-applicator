@@ -59,9 +59,6 @@ module.exports =
       closeModalDialogButton.text('x')
       closeModalDialogButton.appendTo(form)
       closeModalDialogButton.click(
-        #=> @multiThemeApplicator.toggle
-        #-> @multiThemeApplicator.toggle
-        #@multiThemeApplicator.bind(@multiThemeApplicator).toggle
         @multiThemeApplicator.toggle.bind(@multiThemeApplicator)
       )
 
