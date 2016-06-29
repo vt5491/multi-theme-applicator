@@ -42,4 +42,19 @@ module.exports =
       console.log "Utils.getTextEditors: result=#{result}"
       result
 
+    # reset all panes.  This is just a way to reset the panes to elminate any
+    # unintended side effects from the dynamic theming
+    resetPanes: ->
+      for pane in atom.workspace.getPanes()
+        this.resetPane pane
+
+    # reset a pane just in case there have been residual effects from theming
+    # operations.  For instance, if the theme is changed on a non-active editor
+    # under a pane, it can sometimes "bleed" into the active editor on the pane.
+    # Currently, we just reset by doing the API equivalent of switching to the next
+    # tab, and then switching back.
+    resetPane: (pane) ->
+      console.log "now resetting pane id #{pane.id}"
+      pane.activateNextItem()
+      pane.activatePreviousItem()
     #vt end

@@ -139,7 +139,7 @@ module.exports =
             editors = @utils.getTextEditors params
 
             for editor in editors
-            #vt end
+              #vt end
               # We have to get a new styleElement each time i.e. we need to clone
               # it.  If we create just one styleElement outside of this loop, it will simply get reassigned
               # to the last editor we attach it too, and it won't be assigned to any of
@@ -152,9 +152,16 @@ module.exports =
               @localThemeManager.addStyleElementToEditor(newStyleElement, editor)
               #vt@localThemeManager.syncEditorBackgroundColor()
               @localThemeManager.syncEditorBackgroundColor(editor)
+              
+            console.log "promiseHandler: now at point a"
+            #vtactiveEditor = atom.workspace.getActiveTextEditor()
 
-            activeEditor = atom.workspace.getActiveTextEditor()
-
+            #vt add
+            # Reset all panes to avoid sympathetic bleed over effects that occasionally
+            # happens when updating a non-activated (not currently focused) textEditor
+            # in a pane.
+            @utils.resetPanes()
+            #vt end
           ,(err) ->
             console.log "promise returner err" + err
         )

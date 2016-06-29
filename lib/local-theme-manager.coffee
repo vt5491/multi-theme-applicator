@@ -110,7 +110,14 @@ module.exports =
         .find('atom-styles')
         .find('style').last()
 
-      localBgColor = localStyleNode[0].sheet.rules[0].style.backgroundColor
+      #vt add
+      try
+      #vt end
+        localBgColor = localStyleNode[0].sheet.rules[0].style.backgroundColor
+      #vt add
+      catch error
+        console.log "localThemeManager.syncEditorBackgroundColor: caught error #{error}"
+      #vt end
 
       #vtactiveTextEditor = atom.workspace.getActiveTextEditor()
       # We need to make sure we alter the style of the element of the javascript
