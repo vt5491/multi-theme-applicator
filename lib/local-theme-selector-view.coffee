@@ -125,12 +125,33 @@ module.exports =
         .then(
           (result) =>
             cssResult = result
-            css = cssResult
-            newStyleElement = @localStylesElement.createStyleElement(css, sourcePath)
+            #vtcss = cssResult
+            #vtnewStyleElement = @localStylesElement.createStyleElement(css, sourcePath)
 
-            @localThemeManager.deleteThemeStyleNode()
-            @localThemeManager.addStyleElementToEditor(newStyleElement)
-            @localThemeManager.syncEditorBackgroundColor()
+            #vt add
+            activeEditor = atom.workspace.getActiveTextEditor()
+            activeURI = @utils.getActiveURI()
+
+            params = {}
+            params.uri = activeURI
+
+            # get all the textEditors open for this file
+            editors = @utils.getTextEditors params
+
+            for editor in editors
+            #vt end
+              # We have to get a new styleElement each time i.e. we need to clone
+              # it.  If we create just one styleElement outside of this loop, it will simply get reassigned
+              # to the last editor we attach it too, and it won't be assigned to any of
+              # the previous editors
+              css = cssResult
+              newStyleElement = @localStylesElement.createStyleElement(css, sourcePath)
+              #vt@localThemeManager.deleteThemeStyleNode()
+              @localThemeManager.deleteThemeStyleNode(editor)
+              #vt@localThemeManager.addStyleElementToEditor(newStyleElement)
+              @localThemeManager.addStyleElementToEditor(newStyleElement, editor)
+              #vt@localThemeManager.syncEditorBackgroundColor()
+              @localThemeManager.syncEditorBackgroundColor(editor)
 
             activeEditor = atom.workspace.getActiveTextEditor()
 

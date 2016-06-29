@@ -22,7 +22,7 @@ Allowing multiple coloring themes allows you to group files, and serves as a vis
 
 Additionally, since you don't have to commit to one all-encompassing theme, it allows you to experiment with many more of the outstanding themes available for Atom.  So it's no big deal to try out an "exotic" theme such as, say,  [fairyfloss](https://sailorhg.github.io/fairyfloss/), since you can restict it to a single file.    
 
-Allowing editor level theming is also useful when your global themes looks good on one file type, but not so good on others.  Having this problem?  Simply pick another theme that looks good on the other file types and your problem is solved.  No more trying to find that one perfect theme that works on all your file types.
+Allowing editor level theming is also useful when your global themes looks good on one file type, but not so good on others.  Having this problem?  Simply pick another theme that looks good on the other file type and your problem is solved.  No more trying to find that one perfect theme that works across all your file types.
 
 
 ## Installation
@@ -46,8 +46,10 @@ When you activate the _multi-theme-applicator_ (MTA) panel, you are presented wi
 <br/>
 Note how the syntax theme selected item is now a darker color and has a slightly larger border to denote its been selected.
 
-4. At this point, press 'ctrl-n' and 'ctrl-p' or the arrow keys to scroll through the list.  Alternatively, you can press 'shift-alt-v' to "expand" the full list of themes (Unfortunately, if you expand the themes, ctrl-n and ctrl-p won't work for scrolling and you have to use the arrow keys)  
+4. At this point, press 'ctrl-n' and 'ctrl-p' or the arrow keys to scroll through the list.  Alternatively, you can press 'shift-alt-v' to "expand" the full list of themes (Unfortunately, if you expand the themes, ctrl-n and ctrl-p won't work for scrolling and you have to use the arrow keys).  
+  * If you know the theme you want to apply, you can more quickly narrow down on it by typing the first letter of the theme.  For instance, if I type "d" on my system, the dropdown jumps to "dracula" in the list, allowing me to select it right away. If this is not the "d" theme you had in mind, then you can press _ctrl-n_ and _ctrl-p_ to scroll through its neighbors.  
 <br/>
+
 ![4](https://github.com/vt5491/multi-theme-applicator/blob/master/assets/img/workflow_screen_shot_4.png?raw=true)  
 <br/>  
 5. Hit Enter key, or press the _Apply Local Theme_ button to activate the new theme.
@@ -101,6 +103,7 @@ Future enhancements such as specifying a theme at the file level, or by file typ
 1. Improved key binding support  
   * Modal dialog now comes up with focus -- no need to press _alt-shift-v_ first.
   * _ESC_ key now closes the dialog.
+
 2. Added close button on modal dialog
 
 2016-05-29 - version 0.6.1
