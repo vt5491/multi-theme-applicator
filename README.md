@@ -113,10 +113,10 @@ Future enhancements such as specifying a theme at the file level, or by file typ
 
 ### Release History
 2016-06-30 - version 0.8.0  
-1. Added file level theming.
-2. Added Mac-friendly key binding _shift-cmd-v_
-3. Added a little better styling to the modal dialog.
-4. Updated README to reflect new changes.
+1. Added file level theming.  
+2. Added Mac-friendly key binding _shift-cmd-v_  
+3. Added a little better styling to the modal dialog.  
+4. Updated README to reflect new changes.  
 
 2016-06-09 - version 0.7.0  
 1. Improved key binding support  
