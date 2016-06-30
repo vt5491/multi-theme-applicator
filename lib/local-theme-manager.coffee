@@ -28,36 +28,28 @@ module.exports =
 
       activeTheme
 
-    #vtaddStyleElementToEditor: (styleElement)->
     addStyleElementToEditor: (styleElement, editor)->
-      #vtshadowRoot = @utils.getActiveShadowRoot()
-      #vt add
       shadowRoot
 
       if editor?
         shadowRoot = @utils.getShadowRoot editor
-        console.log("@@@localThemeManager.addStyleElementToEditor: driving new path")
       else
         shadowRoot = @utils.getActiveShadowRoot()
-      #vt end
+
       $shadowRoot = $(shadowRoot)
       themeNode = $shadowRoot
         .find('[context="atom-text-editor"]')
         .filter('atom-styles')
         .append(styleElement)
 
-    #vtdeleteThemeStyleNode: ->
     deleteThemeStyleNode: (editor) ->
-      #vtshadowRoot = @utils.getActiveShadowRoot()
-      #vt add
       shadowRoot
 
       if editor?
         shadowRoot = @utils.getShadowRoot editor
-        console.log("@@@localThemeManager: driving new path")
       else
         shadowRoot = @utils.getActiveShadowRoot()
-      #vt end
+
       $shadowRoot = $(shadowRoot)
       themeNode = $shadowRoot
         .find('[context="atom-text-editor"]')
@@ -66,7 +58,6 @@ module.exports =
         .filter('[source-path*="index.less"]')
 
       if (themeNode.length != 1)
-        console.log("LocalThemeManager.deleteThemeNode: could not properly identify the theme node")
         return -1
 
       themeNode.remove()
@@ -90,18 +81,13 @@ module.exports =
           else
             resolve result.css.toString()
 
-    #vtsyncEditorBackgroundColor: () ->
     syncEditorBackgroundColor: (editor) ->
-      #vtshadowRoot = @utils.getActiveShadowRoot()
-      #vt add
       shadowRoot
 
       if editor?
         shadowRoot = @utils.getShadowRoot editor
-        console.log("@@@localThemeManager.syncEditorBackgroundColor: driving new path")
       else
         shadowRoot = @utils.getActiveShadowRoot()
-      #vt end
 
       # drill down to the background-color set by the local theme
       # This is a pretty convaluted way that was empirically determined.
@@ -110,23 +96,16 @@ module.exports =
         .find('atom-styles')
         .find('style').last()
 
-      #vt add
       try
-      #vt end
         localBgColor = localStyleNode[0].sheet.rules[0].style.backgroundColor
-      #vt add
       catch error
         console.log "localThemeManager.syncEditorBackgroundColor: caught error #{error}"
-      #vt end
 
-      #vtactiveTextEditor = atom.workspace.getActiveTextEditor()
       # We need to make sure we alter the style of the element of the javascript
       # object, not the styl attribute in the Javascript object itself.  Altering
       # the style of the javascript object works in some cases, but leads to
       # trouble when you globally apply a new theme, or refresh (ctlr-alt-r) the
       # editor.
-      #$(activeTextEditor).attr('style', 'background-color: ' + localBgColor)
-      #vt$($(activeTextEditor)[0].element).attr('style', 'background-color: ' + localBgColor)
       $($(editor)[0].element).attr('style', 'background-color: ' + localBgColor)
 
     getSyntaxThemeLookup: () ->
