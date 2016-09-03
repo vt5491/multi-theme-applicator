@@ -9,7 +9,7 @@ module.exports = MultiThemeApplicator =
   subscriptions: null
 
   activate: (state) ->
-    console.log "vt:MultiThemeApplicator: now in activate"
+    console.log "MultiThemeApplicator: now in activate"
     @localThemeSelectorView = new LocalThemeSelectorView(this)
 
     @localThemeSelectorPanel = atom.workspace.addModalPanel(

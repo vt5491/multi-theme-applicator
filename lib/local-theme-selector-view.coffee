@@ -19,10 +19,8 @@ module.exports =
     # this keeps track of the theme file locations
     # TODO: this should really be a hash and start with a lower-case letter
     ThemeLookup: []
-    #vt add
     # keep track of the local theme applied by file.
     fileLookup: {} 
-    #vt end
 
     constructor: (multiThemeApplicator) ->
       @multiThemeApplicator =  multiThemeApplicator
@@ -32,12 +30,11 @@ module.exports =
       @localStylesElement = new LocalStylesElement()
       @utils = new Utils()
 
-      #vt add
       # setup the pane listener, so we can automatically apply the local theme to any
       # new editors that show up.
       # @localThemeManager.initPaneEventHandler(this.applyLocalTheme)
       @localThemeManager.initPaneEventHandler(this)
-      #vt end
+
       # create container element for the form
       @selectorView = document.createElement('div')
       @selectorView.classList.add('multi-theme-applicator','local-theme-selector-view')
@@ -51,7 +48,7 @@ module.exports =
 
       form.appendTo(@selectorView)
 
-      $('<label>').text('Zyntax Theme:').appendTo(form)
+      $('<label>').text('Syntax Theme:').appendTo(form)
 
       @dropDownBorderWidthDefault
       themeDropdown = $('<select id="themeDropdown" name="selectTheme">')
@@ -133,28 +130,12 @@ module.exports =
 
     # Come here on submit
     applyLocalTheme: (themePath) ->
-      #vt add
-      # because we have this method as a pane event listener (in addition
-      # to being manually called), this method
-      # can be driven before things are properly initialized.  Therefore,
-      # check if @localThemeManager is available and skip the theme
-      # application if it's not.
-      # if !@localThemeManager
-      #   console.log "LocalThemeManager.applyLocalTheme: skipping theme application because localThemeManager not available"
-      #   return
-        
-      #vt end
-      #vtbaseCssPath = $( "#themeDropdown" ).val();
       baseCssPath = themePath || $( "#themeDropdown" ).val();
-      console.log "vt: applyLocalTheme: baseCssPath=#{baseCssPath}" 
       sourcePath = baseCssPath + '/index.less'
-      console.log "vt: applyLocalTheme: sourcePath=#{sourcePath}" 
 
-      #vt add
       # Remember what theme is applied to what file.
       activeFile = @utils.getActiveURI()
       this.fileLookup[activeFile] = baseCssPath 
-      #vt end
 
       promise = @localThemeManager.getThemeCss baseCssPath
 
