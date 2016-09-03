@@ -9,6 +9,20 @@ module.exports =
 
     constructor: ->
       @utils = new Utils()
+      # #vt add
+      # # atom.workspace.observePaneItems( () -> {
+      # #   console.log 'LocalThemeManager.cb: detected paneItem change' 
+      # # })      
+      # console.log "LocalThemeManager.ctor: about to call observePaneItems"
+      # atom.workspace.observePaneItems (item) -> 
+      #   console.log "LocalThemeManager.cb: detected paneItem change, item=#{item}"  
+      #   console.log "LocalThemeManager.cb: typeof item=#{typeof item}"  
+        
+      #   # if item instanceof atom.TextEditor.constructor
+      #   if item.constructor.name is 'TextEditor'
+      #     console.log "item is a TextEditor"
+      #     console.log " and fn = #{item.buffer.file.path}"
+      # #vt end
 
     doIt: ->
       getActivePackages = atom.packages.getActivePackages
@@ -102,7 +116,7 @@ module.exports =
         console.log "localThemeManager.syncEditorBackgroundColor: caught error #{error}"
 
       # We need to make sure we alter the style of the element of the javascript
-      # object, not the styl attribute in the Javascript object itself.  Altering
+      # object, not the style attribute in the Javascript object itself.  Altering
       # the style of the javascript object works in some cases, but leads to
       # trouble when you globally apply a new theme, or refresh (ctlr-alt-r) the
       # editor.
@@ -122,3 +136,38 @@ module.exports =
         i++
 
       syntaxThemeLookup
+
+    #vt add
+    # this method sets up a listener for pane events that insert new
+    # TextEditors.  For example, if someone invokes a
+    # 'pane:split-right-and-copy-active-item' command and causes a new instance
+    # of a locally themed editor, we want to proactively apply the local theme
+    # to the associalted files editor automtically, without the user having to
+    # do it manually.  If the event is of the right type, we call the supply
+    # callback function in the handlerObj to apply the theme to new TextEditor.
+    # Note: we have to pass the whole instance object that contains
+    # 'applyLocalThem' because we need the entire object context (passing just
+    # the method wil fail)
+    # initPaneEventHandler: (applyTheme_cb) ->
+    initPaneEventHandler: (handlerObj) ->
+      #vt add
+      console.log "LocalThemeManager.initPaneEventHandler: about to call observePaneItems"
+      atom.workspace.observePaneItems (item) -> 
+        console.log "LocalThemeManager.cb: detected paneItem change, item=#{item}"  
+        console.log "LocalThemeManager.cb: typeof item=#{typeof item}"  
+        
+        # apply local theme if item instanceof atom.TextEditor.constructor
+        if item.constructor.name is 'TextEditor'
+          fn = item.buffer.file.path
+          console.log "item is a TextEditor"
+          console.log " and fn = #{fn}"
+          # if fn.match(/dummy2/)
+          localThemePath = handlerObj.fileLookup[fn]
+          if localThemePath
+            console.log "now calling applyLocalTheme to apply theme #{localThemePath}"
+            # applyTheme_cb('C:\Users\vturner\.atom\packages\choco')
+            # applyTheme_cb('C:/Users/vturner/.atom/packages/choco')
+            # handlerObj.applyLocalTheme('C:/Users/vturner/.atom/packages/choco')
+            handlerObj.applyLocalTheme(localThemePath)
+      #vt end
+    #vt end

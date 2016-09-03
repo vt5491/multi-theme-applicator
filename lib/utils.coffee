@@ -13,6 +13,8 @@ module.exports =
     doIt: ->
       7
 
+    # This returns the active file in the editor
+    # e.g ""C:\vtstuff\tmp\dummy2.js""
     getActiveURI: ->
       #atom.workspace.getActiveTextEditor().getActiveFilePath()
       atom.workspace.getActiveTextEditor().getURI()
