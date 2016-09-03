@@ -6,7 +6,7 @@ module.exports =
     getActiveShadowRoot: ->
       atom.workspace.getActiveTextEditor().getElement().shadowRoot
 
-    # return the shadowRoot for the passed textEditor
+    # Return the shadowRoot for the passed textEditor
     getShadowRoot: (editor) ->
       editor.getElement().shadowRoot
 

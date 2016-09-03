@@ -141,5 +141,4 @@ module.exports =
           fn = item.buffer.file.path
           localThemePath = handlerObj.fileLookup[fn]
           if localThemePath
-            console.log "now calling applyLocalTheme to apply theme #{localThemePath}"
             handlerObj.applyLocalTheme(localThemePath)

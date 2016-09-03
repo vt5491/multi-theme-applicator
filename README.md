@@ -6,12 +6,12 @@ fig. 1: Screenshot of an Atom editing session with multiple syntax themes.
 
 ## Introduction
 The Atom editor only allows for a [single _monolithic_ theme](http://stackoverflow.com/questions/36929817/is-there-a-way-to-apply-multiple-themes-to-an-atom-editor-session-e-g-per-pane/37606434#37606434)
-  to be applied across all your tabs, panes, and windows.  This is a disappointing (and somewhat surprising) fact of life in the Atom ecosystem given its excellent overall customization capabilities.  Other editors such as _emacs_, have long allowed multiple themes to be applied at various levels of granularity (e.g. by window, by file, or file type).
+  to be applied across all your tabs, panes, and windows.  This is a disappointing, and somewhat surprising fact of life in the Atom ecosystem given its excellent overall customization capabilities.  Other editors such as _emacs_, have long allowed multiple themes to be applied at various levels of granularity (e.g. by window, by file, or file type).
 
 Well no more.  
 
 _Multi-theme-applicator_, in the spirit of the emacs package
-[color-theme-buffer-local](https://github.com/vic/color-theme-buffer-local) , allows you to apply any installed syntax theme, at file level granularity, to all the editors in your editing session. With _multi-theme-applicator_, you now have this powerful capability available in Atom, making the best browser in its class that much better.
+[color-theme-buffer-local](https://github.com/vic/color-theme-buffer-local) , allows you to apply any installed syntax theme, at file level granularity, to any of the editors in your editing session. With _multi-theme-applicator_, you now have this powerful capability available in Atom, making the best browser in its class that much better.
 
 ### Motivation  
  Experienced developers know that they can easily have dozens of separate files open over a long-lived editing session, with anywhere from 12 to 20 of those files being on the "active" workflow at any one time.  Thus being able to visually categorize your work files is essential:  decreasing the likelihood of "losing your place", and avoiding costly mistakes like editing the wrong file.  
@@ -24,6 +24,8 @@ Additionally, since you don't have to commit to one all-encompassing theme, it a
 
 Allowing editor level theming is also useful when your global themes looks good on one file type, but not so good on others.  Having this problem?  Simply pick another theme that looks good on the other file type and your problem is solved.  No more trying to find that one perfect theme that works across all your file types.
 
+## Requirements
+Tested on Atom 1.8.0, and 1.10.0.
 
 ## Installation
 Install from the Atom control panel as you would for any standard Atom package.
@@ -56,22 +58,19 @@ Here we type 'h' to quickly locate the _humane_ theme:
 <br/>  
 4) Hit Enter key, or press the _Apply Local Theme_ button to activate the new theme.
 
+
+![4](https://github.com/vt5491/multi-theme-applicator/blob/master/assets/img/mta_workflow_humane_post_apply.png?raw=true)
+<br/>
+
  Note 1: The theme was applied at the file level, not the editor level (new feature added in v 0.8.0).  All three editors that are opened on file 'utils.cofee' will have the new theme, saving you the hassle of having to apply it three times.  Of course, only two editors with the selected file are visible in this current example since the editor in pane 3 is in a tab that is not currently visible.  However, if we do activate the file's tab in that pane, it will also have the new theme.
 
  Note 2: Even after the theme is applied the dialog is still active, so you can scroll to another theme, hit Enter again, and apply that theme.  This allows you to quickly decide if you like the theme or not, without having to go through the whole selection process again.  
 
  Note 3: Observe how much easier it is to distinguish between the files with multi-themes.
 
-![4](https://github.com/vt5491/multi-theme-applicator/blob/master/assets/img/mta_workflow_humane_post_apply.png?raw=true)
-<br/>
-
 5) If you like your new theme, toggle the modal dialog off by by pressing _ctrl-shift-v_ or _escape_ (or invoke ctrl-shift-p and search for "multi"), or clicking the "x" button. If we swtich to pane 3 and activate the hidden tab, you'll see that it too has the new theme.  Congratulations, you now have a mixed theme session!  Repeat as desired to your other files.
 
-Note: This change will only affect the current editors for the file.  Any new editors you open against the file will be the default monolithic theme. In this case you have to re-apply the theme to update the new editor.  
-
-`Thus it behooves you to set up your pane structure _before_ you apply your theme.`
-
-  A future goal of the package is to allow any new editors opened on a file to assume the new theme automatically.
+Note: with version 0.9.0, MTA remembers the theme applied to each file. See release notes below for more details.
 
 Screenshot showing all three editors for the selected file sucessfully themed:
 <br/>
@@ -104,14 +103,13 @@ Note 3: to change the keybindings, edit $HOME/.atom/packages/mult-theme-applicat
 #### Limitations
 1) The package does not yet currently allow for any higher-level grouping such as by file type, or by window.  
 
-What this means is that if you apply a new theme to the editor for a file, when you split the file into a new pane, the newly opened editor will _not_ have the new theme, but will have the default theme.  If you want to apply the new theme to this editor as well, you have to manually apply the new theme _again_  
-
 Future enhancements such as specifying a theme at the file level, or by file type (say all '.js' files are light themed, all 'java' are dark-themed etc), or physical theming at the window level are certainly possible.  
-
-2) While the vast majority of themes work fine, some themes don't work quite right.  Other themes don't properly "activate" until the MTA dialog is closed.  This is probably due to the fact that there is no standard DOM representation for themes.  Most themes use the same conventions, so it's not much of a problem.  MTA achieves its effect through standard DOM manipulation techniques.
 
 
 ### Release History
+2016-09-03 - version 0.9.0  
+The package now listens on pane events, such as splitting the screen, and will automatically apply the appropriate theme for that file.  In other words, you should only have to apply the the file theme once, and that theme should show on all editors for that file, across all life-cycle events including adding new editors.
+
 2016-06-30 - version 0.8.0  
 1. Added file level theming.  
 2. Added Mac-friendly key binding _shift-cmd-v_  
