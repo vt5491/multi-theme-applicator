@@ -118,7 +118,8 @@ module.exports =
       while i < packageMetadata.length
         pm = packageMetadata[i]
         if pm.theme? && pm.theme == 'syntax'
-          syntaxThemeLookup.push {themeName: pm.name, baseDir: packagePaths[i]}
+          #vtsyntaxThemeLookup.push {themeName: pm.name, baseDir: packagePaths[i]}
+          syntaxThemeLookup.push {themeName: pm.name, baseDir: packagePaths[i].replace(/\\/g, '/')}
         i++
 
       syntaxThemeLookup
@@ -133,12 +134,19 @@ module.exports =
     # Note: we have to pass the whole instance object that contains
     # 'applyLocalThem' because we need the entire object context (passing just
     # the method wil fail)
+    # Note: in our case, the handlerObj is an instance of 'LocalThemeManagerSelectorView'
     initPaneEventHandler: (handlerObj) ->
       atom.workspace.observePaneItems (item) -> 
         
         # apply local theme if item instanceof atom.TextEditor.constructor
         if item.constructor.name is 'TextEditor'
-          fn = item.buffer.file.path
-          localThemePath = handlerObj.fileLookup[fn]
-          if localThemePath
-            handlerObj.applyLocalTheme(localThemePath)
+          #vtfn = item.buffer.file.path
+          if item.buffer.file
+            fn = item.buffer.file.path.replace(/\\/g, '/')
+            console.log('vt: initPaneEventHandler: fileLookup' + JSON.stringify(handlerObj.fileLookup))
+            localThemePath = handlerObj.fileLookup[fn]
+            if localThemePath
+              console.log('vt: initPaneEventHandler: now applying theme ' + localThemePath)
+              #vthandlerObj.applyLocalTheme(localThemePath)
+              handlerObj.applyLocalTheme(fn, localThemePath)
+

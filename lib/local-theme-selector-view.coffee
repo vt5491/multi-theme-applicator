@@ -18,12 +18,17 @@ module.exports =
 
     # this keeps track of the theme file locations
     # TODO: this should really be a hash and start with a lower-case letter
-    ThemeLookup: []
+    # TODO: I don't this is used 
+    #ThemeLookup: []
+    themeLookup: []
     # keep track of the local theme applied by file.
     fileLookup: {} 
 
-    constructor: (multiThemeApplicator) ->
+    constructor: (multiThemeApplicator, fileLookupState) ->
+      console.log('vt:LocalThemeSelectorView.ctor: entered ')
       @multiThemeApplicator =  multiThemeApplicator
+      # restore the prior fileLookupState, if any
+      @fileLookup = fileLookupState
 
       # create all the supporting services we may need to call
       @localThemeManager = new LocalThemeManager()
@@ -129,13 +134,20 @@ module.exports =
       element.dispatchEvent event
 
     # Come here on submit
-    applyLocalTheme: (themePath) ->
+    applyLocalTheme: (fn, themePath) ->
       baseCssPath = themePath || $( "#themeDropdown" ).val();
       sourcePath = baseCssPath + '/index.less'
+      console.log('applyLocalTheme: baseCssPath=' + baseCssPath)
 
       # Remember what theme is applied to what file.
-      activeFile = @utils.getActiveURI()
-      this.fileLookup[activeFile] = baseCssPath 
+      #vt activeFile = @utils.getActiveURI()
+      #vtactiveFile = @utils.getActiveFile()
+      targetFile = fn || @utils.getActiveFile()
+      console.log("applyLocalTheme:targetfile=" + targetFile)
+      console.log("applyLocalTheme:fileLookup=" + JSON.stringify(@fileLookup))
+      console.log("applyLocalTheme:fileLookup[targetFile]=" + @fileLookup[targetFile])
+      #vtthis.fileLookup[targetFile] = baseCssPath 
+      @fileLookup[targetFile] = baseCssPath 
 
       promise = @localThemeManager.getThemeCss baseCssPath
 
@@ -145,11 +157,16 @@ module.exports =
         .then(
           (result) =>
             cssResult = result
-            activeEditor = atom.workspace.getActiveTextEditor()
-            activeURI = @utils.getActiveURI()
+            # TODO: this is not used
+            # activeEditor = atom.workspace.getActiveTextEditor()
+            #vtactiveURI = @utils.getActiveURI()
+            #vtactiveFile = @utils.getActiveFile()
+            # activeFile = fn || @utils.getActiveFile()
 
             params = {}
-            params.uri = activeURI
+            #vtparams.uri = activeFile
+            params.uri = fn || @utils.getActiveFile()
+            console.log('promise: params.uri=' + params.uri)
 
             # get all the textEditors open for this file
             editors = @utils.getTextEditors params
@@ -193,3 +210,19 @@ module.exports =
             activeTheme = pkg.metadata.name
 
       activeTheme
+
+    #vt add
+    # reapply all the local themes as specified in the @fileLookup.
+    # This is useful for when we first come back a sesion restore (i.e
+    # cycling the editor)
+    refreshAllLocalThemes: () ->
+    #   # Object.keys(hash).forEach(function (key) { 
+    #   # var value = hash[key]
+    #   # // iteration code
+    #   # }) 
+      console.log "-->LocalThemeSelectorView.refreshAllLocalThemes: entered"
+      for fn, themePath in @fileLookup
+      # for k,v in @fileLookup
+        @applyLocalTheme fn themePath
+
+    #vt end
