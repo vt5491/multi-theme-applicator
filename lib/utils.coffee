@@ -16,14 +16,8 @@ module.exports =
     # This returns the active file in the editor
     # e.g ""C:\vtstuff\tmp\dummy2.js""
     # normalized to unix format
-    #vtgetActiveURI: ->
     getActiveFile: ->
-      #atom.workspace.getActiveTextEditor().getActiveFilePath()
-      # atom.workspace.getActiveTextEditor().getURI()
       atom.workspace.getActiveTextEditor().getURI().replace(/\\/g, '/')
-      #vt add
-      # str = str.replace(/\\/g, '');
-      #vt end
 
     # return all the textEditors for a given parm type.  e.g if
     # params = {uri : '/myPath/abc.txt'}
@@ -34,7 +28,6 @@ module.exports =
       editors = atom.workspace.getTextEditors()
 
       if params.uri?
-        #vtresult = (editor for editor in editors when editor.getURI() == params.uri)
         result = (editor for editor in editors when editor.getURI() && editor.getURI().replace(/\\/g, '/') == params.uri)
 
       result
@@ -54,14 +47,12 @@ module.exports =
       pane.activateNextItem()
       pane.activatePreviousItem()
 
-    #vt add
     # Normalize file paths to the standard format.  This means converting
     # it to unix format with '/' instead of '\'. However, we refrain from calling
     # this method "UnixfyPath" to resevere the right to use windows format
     # (or some other format) in the future, and thus calling it "normalizeFilePath"
     # is more flexible.  Note: we don't currently use much because
-    # it's usually easier to say myString.replace(/blah/) 
+    # it's usually easier to say myString.replace(/blah/)
     # than @utils.normalizePath(myString)
     normalizePath: (fn) ->
       fn.replace(/\\/g,'/')
-    #vt end

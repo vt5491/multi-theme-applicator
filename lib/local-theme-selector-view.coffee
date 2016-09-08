@@ -1,8 +1,8 @@
 # This is basically the main application class.  LocalThemeManager "should"
 # probably be the main class, but LocalThemeSelectorView has kind taken over
-# as the main focal point, with LocalThemeManager being more of a support 
+# as the main focal point, with LocalThemeManager being more of a support
 # module.  This module should probably be renamed to drop the "view" from its
-# name, as this # denotes it's only for the front-end view
+# name, as this denotes it's only for the front-end view
 #
 # The point is, feel free to add non-view related functionality to this class.
 $ = jQuery = require 'jquery'
@@ -17,15 +17,11 @@ module.exports =
     selectorView: null
 
     # this keeps track of the theme file locations
-    # TODO: this should really be a hash and start with a lower-case letter
-    # TODO: I don't this is used 
-    #ThemeLookup: []
     themeLookup: []
     # keep track of the local theme applied by file.
-    fileLookup: {} 
+    fileLookup: {}
 
     constructor: (multiThemeApplicator, fileLookupState) ->
-      console.log('vt:LocalThemeSelectorView.ctor: entered ')
       @multiThemeApplicator =  multiThemeApplicator
       # restore the prior fileLookupState, if any
       @fileLookup = fileLookupState
@@ -37,7 +33,6 @@ module.exports =
 
       # setup the pane listener, so we can automatically apply the local theme to any
       # new editors that show up.
-      # @localThemeManager.initPaneEventHandler(this.applyLocalTheme)
       @localThemeManager.initPaneEventHandler(this)
 
       # create container element for the form
@@ -47,9 +42,8 @@ module.exports =
 
       form = $('<form/>')
         .attr( id: 'input-form', class: 'apply-theme-form')
-        .submit(
-          (=> @applyLocalTheme),
-        )
+        .submit(=> @applyLocalTheme())
+        # .submit(=> @applyLocalTheme)
 
       form.appendTo(@selectorView)
 
@@ -140,14 +134,8 @@ module.exports =
       console.log('applyLocalTheme: baseCssPath=' + baseCssPath)
 
       # Remember what theme is applied to what file.
-      #vt activeFile = @utils.getActiveURI()
-      #vtactiveFile = @utils.getActiveFile()
       targetFile = fn || @utils.getActiveFile()
-      console.log("applyLocalTheme:targetfile=" + targetFile)
-      console.log("applyLocalTheme:fileLookup=" + JSON.stringify(@fileLookup))
-      console.log("applyLocalTheme:fileLookup[targetFile]=" + @fileLookup[targetFile])
-      #vtthis.fileLookup[targetFile] = baseCssPath 
-      @fileLookup[targetFile] = baseCssPath 
+      @fileLookup[targetFile] = baseCssPath
 
       promise = @localThemeManager.getThemeCss baseCssPath
 
@@ -157,16 +145,10 @@ module.exports =
         .then(
           (result) =>
             cssResult = result
-            # TODO: this is not used
-            # activeEditor = atom.workspace.getActiveTextEditor()
-            #vtactiveURI = @utils.getActiveURI()
-            #vtactiveFile = @utils.getActiveFile()
-            # activeFile = fn || @utils.getActiveFile()
 
             params = {}
-            #vtparams.uri = activeFile
+
             params.uri = fn || @utils.getActiveFile()
-            console.log('promise: params.uri=' + params.uri)
 
             # get all the textEditors open for this file
             editors = @utils.getTextEditors params
@@ -211,18 +193,10 @@ module.exports =
 
       activeTheme
 
-    #vt add
     # reapply all the local themes as specified in the @fileLookup.
     # This is useful for when we first come back a sesion restore (i.e
     # cycling the editor)
+    # Note: it turns out calling this is *not* necessary
     refreshAllLocalThemes: () ->
-    #   # Object.keys(hash).forEach(function (key) { 
-    #   # var value = hash[key]
-    #   # // iteration code
-    #   # }) 
-      console.log "-->LocalThemeSelectorView.refreshAllLocalThemes: entered"
       for fn, themePath in @fileLookup
-      # for k,v in @fileLookup
         @applyLocalTheme fn themePath
-
-    #vt end

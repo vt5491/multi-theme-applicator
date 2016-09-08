@@ -25,7 +25,7 @@ Additionally, since you don't have to commit to one all-encompassing theme, it a
 Allowing editor level theming is also useful when your global themes looks good on one file type, but not so good on others.  Having this problem?  Simply pick another theme that looks good on the other file type and your problem is solved.  No more trying to find that one perfect theme that works across all your file types.
 
 ## Requirements
-Tested on Atom 1.8.0, and 1.10.0.
+Tested on Atom 1.8.0, and 1.10.0 on Mac, Windows 10, and Linux Mint 17.3.
 
 ## Installation
 Install from the Atom control panel as you would for any standard Atom package.
@@ -108,7 +108,12 @@ Future enhancements such as specifying a theme at the file level, or by file typ
 
 ### Release History
 2016-09-03 - version 0.9.0  
-The package now listens on pane events, such as splitting the screen, and will automatically apply the appropriate theme for that file.  In other words, you should only have to apply the the file theme once, and that theme should show on all editors for that file, across all life-cycle events including adding new editors.
+This release introduces quite a large amount of new functionality.  Basically, local theming has been made much more "sticky", and requires less manual intervention and re-application.  In short, it's starting to work a lot more like one "would expect", and fixes several edge cases where themes were previously not applied as expected.  
+
+1. The package now listens on pane events, such as splitting the screen, and will automatically apply the appropriate theme for that file.  In other words, you should only have to apply the file theme once, and that theme should show on all editors for that file, across all life-cycle events including adding new editors.
+2. file level theming is now persisted across atom cyclings i.e. if you close atom completely, and then start it again, once you invoke mta (shift-ctrl-v) then the local themes you supplied for any open files will be re-themed automatically.  
+3. Added a new command 'mta-reset' to reset the "theme memory", but you should normally not want to use this.
+4. Fixed a bug on mac where the "apply local theme" button was not driving the appropriate event handler.
 
 2016-06-30 - version 0.8.0  
 1. Added file level theming.  
