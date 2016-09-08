@@ -30,9 +30,7 @@ describe 'Utils2', () ->
     @editorFileWinFormat= "\\tmp\\utils-spec-dummy.ts"
     @editorFile2 = "/tmp/utils-spec-dummy2.ts"
 
-    #vtspyOn(@textEditor, "getURI").andReturn(@editorFile);
     spyOn(@textEditor, "getURI").andReturn(@editorFileWinFormat);
-    #vtspyOn(@textEditor2, "getURI").andReturn(@editorFile);
     # note: editor and editor2 need to use the same format to mimic a real test
     spyOn(@textEditor2, "getURI").andReturn(@editorFileWinFormat);
     spyOn(@textEditor3, "getURI").andReturn(@editorFile2);
@@ -49,33 +47,20 @@ describe 'Utils2', () ->
     console.log("result.stringify2=#{JSON.stringify(result)}")
 
   it 'getTextEditors works', () ->
-    #vt add
-    # override @textEditor to return unix formatted files
-    #spyOn(@textEditor, "getURI").andReturn(@editorFile);
-    #vt end
     params = {}
     params.uri = @editorFile
-    # params.uri = @editorFileWinFormat
 
     result = @utils.getTextEditors params
-    #console.log("vt: result=#{JSON.stringify(result)}")
-    # console.log("vt: result=#{result}")
-    console.log("my object: %o", result)
 
     expect(result.length).toEqual(2)
-    # expect(result[0].getURI()).toEqual(@editorFile)
-    # expect(result[1].getURI()).toEqual(@editorFile)
     expect(result[0].getURI()).toEqual(@editorFileWinFormat)
     expect(result[1].getURI()).toEqual(@editorFileWinFormat)
 
-  #vt add
   it 'normalizePath works', () ->
     # windows path
     result = @utils.normalizePath('c:\\tmp\\dummy.txt')
-    console.log('result=' + result)
     expect(result).toEqual('c:/tmp/dummy.txt')
 
     # unix path
     result = @utils.normalizePath('/tmp/dummy.txt')
     expect(result).toEqual('/tmp/dummy.txt')
-  #vt end
