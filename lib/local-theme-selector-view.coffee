@@ -131,7 +131,6 @@ module.exports =
     applyLocalTheme: (fn, themePath) ->
       baseCssPath = themePath || $( "#themeDropdown" ).val();
       sourcePath = baseCssPath + '/index.less'
-      console.log('applyLocalTheme: baseCssPath=' + baseCssPath)
 
       # Remember what theme is applied to what file.
       targetFile = fn || @utils.getActiveFile()
