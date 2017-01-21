@@ -6,8 +6,8 @@ describe 'Utils', () ->
 
     textEditor = atom.workspace.buildTextEditor()
     textEditorEl = textEditor.getElement()
-    shadowRoot = document.createElement("shadow-root")
-    textEditorEl = {'shadowRoot': 'shadowRoot'}
+    # shadowRoot = document.createElement("shadow-root")
+    # textEditorEl = {'shadowRoot': 'shadowRoot'}
 
     textEditorSpy = spyOn(atom.workspace, "getActiveTextEditor")
     textEditorSpy.andReturn(textEditor)
@@ -15,8 +15,14 @@ describe 'Utils', () ->
   it 'doIt works', () ->
     expect(@utils.doIt()).toEqual 7
 
-  it 'getActiveShadowRoot works', () ->
+  xit 'getActiveShadowRoot works', () ->
     expect(@utils.getActiveShadowRoot().toString()).toMatch(/ShadowRoot/)
+
+  xit 'getWindowElement works', () ->
+    console.log "hi"
+    result = @utils.getWindowElement()
+    console.log "result=#{result}"
+    expect(@utils.getWindowElement().toString()).toMatch(/atom-pane-container/)
 
 describe 'Utils2', () ->
   beforeEach ->

@@ -2,15 +2,17 @@ $ = jQuery = require 'jquery'
 
 LocalThemeSelectorView = require './local-theme-selector-view'
 {CompositeDisposable} = require 'atom'
-
 module.exports = MultiThemeApplicator =
   localThemeSelectorView: LocalThemeSelectorView
   themeSelectorPanel: null
   subscriptions: null
 
   activate: (state) ->
+    console.log "MultiThemeApplicator.activiate: entered3"
     @localThemeSelectorView = new LocalThemeSelectorView(this, state)
 
+    # console.log `MultiThemeApplicator.activiate: LocalThemeSelectorView=${@localThemeSelectorView}`
+    console.log 'MultiThemeApplicator.activiate: LocalThemeSelectorView=' + @localThemeSelectorView
     @localThemeSelectorPanel = atom.workspace.addModalPanel(
       item: @localThemeSelectorView.getElement(),
       visible: false

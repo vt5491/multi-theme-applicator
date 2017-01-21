@@ -5,12 +5,36 @@
 # name, as this denotes it's only for the front-end view
 #
 # The point is, feel free to add non-view related functionality to this class.
+
+# Data Structure documentation:
+# @fileLookup
+# the key is the name of the file in the editor.  The value is fully qualified path
+# to the style that is applied to it.
+# Example:
+# C:/vtstuff/github/multi-theme-applicator/lib/local-styles-element.coffee
+# :
+# "C:/Users/vturner/AppData/Local/atom/app-1.13.0/resources/app.asar/node_modules/atom-light-syntax"
+# C:/vtstuff/github/multi-theme-applicator/lib/multi-theme-applicator.coffee
+# :
+# "C:/Users/vturner/.atom/packages/fairyfloss"
+
+# @ themeLookup
+# Is basically just a directory of themes and where the theme file is located.
+# It's an array of objects.  Each object has two keys: 'themeName' and 'baseDir' 
+# Object {themeName: "choco", baseDir: "C:/Users/vturner/.atom/packages/choco"}
+#
+# baseDir:"C:/Users/vturner/.atom/packages/choco"
+# themeName:"choco"
+#
+# i.e. It is not used for keeping track of what theme is applied to what file etc.
+
 $ = jQuery = require 'jquery'
 {CompositeDisposable} = require 'atom'
 Utils = require './utils'
 LocalThemeManager = require './local-theme-manager'
 LocalStylesElement  = require './local-styles-element'
 fs = require('fs-plus')
+
 
 module.exports =
   class LocalThemeSelectorView
@@ -33,7 +57,8 @@ module.exports =
 
       # setup the pane listener, so we can automatically apply the local theme to any
       # new editors that show up.
-      @localThemeManager.initPaneEventHandler(this)
+      #vt tmp comment out
+      #vt-x @localThemeManager.initPaneEventHandler(this)
 
       # create container element for the form
       @selectorView = document.createElement('div')
@@ -42,8 +67,8 @@ module.exports =
 
       form = $('<form/>')
         .attr( id: 'input-form', class: 'apply-theme-form')
+        #vt.submit(=> @applyLocalTheme())
         .submit(=> @applyLocalTheme())
-        # .submit(=> @applyLocalTheme)
 
       form.appendTo(@selectorView)
 
@@ -90,10 +115,12 @@ module.exports =
 
       # Register command that toggles this view
       @subscriptions.add atom.commands.add 'atom-workspace',
+        #vt 'multi-theme-applicator:applyLocalTheme':  => @applyLocalTheme()
         'multi-theme-applicator:applyLocalTheme':  => @applyLocalTheme()
         'local-theme-selector-view:focusModalPanel':  => @focusModalPanel()
 
       @subscriptions.add atom.commands.add '.local-theme-selector-view',
+        #vt'local-theme-selector-view:applyLocalTheme':  => @applyLocalTheme()
         'local-theme-selector-view:applyLocalTheme':  => @applyLocalTheme()
         'local-theme-selector-view:selectPrevTheme':  => @selectPrevTheme()
         'local-theme-selector-view:selectNextTheme':  => @selectNextTheme()
@@ -127,8 +154,54 @@ module.exports =
       event.initMouseEvent 'mousedown',true,true,window
       element.dispatchEvent event
 
-    # Come here on submit
+    # # Come here on submit
+    # applyLocalTheme: (fn, themePath) ->
+    #   baseCssPath = themePath || $( "#themeDropdown" ).val();
+    #   sourcePath = baseCssPath + '/index.less'
+
+    #   # Remember what theme is applied to what file.
+    #   targetFile = fn || @utils.getActiveFile()
+    #   @fileLookup[targetFile] = baseCssPath
+
+    #   promise = @localThemeManager.getThemeCss baseCssPath
+
+    #   cssResult = null
+
+    #   promise
+    #     .then(
+    #       (result) =>
+    #         cssResult = result
+
+    #         params = {}
+
+    #         params.uri = fn || @utils.getActiveFile()
+
+    #         # get all the textEditors open for this file
+    #         editors = @utils.getTextEditors params
+
+    #         for editor in editors
+    #           # We have to get a new styleElement each time i.e. we need to clone
+    #           # it.  If we create just one styleElement outside of this loop, it will simply get reassigned
+    #           # to the last editor we attach it too, and it won't be assigned to any of
+    #           # the previous editors
+    #           css = cssResult
+    #           newStyleElement = @localStylesElement.createStyleElement(css, sourcePath)
+    #           @localThemeManager.deleteThemeStyleNode(editor)
+    #           @localThemeManager.addStyleElementToEditor(newStyleElement, editor)
+    #           # @localThemeManager.syncEditorBackgroundColor(editor)
+
+    #         # Reset all panes to avoid sympathetic bleed over effects that occasionally
+    #         # happens when updating a non-activated (not currently focused) textEditor
+    #         # in a pane.
+    #         @utils.resetPanes()
+    #       ,(err) ->
+    #         console.log "promise returner err" + err
+    #     )
+
+    # Come here on submit.  Apply a theme at the window level, not the individual editor
+    # level.  This is all we seem to be able to post Atom 1.13
     applyLocalTheme: (fn, themePath) ->
+      console.log "LocalThemeSelectorView.applyLocalTheme: entered"
       baseCssPath = themePath || $( "#themeDropdown" ).val();
       sourcePath = baseCssPath + '/index.less'
 
@@ -138,16 +211,26 @@ module.exports =
 
       promise = @localThemeManager.getThemeCss baseCssPath
 
-      cssResult = null
+      # css = null
+      styleElement = null
 
       promise
         .then(
           (result) =>
-            cssResult = result
+            css = result
+            # css = $(styleElement).text()
 
             params = {}
 
             params.uri = fn || @utils.getActiveFile()
+
+            #vt add
+            newStyleElement = @localStylesElement.createStyleElement(css, sourcePath)
+            styleClass = @localThemeManager.addStyleElementToHead(newStyleElement, editor)
+
+            narrowedCss = @localThemeManager.narrowStyleScope(css, styleClass)
+            $(newStyleElement).text(narrowedCss)
+            #vt end
 
             # get all the textEditors open for this file
             editors = @utils.getTextEditors params
@@ -157,11 +240,14 @@ module.exports =
               # it.  If we create just one styleElement outside of this loop, it will simply get reassigned
               # to the last editor we attach it too, and it won't be assigned to any of
               # the previous editors
-              css = cssResult
-              newStyleElement = @localStylesElement.createStyleElement(css, sourcePath)
-              @localThemeManager.deleteThemeStyleNode(editor)
-              @localThemeManager.addStyleElementToEditor(newStyleElement, editor)
-              @localThemeManager.syncEditorBackgroundColor(editor)
+              # css = cssResult
+              # newStyleElement = @localStylesElement.createStyleElement(css, sourcePath)
+              # @localThemeManager.deleteThemeStyleNode(editor)
+              # @localThemeManager.deleteThemeStyleNodeFromHead(editor)
+              # @localThemeManager.addStyleElementToEditor(newStyleElement, editor)
+              $(editor.getElement()).addClass(styleClass)
+              # $(editor.getElement()).parent().addClass(styleClass)
+              #vt @localThemeManager.syncEditorBackgroundColor(editor)
 
             # Reset all panes to avoid sympathetic bleed over effects that occasionally
             # happens when updating a non-activated (not currently focused) textEditor
@@ -170,6 +256,7 @@ module.exports =
           ,(err) ->
             console.log "promise returner err" + err
         )
+
 
     destroy: ->
       @selectorView.remove()

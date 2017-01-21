@@ -29,29 +29,51 @@ module.exports =
       activeTheme
 
     addStyleElementToEditor: (styleElement, editor)->
-      shadowRoot
+      console.log "LocalThemeManager.addStyleElementToEditor: entered"
+      editorElement
 
       if editor?
-        shadowRoot = @utils.getShadowRoot editor
+        # editorElement = @utils.geteditorElement editor
+        editorElement = @utils.getEditorElement editor
       else
-        shadowRoot = @utils.getActiveShadowRoot()
+        editorElement = @utils.getActiveEditorElement()
 
-      $shadowRoot = $(shadowRoot)
-      themeNode = $shadowRoot
+      $editorElement = $(editorElement)
+      # create the atom-styles element if it doesn't exist
+
+      if !$editorElement.find('atom-styles').length
+        $editorElement.append($('<atom-styles context="atom-text-editor"></atom-styles>'))
+      # add "priority=1" attribute to the styleElement
+      # TODO: also add context=atom-text-editor to the style element
+      # only the style element has the priority=1 though
+      $(styleElement).attr("priority", "1");
+
+      themeNode = $editorElement
         .find('[context="atom-text-editor"]')
         .filter('atom-styles')
         .append(styleElement)
+      # themeName = $editorElement.parent().append(styleElement)
 
+    addStyleElementToHead: (styleElement, editor)->
+      # document.getElementsByTagName('head')[0]
+      #   .appendChild(styleElement)
+      styleClass = 'mta-editor-style-' + Date.now()
+      $(styleElement).addClass(styleClass)
+      $('head').find('atom-styles').append(styleElement)
+
+      # return styleKey to the user
+      styleClass
+      
     deleteThemeStyleNode: (editor) ->
-      shadowRoot
+      editorElement
 
       if editor?
-        shadowRoot = @utils.getShadowRoot editor
+        editorElement = @utils.getEditorElement editor
       else
-        shadowRoot = @utils.getActiveShadowRoot()
+        editorElement = @utils.getActiveEditorElement()
 
-      $shadowRoot = $(shadowRoot)
-      themeNode = $shadowRoot
+      $editorElement = $(editorElement)
+      themeNode = $editorElement
         .find('[context="atom-text-editor"]')
         .filter('atom-styles')
         .find('[priority="1"]')
@@ -61,6 +83,21 @@ module.exports =
         return -1
 
       themeNode.remove()
+    
+    # remove the "mta style" class from the given dom element.  The element will
+    # be an editor, pane, or "window" html element.
+    removeStyleClassFromElement: (element) ->
+      elemClass = element.getAttribute('class')
+      console.log "ut: element=#{elemClass}"
+
+      # tmp = elemClass.replace(/\s?mta-\w+-style-\d{10,}/, '')
+      # console.log "ut: tmp=#{tmp}"
+      # typical mta style class: mta-editor-style-1484974763214
+      # element.setAttribute('class', elemClass.replace(\s?/mta-\w+-style-\d{10,}/, ''))
+      # since we should have inserted one leading padding space and some text, we remove
+      # one leading space (or zero, if it's the beginning of the line) and some text
+      if elemClass
+        element.setAttribute('class', elemClass.replace(/\s?mta-\w+-style-\d{10,}/, ''))
 
     getThemeCss: (basePath) ->
       lessPath = basePath + "/index.less"
@@ -82,17 +119,17 @@ module.exports =
             resolve result.css.toString()
 
     syncEditorBackgroundColor: (editor) ->
-      shadowRoot
+      editorElement
 
       if editor?
-        shadowRoot = @utils.getShadowRoot editor
+        editorElement = @utils.getEditorElement editor
       else
-        shadowRoot = @utils.getActiveShadowRoot()
+        editorElement = @utils.getActiveEditorElement()
 
       # drill down to the background-color set by the local theme
       # This is a pretty convaluted way that was empirically determined.
       # There's probably a better way.
-      localStyleNode = $(shadowRoot)
+      localStyleNode = $(editorElement)
         .find('atom-styles')
         .find('style').last()
 
@@ -145,3 +182,25 @@ module.exports =
             localThemePath = handlerObj.fileLookup[fn]
             if localThemePath
               handlerObj.applyLocalTheme(fn, localThemePath)
+
+# atom-text-editor,
+# :host {
+#   background-color: #212020;
+#   color: #fff0ed;
+# }
+    # parse the css and decorate with the styleKey in the selectors to narrow
+    # the scope in which this style sheet applies.  For incstance, if we are
+    # adding a style at the editor level, the editor element class will have
+    # a unique styleKey added to it.  We then need to add this class to the css
+    # selector, so the style is applied to only that one editor 
+    narrowStyleScope: (css, styleClass) ->
+      # console.log "narrowStyleScope.css=#{css}"
+      # narrowedCss = css
+
+      # narrowedCss = css.replace(/^(.*,$)/gm, ".#{styleClass} $1")
+      narrowedCss = css.replace(/^(.*),$/gm, "$1." + styleClass + ",")
+      # narrowedCss = narrowedCss.replace(/^(.*\{$)/gm, ".#{styleClass} $1")
+      narrowedCss = narrowedCss.replace(/^(.*) \{$/gm, "$1." + styleClass + " {")
+
+      narrowedCss
+

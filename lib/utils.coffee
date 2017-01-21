@@ -1,14 +1,42 @@
+$ = jQuery = require 'jquery'
+
 module.exports =
   class Utils
 
     constructor: ->
 
+    # shaddowRoot is defunct
     getActiveShadowRoot: ->
       atom.workspace.getActiveTextEditor().getElement().shadowRoot
 
     # Return the shadowRoot for the passed textEditor
     getShadowRoot: (editor) ->
       editor.getElement().shadowRoot
+      console.log "Utils.getShadowRoot: entered"
+
+    # adding the theme at editor level I could only get to work partial post- 
+    # Atom 1.13.  Leaving in as a template
+    getActiveEditorElement: ->
+      atom.workspace.getActiveTextEditor().getElement()
+      # $(atom.workspace.getActiveTextEditor().getElement()).parent()[0]
+
+    # Return the shadowRoot for the passed textEditor
+    getEditorElement: (editor) ->
+      console.log "Utils.getEditorElement: entered"
+      editor.getElement()
+      # $(editor.getElement()).parent()[0]
+
+   # We are now a window level themer
+   # There's only one window, and it's always active
+    # getActiveWindowElement: ->
+    #   atom.workspace.getActiveTextEditor().getElement()
+
+    # Return the "all panes" container ('atom-pane-container'), which we're loosely
+    # referring to as a 'window'.
+    getWindowElement: () ->
+      console.log "vt:Utils.getWindowElement: entered"
+      console.log  
+      document.getElementsByTagName('atom-pane-container')[0]
 
     doIt: ->
       7
