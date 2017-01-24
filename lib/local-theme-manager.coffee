@@ -63,6 +63,11 @@ module.exports =
 
       # return styleKey to the user
       styleClass
+    
+    removeStyleElementFromHead: (styleClass) ->
+      # $.find('head atom-styles style.vt')[0].remove()
+      if $.find("head atom-styles style.#{styleClass}").length > 0 
+        $.find("head atom-styles style.#{styleClass}")[0].remove()
       
     deleteThemeStyleNode: (editor) ->
       editorElement
@@ -88,7 +93,7 @@ module.exports =
     # be an editor, pane, or "window" html element.
     removeStyleClassFromElement: (element) ->
       elemClass = element.getAttribute('class')
-      console.log "ut: element=#{elemClass}"
+      # console.log "ut: element=#{elemClass}"
 
       # tmp = elemClass.replace(/\s?mta-\w+-style-\d{10,}/, '')
       # console.log "ut: tmp=#{tmp}"

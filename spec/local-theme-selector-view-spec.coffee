@@ -2,7 +2,7 @@ LocalThemeSelectorView = require '../lib/local-theme-selector-view'
 MultiThemeApplicator = require '../lib/multi-theme-applicator'
 LocalThemeManager = require '../lib/local-theme-manager'
 
-describe 'LocalThemeSelectorView', () ->
+fdescribe 'LocalThemeSelectorView', () ->
   localThemeSelectorView: null
   activationPromise: null
 
@@ -20,6 +20,7 @@ describe 'LocalThemeSelectorView', () ->
   it 'ctor works', () ->
     expect(@localThemeSelectorView.localThemeManager).toBeDefined()
     expect(@localThemeSelectorView.localThemeManager).toBeInstanceOf(LocalThemeManager)
+    expect(@localThemeSelectorView.elementLookup).toBeInstanceOf(WeakMap)
 
   it 'doIt works', () ->
     expect(@localThemeSelectorView.doIt()).toEqual 7

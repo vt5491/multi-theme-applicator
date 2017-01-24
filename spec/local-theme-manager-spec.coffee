@@ -266,3 +266,24 @@ atom-text-editor.#{styleKey},
 
      console.log "ut: class=#{editorElement.getAttribute('class')}"
      expect(editorElement.getAttribute('class')).toBeFalsy()
+
+   fit 'removeStyleElementFromHead works', ->
+     styleClass = 'mta-editor-style-1234567890123'
+     headStyleElement = document.createElement('style')
+
+     headStyleElement.setAttribute('context', 'atom-text-editor' )
+     headStyleElement.setAttribute('class', styleClass )
+
+     $.find('head atom-styles')[0].appendChild(headStyleElement)
+
+     # verify it's there before we delete
+    #  debugger
+     expect($.find("head atom-styles style.#{styleClass}").length).toEqual(1)
+
+     # and now verify it was deleted
+     @localThemeManager.removeStyleElementFromHead styleClass
+     expect($.find("head atom-styles style.#{styleClass}").length).toEqual(0)
+
+     # idempotency test: verify there are no problems when remove is called
+     # multiple times
+     expect($.find("head atom-styles style.#{styleClass}").length).toEqual(0)

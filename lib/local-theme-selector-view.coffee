@@ -18,7 +18,7 @@
 # :
 # "C:/Users/vturner/.atom/packages/fairyfloss"
 
-# @ themeLookup
+# @themeLookup
 # Is basically just a directory of themes and where the theme file is located.
 # It's an array of objects.  Each object has two keys: 'themeName' and 'baseDir' 
 # Object {themeName: "choco", baseDir: "C:/Users/vturner/.atom/packages/choco"}
@@ -27,6 +27,19 @@
 # themeName:"choco"
 #
 # i.e. It is not used for keeping track of what theme is applied to what file etc.
+
+# @elementLookup
+# Used to keep track of elements that we have styled.  It's a WeakMap.  The key
+# is the dom element (not jquery Element). We associate a js object with this key.
+# The keys in the js object are:
+# type, theme, class
+#
+## jqPath: a path that you can pass to jquery such that it will uniquely identify the element.
+##  note: use utils->getEditorPath, getPanePath, getWindowPath to get a normalized
+##        and standard jqPath
+# type: The style scope: {windows, pane, file, editor}
+# theme: the theme applied e.g "fairyfloss"
+# styleClass: the style tag that has been added to the element's class e.g. 'mta-editor-style-1484974763214'  
 
 $ = jQuery = require 'jquery'
 {CompositeDisposable} = require 'atom'
@@ -44,11 +57,14 @@ module.exports =
     themeLookup: []
     # keep track of the local theme applied by file.
     fileLookup: {}
+    # keep track of the state of each element we apply a local theme to.
+    elementLookup: WeakMap 
 
     constructor: (multiThemeApplicator, fileLookupState) ->
       @multiThemeApplicator =  multiThemeApplicator
       # restore the prior fileLookupState, if any
       @fileLookup = fileLookupState
+      @elementLookup = new WeakMap()
 
       # create all the supporting services we may need to call
       @localThemeManager = new LocalThemeManager()
@@ -242,10 +258,37 @@ module.exports =
               # the previous editors
               # css = cssResult
               # newStyleElement = @localStylesElement.createStyleElement(css, sourcePath)
+              editorElem = editor.getElement();
+              
+              if !@elementLookup.get editorElem 
+                @elementLookup.set( editorElem, {} ) 
+                # editorElem = @elementLookup.get(editorElem)
+
+              # prevStyleClass = editorElem['styleClass'] 
+              prevStyleClass = @elementLookup.get(editorElem)['styleClass'] 
+
+              # since multiple editors can be associated with one head style
+              # we will typically be deleting the head style multiple times, but the
+              # operation is idempotent, so this is safe.  By the time we determine 
+              # that we don't need to delete it, we could have already gone ahead and
+              # just deleted it.  So it's easier and simpler to just delete it multiple times.
+              if prevStyleClass
+                @localThemeManager.removeStyleElementFromHead(prevStyleClass)
+
+              #TODO: allow a theme to be passed as well
+              @localThemeManager.removeStyleClassFromElement editorElem
+
               # @localThemeManager.deleteThemeStyleNode(editor)
               # @localThemeManager.deleteThemeStyleNodeFromHead(editor)
               # @localThemeManager.addStyleElementToEditor(newStyleElement, editor)
-              $(editor.getElement()).addClass(styleClass)
+              $(editorElem).addClass(styleClass)
+
+              # save the current element state in @elementLookup
+              elemState = @elementLookup.get(editorElem)
+
+              elemState['type'] = 'editor'
+              elemState['styleClass'] = styleClass 
+              
               # $(editor.getElement()).parent().addClass(styleClass)
               #vt @localThemeManager.syncEditorBackgroundColor(editor)
 
