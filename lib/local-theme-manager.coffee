@@ -91,6 +91,7 @@ module.exports =
     
     # remove the "mta style" class from the given dom element.  The element will
     # be an editor, pane, or "window" html element.
+    # Defunct: replaced by simple call to jquery.removeClass
     removeStyleClassFromElement: (element) ->
       elemClass = element.getAttribute('class')
       # console.log "ut: element=#{elemClass}"
@@ -122,6 +123,27 @@ module.exports =
             reject err
           else
             resolve result.css.toString()
+
+    # parse the rendered less css text to determine the 'atom-text-editor'
+    # background-color
+    getCssBgColor: (css) ->
+      # console.log "LocalThemeManager.getCssBgColor: entered"
+      # # match = css.match(/(atom-text-editor\s*[,\{])(.*background-color:\s*)(#\d{6})/)
+      # regExp = /(atom-text-editor\s*[,\{])(.*background-color:\s*)(#\d{6})/n
+      # match = regExp.exec(css)
+      # console.log "LocalThemeManager.getCssBgColor:match[3]=#{match[3]}"
+
+      # match[3] 
+      # we just take the first background-color find and assume it the bg color
+      # for the entire editor.  It just too hard to parse in the most general case.
+      regExp = /(.*background-color:\s*)(#[0-9a-fA-F]{6})/m
+      match = regExp.exec css
+
+      if match
+        match[2]
+      else
+        null
+      
 
     syncEditorBackgroundColor: (editor) ->
       editorElement
@@ -209,3 +231,25 @@ module.exports =
 
       narrowedCss
 
+    # alter the 'background-color' on the style elements of the editor gutter divs.
+    # The rgbColorStr is a string that looks like "rgb(xx, yy, zz)"
+    # e.g "rgb(90, 84, 117)"
+    # A global style change on the root editor element doesn't change these as 
+    # for some reason, they have a hard-coded style attribute with a 
+    # 'background-color' from the previos themeG
+    changeBgColorOnGutterDivs: (editorElem, rgbColorStr) ->
+
+      changeBgColor = (i, elem) => 
+        if $(elem).prop('style') && $(elem).prop('style')['background-color'] 
+	        console.log("i=" + i + ",elem=" + elem + ",style=" + $(elem).prop('style')['background-color']);
+	        $(elem).prop('style')['background-color']= rgbColorStr      
+
+      # do the line-numbes
+      $(editorElem)
+        .find('div.gutter div.line-numbers div:not(.line-number,.icon-right)')
+        .each(changeBgColor)
+
+      # do the linter
+      $(editorElem)
+        .find('div.gutter div.custom-decorations')
+        .each(changeBgColor)

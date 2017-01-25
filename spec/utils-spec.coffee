@@ -70,3 +70,24 @@ describe 'Utils2', () ->
     # unix path
     result = @utils.normalizePath('/tmp/dummy.txt')
     expect(result).toEqual('/tmp/dummy.txt')
+
+  fit 'hexToRgb works', () ->
+    # with a leading hash mark
+    result = @utils.hexToRgb("#102030")
+
+    expect(result).toEqual("rgb(16, 32, 48)")
+
+    # with no leading hash mark
+    result = @utils.hexToRgb("102030")
+
+    expect(result).toEqual("rgb(16, 32, 48)")
+
+    # with lower case hex
+    result = @utils.hexToRgb("#a0b0c0")
+
+    expect(result).toEqual("rgb(160, 176, 192)")
+
+    # with upper case hex
+    result = @utils.hexToRgb("#A0B0C0")
+
+    expect(result).toEqual("rgb(160, 176, 192)")

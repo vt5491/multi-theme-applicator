@@ -170,50 +170,6 @@ module.exports =
       event.initMouseEvent 'mousedown',true,true,window
       element.dispatchEvent event
 
-    # # Come here on submit
-    # applyLocalTheme: (fn, themePath) ->
-    #   baseCssPath = themePath || $( "#themeDropdown" ).val();
-    #   sourcePath = baseCssPath + '/index.less'
-
-    #   # Remember what theme is applied to what file.
-    #   targetFile = fn || @utils.getActiveFile()
-    #   @fileLookup[targetFile] = baseCssPath
-
-    #   promise = @localThemeManager.getThemeCss baseCssPath
-
-    #   cssResult = null
-
-    #   promise
-    #     .then(
-    #       (result) =>
-    #         cssResult = result
-
-    #         params = {}
-
-    #         params.uri = fn || @utils.getActiveFile()
-
-    #         # get all the textEditors open for this file
-    #         editors = @utils.getTextEditors params
-
-    #         for editor in editors
-    #           # We have to get a new styleElement each time i.e. we need to clone
-    #           # it.  If we create just one styleElement outside of this loop, it will simply get reassigned
-    #           # to the last editor we attach it too, and it won't be assigned to any of
-    #           # the previous editors
-    #           css = cssResult
-    #           newStyleElement = @localStylesElement.createStyleElement(css, sourcePath)
-    #           @localThemeManager.deleteThemeStyleNode(editor)
-    #           @localThemeManager.addStyleElementToEditor(newStyleElement, editor)
-    #           # @localThemeManager.syncEditorBackgroundColor(editor)
-
-    #         # Reset all panes to avoid sympathetic bleed over effects that occasionally
-    #         # happens when updating a non-activated (not currently focused) textEditor
-    #         # in a pane.
-    #         @utils.resetPanes()
-    #       ,(err) ->
-    #         console.log "promise returner err" + err
-    #     )
-
     # Come here on submit.  Apply a theme at the window level, not the individual editor
     # level.  This is all we seem to be able to post Atom 1.13
     applyLocalTheme: (fn, themePath) ->
@@ -235,6 +191,11 @@ module.exports =
           (result) =>
             css = result
             # css = $(styleElement).text()
+            hexBgColor = @localThemeManager.getCssBgColor css
+            # console.log "LocalThemeSelectorView.applyLocalTheme: bgColorRgbStr=#{bgColorRgbStr}"
+            bgColorRgbStr = @utils.hexToRgb(hexBgColor)
+            console.log "LocalThemeSelectorView.applyLocalTheme: bgColorRgbStr=#{bgColorRgbStr}"
+            # bgColorRgbStr = @utils.hexToRgb( @localThemeManager.getCssBgColor css)
 
             params = {}
 
@@ -276,12 +237,22 @@ module.exports =
                 @localThemeManager.removeStyleElementFromHead(prevStyleClass)
 
               #TODO: allow a theme to be passed as well
-              @localThemeManager.removeStyleClassFromElement editorElem
+              # @localThemeManager.removeStyleClassFromElement editorElem
+              $(editorElem).removeClass(prevStyleClass)
+              # removeClassFn= (i, elem) =>
+              $(editorElem)
+                .find('[gutter-name]')
+                .each((i,elem) => 
+                  $(elem).removeClass(prevStyleClass) )
 
               # @localThemeManager.deleteThemeStyleNode(editor)
               # @localThemeManager.deleteThemeStyleNodeFromHead(editor)
               # @localThemeManager.addStyleElementToEditor(newStyleElement, editor)
               $(editorElem).addClass(styleClass)
+              $(editorElem)
+                .find('[gutter-name]')
+                .each((i,elem) => 
+                  $(elem).addClass(styleClass) )
 
               # save the current element state in @elementLookup
               elemState = @elementLookup.get(editorElem)
@@ -291,6 +262,10 @@ module.exports =
               
               # $(editor.getElement()).parent().addClass(styleClass)
               #vt @localThemeManager.syncEditorBackgroundColor(editor)
+              # do all the stragglers on the gutter div that for some reason have
+              # a hard-coded style, and thus are not affected by the parent editors style
+
+              @localThemeManager.changeBgColorOnGutterDivs(editorElem, bgColorRgbStr)
 
             # Reset all panes to avoid sympathetic bleed over effects that occasionally
             # happens when updating a non-activated (not currently focused) textEditor

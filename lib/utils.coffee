@@ -84,3 +84,17 @@ module.exports =
     # than @utils.normalizePath(myString)
     normalizePath: (fn) ->
       fn.replace(/\\/g,'/')
+
+     # take #102030 and return "rgb(16, 32, 48)"
+     hexToRgb: (hex) ->
+       # remove leading '#', if any
+       hex = hex.replace(/^#/,'')
+
+       bigint = parseInt(hex, 16);
+       r = (bigint >> 16) & 255;
+       g = (bigint >> 8) & 255;
+       b = bigint & 255;
+
+       "rgb(#{r}, #{g}, #{b})"
+
+       

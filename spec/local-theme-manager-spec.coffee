@@ -149,6 +149,8 @@ describe "LocalThemeManager getSyntaxThemeLookup tests", () ->
 
    beforeEach ->
      @localThemeManager = new LocalThemeManager()
+    #  @textEditor = buildEditorTestEvironment()
+     @textEditor = atom.workspace.buildTextEditor()
 
      spyOn(atom.packages, "getAvailablePackageMetadata")
        .andReturn(packageMetadataMock)
@@ -244,6 +246,7 @@ atom-text-editor.#{styleKey},
      styleClass = "mta-editor-style-1234567890123"
      editorElement.setAttribute('class', "#{styleClass}")
 
+     #Note: defunct
      @localThemeManager.removeStyleClassFromElement(editorElement)
     #  console.log "new class = #{editorElement.getAttribute('class')}"
      expect(editorElement.getAttribute('class').match(///#{styleClass}///)).toBeFalsy()
@@ -267,7 +270,7 @@ atom-text-editor.#{styleKey},
      console.log "ut: class=#{editorElement.getAttribute('class')}"
      expect(editorElement.getAttribute('class')).toBeFalsy()
 
-   fit 'removeStyleElementFromHead works', ->
+   it 'removeStyleElementFromHead works', ->
      styleClass = 'mta-editor-style-1234567890123'
      headStyleElement = document.createElement('style')
 
@@ -287,3 +290,101 @@ atom-text-editor.#{styleKey},
      # idempotency test: verify there are no problems when remove is called
      # multiple times
      expect($.find("head atom-styles style.#{styleClass}").length).toEqual(0)
+
+   it 'changeBgColorOnGutterDivs works', ->
+    # add some gutter divs to our test textEditor
+    # the @textEditor actually has its own gutter, but it doesn't have any style
+    # elements.  We are going to attached our own styled gutters immediately below
+    # the editor.  We just have to remember when reading back the results to only
+    # look for gutter divs that are immediate descendents of the atom-text-editor
+    # parent
+    # gutterLineNumberDiv document.createElement('div')
+    $gutterLineNumberDiv = $("<div class='gutter' gutter-name='line-number'></div>");
+    $lineNumberDiv = $('<div class="line-numbers" style="height: 718px; background-color: rgb(90, 84, 117);"></div>')
+    $lineNumberChildDiv = $('<div style="position: absolute; display: block; top: 0px; height: 126px; transform: translate3d(0px, 1134px, 0px); z-index: 0; background-color: rgb(90,84,117);"></div>')
+
+    $lineNumberDiv.append($lineNumberChildDiv)
+    $gutterLineNumberDiv.append($lineNumberDiv)
+
+    $gutterLinterDiv = $("<div class='gutter' gutter-name='linter'></div>");
+    $gutterLinterChildDiv= $('<div class="custom-decorations" style="height: 6854px; transform: translate3d(0px, 0px, 0px); background-color: rgb(90, 84, 117);"></div>')
+
+    $gutterLinterDiv.append($gutterLinterChildDiv)
+
+    # append to our test test editor
+    editorElem = @textEditor.getElement()
+    $(editorElem).append($gutterLineNumberDiv)
+    $(editorElem).append($gutterLinterDiv)
+
+    # debugger
+    @localThemeManager.changeBgColorOnGutterDivs editorElem, "rgb(10, 20, 30)"
+
+    # console.log "editorElem.html=" + $(editorElem).html()
+    # editorElemHtml = $(editorElem).html()
+    #
+    # console.log 'result=' + editorElemHtml.match(/background-color:.*\(90, 84, 117\)/gm)
+
+    lineDivHtml = $(editorElem).children()[1].innerHTML
+    console.log "lineDivHtml=#{lineDivHtml}"
+    expect(lineDivHtml.match(/background-color:.*\(90, 84, 117\)/gm)).toBeNull()
+    expect(lineDivHtml.match(/background-color:.*\(10, 20, 30\)/gm)).toBeTruthy()
+
+    linterDivHtml = $(editorElem).children()[2].innerHTML
+    console.log "linterDivHtml=#{linterDivHtml}"
+    expect(linterDivHtml.match(/background-color:.*\(90, 84, 117\)/gm)).toBeNull()
+    expect(linterDivHtml.match(/background-color:.*\(10, 20, 30\)/gm)).toBeTruthy()
+
+   fit 'getCssBgColor returns the proper background-color', ->
+    css = """
+/* Dracula Theme
+ *
+ * https://github.com/dracula/atom
+ *
+ * Copyright 2016, All rights reserved
+ *
+ * Code licensed under the MIT license
+ * https://github.com/dracula/atom/blob/master/LICENSE
+ *
+ * @author Zeno Rocha <hi@zenorocha.com>
+ */
+atom-text-editor,
+atom-text-editor .gutter {
+  background-color: #282a36;
+  color: #f8f8f2;
+}
+atom-text-editor.is-focused .cursor {
+  border-color: #f8f8f0;
+}
+atom-text-editor.is-focused .selection .region {
+  background-color: #44475a;
+}
+atom-text-editor.is-focused .line-number.cursor-line-no-selection,
+atom-text-editor.is-focused .line.cursor-line {
+  background-color: #44475a;
+}
+    """
+    result = @localThemeManager.getCssBgColor css
+    expect(result).toEqual("#282a36")
+
+    # make sure it handles a non-matching case gracefully
+    css = "nada match"
+    result = @localThemeManager.getCssBgColor css
+    console.log "result=#{result}"
+    expect(result).toBeNull()
+
+    # upper case hex test
+    css = """
+atom-text-editor,
+:host {
+  background-color: #5A5475;
+  color: #F8F8F2;
+}
+atom-text-editor .gutter,
+:host .gutter {
+  background-color: #5A5475;
+  color: #F8F8F2;
+}
+"""
+
+    result = @localThemeManager.getCssBgColor css
+    expect(result).toEqual("#5A5475")
