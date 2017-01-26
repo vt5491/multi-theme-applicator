@@ -61,6 +61,7 @@ module.exports =
     elementLookup: WeakMap 
 
     constructor: (multiThemeApplicator, fileLookupState) ->
+      console.log "LocalThemeSelectorView.ctor: entered"
       @multiThemeApplicator =  multiThemeApplicator
       # restore the prior fileLookupState, if any
       @fileLookup = fileLookupState
@@ -81,47 +82,74 @@ module.exports =
       @selectorView.classList.add('multi-theme-applicator','local-theme-selector-view')
       $('.local-theme-selector-view').attr( tabindex: '0')
 
-      form = $('<form/>')
+      $form = $('<form/>')
         .attr( id: 'input-form', class: 'apply-theme-form')
         #vt.submit(=> @applyLocalTheme())
         .submit(=> @applyLocalTheme())
 
-      form.appendTo(@selectorView)
+      $form.appendTo(@selectorView)
 
-      $('<label>').text('Syntax Theme:').appendTo(form)
+      $('<label>').text('Syntax Theme:').appendTo($form)
 
       @dropDownBorderWidthDefault
-      themeDropdown = $('<select id="themeDropdown" name="selectTheme">')
-      themeDropdown.focus =>
+      $themeDropdown = $('<select id="themeDropdown" name="selectTheme">')
+      $themeDropdown.focus =>
         @dropDownBorderWidthDefault = $('#themeDropdown').css('borderWidth')
         newBorderWidth = parseInt(@dropDownBorderWidthDefault) * 2.0
         $('#themeDropdown').css('borderWidth', newBorderWidth.toString());
 
-      themeDropdown.blur =>
+      $themeDropdown.blur =>
         $('#themeDropdown').css('borderWidth', @dropDownBorderWidthDefault);
 
       @themeLookup = @localThemeManager.getSyntaxThemeLookup()
 
+      # sort themeLookup by theme name. Note: sort is desctructive, so it alters the original
+      @themeLookup.sort (a,b) ->
+        # a.themeName > b.themeName
+        nameA=a.themeName.toLowerCase()
+        nameB=b.themeName.toLowerCase()
+        if nameA < nameB 
+          return -1
+        if nameA > nameB 
+          return 1
+        return 0
+
+# objs.sort(function(a, b){
+#   return a.last_nom > b.last_nom;
+# });
       for theme in @themeLookup
         $('<option>', {
           value: theme.baseDir,
           text: theme.themeName})
-        .appendTo(themeDropdown)
+        .appendTo($themeDropdown)
 
-      themeDropdown.appendTo(form)
+      # register a listener for onChange, so we can clear any error messages from
+      # the last selection
+      $themeDropdown.change(() => 
+        $('#input-form span.error').text('')
+        $('#input-form span.error').css("visibility", "hidden") )
+
+      $themeDropdown.appendTo($form)
 
       closeModalDialogButton = $("<span>")
       closeModalDialogButton.attr(id: 'close-modal-dialog')
       closeModalDialogButton.text('x')
-      closeModalDialogButton.appendTo(form)
+      closeModalDialogButton.appendTo($form)
       closeModalDialogButton.click(
         @multiThemeApplicator.toggle.bind(@multiThemeApplicator)
       )
 
+      # var sp = document.createElement('span');
+      # put in an error message box
+      # $form.append("<br />")
+      $('<span class="error"></span>').appendTo($form)
+      # $('#themeDropdown .error').text('hi')
+      $form.find('span.error')
+
       $('<input id="apply-theme-submit"/>').attr(
         type: 'submit'
         value: 'Apply Local Theme'
-      ).appendTo(form)
+      ).appendTo($form)
 
       # seed the initial active element.  This value will change as the user
       # selects via key bindings or mouse the selected theme in the dropdown.
@@ -171,7 +199,9 @@ module.exports =
       element.dispatchEvent event
 
     # Come here on submit.  Apply a theme at the window level, not the individual editor
-    # level.  This is all we seem to be able to post Atom 1.13
+    # level. 
+    # This is the key method of the whole package.  This basically drives all the
+    # other supporting modules.
     applyLocalTheme: (fn, themePath) ->
       console.log "LocalThemeSelectorView.applyLocalTheme: entered"
       baseCssPath = themePath || $( "#themeDropdown" ).val();
@@ -190,11 +220,22 @@ module.exports =
         .then(
           (result) =>
             css = result
+
+            # put up a warning in the selection box if this theme is not atom >= 1.13
+            # compatible
+            if !css.match /\.syntax--comment/gm
+              # $('#input-form span.error').text("#{@themeLookup[bassCssPath]} is not fully compatible with atom >=1.13. Some styling, such as font color, may not be properly applied.")
+              $('#input-form span.error').text("This theme is not fully compatible with atom >=1.13. Some styling, such as font color, may not be properly applied.")
+              $('#input-form span.error').css("visibility", "visible")
+            else
+              $('#input-form span.error').text('')
+              $('#input-form span.error').css("visibility", "hidden")
+
             # css = $(styleElement).text()
-            hexBgColor = @localThemeManager.getCssBgColor css
+            # hexBgColor = @localThemeManager.getCssBgColor css
             # console.log "LocalThemeSelectorView.applyLocalTheme: bgColorRgbStr=#{bgColorRgbStr}"
-            bgColorRgbStr = @utils.hexToRgb(hexBgColor)
-            console.log "LocalThemeSelectorView.applyLocalTheme: bgColorRgbStr=#{bgColorRgbStr}"
+            # bgColorRgbStr = @utils.hexToRgb(hexBgColor)
+            # console.log "LocalThemeSelectorView.applyLocalTheme: bgColorRgbStr=#{bgColorRgbStr}"
             # bgColorRgbStr = @utils.hexToRgb( @localThemeManager.getCssBgColor css)
 
             params = {}
@@ -240,19 +281,19 @@ module.exports =
               # @localThemeManager.removeStyleClassFromElement editorElem
               $(editorElem).removeClass(prevStyleClass)
               # removeClassFn= (i, elem) =>
-              $(editorElem)
-                .find('[gutter-name]')
-                .each((i,elem) => 
-                  $(elem).removeClass(prevStyleClass) )
+              # $(editorElem)
+              #   .find('[gutter-name]')
+              #   .each((i,elem) => 
+              #     $(elem).removeClass(prevStyleClass) )
 
               # @localThemeManager.deleteThemeStyleNode(editor)
               # @localThemeManager.deleteThemeStyleNodeFromHead(editor)
               # @localThemeManager.addStyleElementToEditor(newStyleElement, editor)
               $(editorElem).addClass(styleClass)
-              $(editorElem)
-                .find('[gutter-name]')
-                .each((i,elem) => 
-                  $(elem).addClass(styleClass) )
+              # $(editorElem)
+              #   .find('[gutter-name]')
+              #   .each((i,elem) => 
+              #     $(elem).addClass(styleClass) )
 
               # save the current element state in @elementLookup
               elemState = @elementLookup.get(editorElem)
@@ -265,7 +306,7 @@ module.exports =
               # do all the stragglers on the gutter div that for some reason have
               # a hard-coded style, and thus are not affected by the parent editors style
 
-              @localThemeManager.changeBgColorOnGutterDivs(editorElem, bgColorRgbStr)
+              # @localThemeManager.changeBgColorOnGutterDivs(editorElem, bgColorRgbStr)
 
             # Reset all panes to avoid sympathetic bleed over effects that occasionally
             # happens when updating a non-activated (not currently focused) textEditor

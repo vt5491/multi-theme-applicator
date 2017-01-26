@@ -71,7 +71,7 @@ describe 'Utils2', () ->
     result = @utils.normalizePath('/tmp/dummy.txt')
     expect(result).toEqual('/tmp/dummy.txt')
 
-  fit 'hexToRgb works', () ->
+  it 'hexToRgb works', () ->
     # with a leading hash mark
     result = @utils.hexToRgb("#102030")
 

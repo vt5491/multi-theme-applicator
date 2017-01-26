@@ -224,32 +224,35 @@ module.exports =
       # console.log "narrowStyleScope.css=#{css}"
       # narrowedCss = css
 
-      # narrowedCss = css.replace(/^(.*,$)/gm, ".#{styleClass} $1")
-      narrowedCss = css.replace(/^(.*),$/gm, "$1." + styleClass + ",")
-      # narrowedCss = narrowedCss.replace(/^(.*\{$)/gm, ".#{styleClass} $1")
-      narrowedCss = narrowedCss.replace(/^(.*) \{$/gm, "$1." + styleClass + " {")
+      # # narrowedCss = css.replace(/^(.*,$)/gm, ".#{styleClass} $1")
+      # narrowedCss = css.replace(/^(atom-text-editor.*),$/gm, "$1." + styleClass + ",")
+      # # narrowedCss = narrowedCss.replace(/^(.*\{$)/gm, ".#{styleClass} $1")
+      # narrowedCss = narrowedCss.replace(/^(.*) \{$/gm, "$1." + styleClass + " {")
+      narrowedCss = css.replace(/atom-text-editor/gm, "atom-text-editor.#{styleClass}")
+      narrowedCss = narrowedCss.replace(/^(\.syntax--\w+)/gm, ".#{styleClass} $1")
 
       narrowedCss
 
+    # defunct
     # alter the 'background-color' on the style elements of the editor gutter divs.
     # The rgbColorStr is a string that looks like "rgb(xx, yy, zz)"
     # e.g "rgb(90, 84, 117)"
     # A global style change on the root editor element doesn't change these as 
     # for some reason, they have a hard-coded style attribute with a 
     # 'background-color' from the previos themeG
-    changeBgColorOnGutterDivs: (editorElem, rgbColorStr) ->
+    # changeBgColorOnGutterDivs: (editorElem, rgbColorStr) ->
 
-      changeBgColor = (i, elem) => 
-        if $(elem).prop('style') && $(elem).prop('style')['background-color'] 
-	        console.log("i=" + i + ",elem=" + elem + ",style=" + $(elem).prop('style')['background-color']);
-	        $(elem).prop('style')['background-color']= rgbColorStr      
+    #   changeBgColor = (i, elem) => 
+    #     if $(elem).prop('style') && $(elem).prop('style')['background-color'] 
+	  #       console.log("i=" + i + ",elem=" + elem + ",style=" + $(elem).prop('style')['background-color']);
+	  #       $(elem).prop('style')['background-color']= rgbColorStr      
 
-      # do the line-numbes
-      $(editorElem)
-        .find('div.gutter div.line-numbers div:not(.line-number,.icon-right)')
-        .each(changeBgColor)
+    #   # do the line-numbes
+    #   $(editorElem)
+    #     .find('div.gutter div.line-numbers div:not(.line-number,.icon-right)')
+    #     .each(changeBgColor)
 
-      # do the linter
-      $(editorElem)
-        .find('div.gutter div.custom-decorations')
-        .each(changeBgColor)
+    #   # do the linter
+    #   $(editorElem)
+    #     .find('div.gutter div.custom-decorations')
+    #     .each(changeBgColor)

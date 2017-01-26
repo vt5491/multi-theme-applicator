@@ -169,6 +169,7 @@ describe "LocalThemeManager getSyntaxThemeLookup tests", () ->
      styleKey = 'abc'
 
      # two-line selector with ':host' keyword
+     # atom-text-editor flavor
      css = """
 atom-text-editor,
 :host {
@@ -179,7 +180,7 @@ atom-text-editor,
 
      expectedCss = """
 atom-text-editor.#{styleKey},
-:host.#{styleKey} {
+:host {
   background-color: #212020;
   color: #fff0ed;
 }
@@ -195,13 +196,13 @@ atom-text-editor.#{styleKey},
 
      # one line selector
      css = """
-.comment {
+atom-text-editor .gutter {
   color: #959595;
 }
      """
 
      expectedCss = """
-.comment.#{styleKey} {
+atom-text-editor.#{styleKey} .gutter {
   color: #959595;
 }
      """
@@ -210,6 +211,28 @@ atom-text-editor.#{styleKey},
 
      console.log "ut: result=\n#{result}"
      expect(result).toEqual(expectedCss)
+
+   it 'narrowStyleScope works with "syntax--" keyword', ->
+     styleKey = 'abc'
+
+     # one line selector
+     css = """
+.syntax--comment {
+  color: #ff79c6;
+}
+     """
+
+     expectedCss = """
+.#{styleKey} .syntax--comment {
+  color: #ff79c6;
+}
+     """
+
+     result = @localThemeManager.narrowStyleScope(css, styleKey)
+
+    #  console.log "ut: result=\n#{result}"
+     expect(result).toEqual(expectedCss)
+
 
    it 'removeStyleFromElement works', ->
      editorElement = document.createElement('atom-text-editor')
@@ -291,50 +314,51 @@ atom-text-editor.#{styleKey},
      # multiple times
      expect($.find("head atom-styles style.#{styleClass}").length).toEqual(0)
 
-   it 'changeBgColorOnGutterDivs works', ->
-    # add some gutter divs to our test textEditor
-    # the @textEditor actually has its own gutter, but it doesn't have any style
-    # elements.  We are going to attached our own styled gutters immediately below
-    # the editor.  We just have to remember when reading back the results to only
-    # look for gutter divs that are immediate descendents of the atom-text-editor
-    # parent
-    # gutterLineNumberDiv document.createElement('div')
-    $gutterLineNumberDiv = $("<div class='gutter' gutter-name='line-number'></div>");
-    $lineNumberDiv = $('<div class="line-numbers" style="height: 718px; background-color: rgb(90, 84, 117);"></div>')
-    $lineNumberChildDiv = $('<div style="position: absolute; display: block; top: 0px; height: 126px; transform: translate3d(0px, 1134px, 0px); z-index: 0; background-color: rgb(90,84,117);"></div>')
+  #defunct
+  #  it 'changeBgColorOnGutterDivs works', ->
+  #   # add some gutter divs to our test textEditor
+  #   # the @textEditor actually has its own gutter, but it doesn't have any style
+  #   # elements.  We are going to attached our own styled gutters immediately below
+  #   # the editor.  We just have to remember when reading back the results to only
+  #   # look for gutter divs that are immediate descendents of the atom-text-editor
+  #   # parent
+  #   # gutterLineNumberDiv document.createElement('div')
+  #   $gutterLineNumberDiv = $("<div class='gutter' gutter-name='line-number'></div>");
+  #   $lineNumberDiv = $('<div class="line-numbers" style="height: 718px; background-color: rgb(90, 84, 117);"></div>')
+  #   $lineNumberChildDiv = $('<div style="position: absolute; display: block; top: 0px; height: 126px; transform: translate3d(0px, 1134px, 0px); z-index: 0; background-color: rgb(90,84,117);"></div>')
+   #
+  #   $lineNumberDiv.append($lineNumberChildDiv)
+  #   $gutterLineNumberDiv.append($lineNumberDiv)
+   #
+  #   $gutterLinterDiv = $("<div class='gutter' gutter-name='linter'></div>");
+  #   $gutterLinterChildDiv= $('<div class="custom-decorations" style="height: 6854px; transform: translate3d(0px, 0px, 0px); background-color: rgb(90, 84, 117);"></div>')
+   #
+  #   $gutterLinterDiv.append($gutterLinterChildDiv)
+   #
+  #   # append to our test test editor
+  #   editorElem = @textEditor.getElement()
+  #   $(editorElem).append($gutterLineNumberDiv)
+  #   $(editorElem).append($gutterLinterDiv)
+   #
+  #   # debugger
+  #   @localThemeManager.changeBgColorOnGutterDivs editorElem, "rgb(10, 20, 30)"
+   #
+  #   # console.log "editorElem.html=" + $(editorElem).html()
+  #   # editorElemHtml = $(editorElem).html()
+  #   #
+  #   # console.log 'result=' + editorElemHtml.match(/background-color:.*\(90, 84, 117\)/gm)
+   #
+  #   lineDivHtml = $(editorElem).children()[1].innerHTML
+  #   console.log "lineDivHtml=#{lineDivHtml}"
+  #   expect(lineDivHtml.match(/background-color:.*\(90, 84, 117\)/gm)).toBeNull()
+  #   expect(lineDivHtml.match(/background-color:.*\(10, 20, 30\)/gm)).toBeTruthy()
+   #
+  #   linterDivHtml = $(editorElem).children()[2].innerHTML
+  #   console.log "linterDivHtml=#{linterDivHtml}"
+  #   expect(linterDivHtml.match(/background-color:.*\(90, 84, 117\)/gm)).toBeNull()
+  #   expect(linterDivHtml.match(/background-color:.*\(10, 20, 30\)/gm)).toBeTruthy()
 
-    $lineNumberDiv.append($lineNumberChildDiv)
-    $gutterLineNumberDiv.append($lineNumberDiv)
-
-    $gutterLinterDiv = $("<div class='gutter' gutter-name='linter'></div>");
-    $gutterLinterChildDiv= $('<div class="custom-decorations" style="height: 6854px; transform: translate3d(0px, 0px, 0px); background-color: rgb(90, 84, 117);"></div>')
-
-    $gutterLinterDiv.append($gutterLinterChildDiv)
-
-    # append to our test test editor
-    editorElem = @textEditor.getElement()
-    $(editorElem).append($gutterLineNumberDiv)
-    $(editorElem).append($gutterLinterDiv)
-
-    # debugger
-    @localThemeManager.changeBgColorOnGutterDivs editorElem, "rgb(10, 20, 30)"
-
-    # console.log "editorElem.html=" + $(editorElem).html()
-    # editorElemHtml = $(editorElem).html()
-    #
-    # console.log 'result=' + editorElemHtml.match(/background-color:.*\(90, 84, 117\)/gm)
-
-    lineDivHtml = $(editorElem).children()[1].innerHTML
-    console.log "lineDivHtml=#{lineDivHtml}"
-    expect(lineDivHtml.match(/background-color:.*\(90, 84, 117\)/gm)).toBeNull()
-    expect(lineDivHtml.match(/background-color:.*\(10, 20, 30\)/gm)).toBeTruthy()
-
-    linterDivHtml = $(editorElem).children()[2].innerHTML
-    console.log "linterDivHtml=#{linterDivHtml}"
-    expect(linterDivHtml.match(/background-color:.*\(90, 84, 117\)/gm)).toBeNull()
-    expect(linterDivHtml.match(/background-color:.*\(10, 20, 30\)/gm)).toBeTruthy()
-
-   fit 'getCssBgColor returns the proper background-color', ->
+   it 'getCssBgColor returns the proper background-color', ->
     css = """
 /* Dracula Theme
  *

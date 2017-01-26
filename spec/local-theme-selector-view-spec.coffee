@@ -2,7 +2,7 @@ LocalThemeSelectorView = require '../lib/local-theme-selector-view'
 MultiThemeApplicator = require '../lib/multi-theme-applicator'
 LocalThemeManager = require '../lib/local-theme-manager'
 
-fdescribe 'LocalThemeSelectorView', () ->
+describe 'LocalThemeSelectorView', () ->
   localThemeSelectorView: null
   activationPromise: null
 
