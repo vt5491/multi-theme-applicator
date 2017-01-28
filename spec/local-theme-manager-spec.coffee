@@ -1,5 +1,6 @@
 LocalThemeManager = require '../lib/local-theme-manager'
 Utils = require '../lib/utils'
+Base = require '../lib/base'
 $ = jQuery = require 'jquery'
 fs = require 'fs'
 path = require 'path'
@@ -100,34 +101,58 @@ describe 'LocalThemeManager with complex atom-text-editor style tree', () ->
 
     @textEditor = buildEditorTestEvironment()
 
-  xit 'deleteThemeStyleNode works', () ->
-    @localThemeManager.deleteThemeStyleNode()
+  # defunct
+  # xit 'deleteThemeStyleNode works', () ->
+  #   @localThemeManager.deleteThemeStyleNode()
+  #
+  #   shadowRoot = @utils.getActiveShadowRoot()
+  #   expect($(shadowRoot).find('atom-styles').find('style').length).toEqual(2)
+  #   expect($(shadowRoot)
+  #     .find('atom-styles')
+  #     .find('style')
+  #     .eq(0)
+  #     .attr('source-path')).toMatch("spellCheck")
+  #
+  #   expect($(shadowRoot)
+  #     .find('atom-styles')
+  #     .find('style')
+  #     .eq(1)
+  #     .attr('source-path')).toMatch("gutter")
 
-    shadowRoot = @utils.getActiveShadowRoot()
-    expect($(shadowRoot).find('atom-styles').find('style').length).toEqual(2)
-    expect($(shadowRoot)
-      .find('atom-styles')
-      .find('style')
-      .eq(0)
-      .attr('source-path')).toMatch("spellCheck")
+  # xit 'addStyleElementToEditor', () ->
+  #   # create a simple style node to append
+  #   styleElement = $('<style>')
+  #     .attr('source-path', '/tmp/dummy-path')
+  #     .attr('context', 'atom-text-editor')
+  #     .attr('priority', '1')
+  #
+  #   @localThemeManager.addStyleElementToEditor(styleElement)
+  #
+  #   shadowRoot = @utils.getActiveShadowRoot()
+  #   expect($(shadowRoot).find('atom-styles').find('style').length).toEqual(4)
 
-    expect($(shadowRoot)
-      .find('atom-styles')
-      .find('style')
-      .eq(1)
-      .attr('source-path')).toMatch("gutter")
+  it 'addStyleElementToHead', () ->
+    # styleElem = $('<style></style>')
+    styleElem = document.createElement('style')
 
-  xit 'addStyleElementToEditor', () ->
-    # create a simple style node to append
-    styleElement = $('<style>')
-      .attr('source-path', '/tmp/dummy-path')
-      .attr('context', 'atom-text-editor')
-      .attr('priority', '1')
+    # editor scope
+    # verify it's not there beforehand
+    # expect($('head').find("atom-styles .#{styleClass}")[0]).toBeFalsy()
 
-    @localThemeManager.addStyleElementToEditor(styleElement)
+    styleClass = @localThemeManager.addStyleElementToHead styleElem, 'editor'
 
-    shadowRoot = @utils.getActiveShadowRoot()
-    expect($(shadowRoot).find('atom-styles').find('style').length).toEqual(4)
+    # verify it's now there
+    elem = $('head').find("atom-styles .#{styleClass}")[0]
+    expect(elem).toBeTruthy()
+    expect(elem.getAttribute('class').match(/editor/)).toBeTruthy()
+
+    # pane scope
+    styleClass = @localThemeManager.addStyleElementToHead styleElem, 'pane'
+
+    # verify it's now there
+    elem = $('head').find("atom-styles .#{styleClass}")[0]
+    expect(elem).toBeTruthy()
+    expect(elem.getAttribute('class').match(/pane/)).toBeTruthy()
 
   # this is too hard to unit-test.  The code is expecting the bg color to be
   # at this location:
@@ -176,20 +201,38 @@ atom-text-editor,
   background-color: #212020;
   color: #fff0ed;
 }
-     """
-
-     expectedCss = """
-atom-text-editor.#{styleKey},
-:host {
-  background-color: #212020;
-  color: #fff0ed;
+.syntax--comment {
+  color: #7C7C7C;
 }
      """
 
-     result = @localThemeManager.narrowStyleScope(css, styleKey)
+#      expectedCss = """
+# atom-text-editor.#{styleKey}.editor,
+# :host {
+#   background-color: #212020;
+#   color: #fff0ed;
+# }
+#      """
+     expectedCssFrag_1 = "atom-text-editor.#{styleKey}.editor"
+     re_1 = new RegExp(expectedCssFrag_1, 'gm')
 
-     console.log "ut: result=#{result}"
-     expect(result).toEqual(expectedCss)
+     expectedCssFrag_2 = ".#{styleKey}.editor .syntax--comment"
+     re_2 = new RegExp(expectedCssFrag_2, 'gm')
+
+     result = @localThemeManager.narrowStyleScope(css, styleKey, "file")
+
+    #  console.log "ut: result=#{result}"
+    #  expect(result).toEqual(expectedCss)
+     expect(result.match re_1).toBeTruthy()
+     expect(result.match re_2).toBeTruthy()
+
+     # pane level test
+     expectedCssFrag = ".#{styleKey} atom-text-editor"
+
+     result = @localThemeManager.narrowStyleScope(css, styleKey, "pane")
+
+     re = new RegExp(expectedCssFrag, 'gm')
+     expect(result.match re).toBeTruthy()
 
    it 'narrowStyleScope works with one line css selector', ->
      styleKey = 'abc'
@@ -202,12 +245,12 @@ atom-text-editor .gutter {
      """
 
      expectedCss = """
-atom-text-editor.#{styleKey} .gutter {
+atom-text-editor.#{styleKey}.editor .gutter {
   color: #959595;
 }
      """
 
-     result = @localThemeManager.narrowStyleScope(css, styleKey)
+     result = @localThemeManager.narrowStyleScope(css, styleKey, 'editor')
 
      console.log "ut: result=\n#{result}"
      expect(result).toEqual(expectedCss)
@@ -228,70 +271,71 @@ atom-text-editor.#{styleKey} .gutter {
 }
      """
 
-     result = @localThemeManager.narrowStyleScope(css, styleKey)
+     result = @localThemeManager.narrowStyleScope(css, styleKey, 'pane')
 
     #  console.log "ut: result=\n#{result}"
      expect(result).toEqual(expectedCss)
 
 
-   it 'removeStyleFromElement works', ->
-     editorElement = document.createElement('atom-text-editor')
-
-     # archetypal use case
-     styleClass = "mta-editor-style-1234567890123"
-     editorElement.setAttribute('class', "editor normal-mode #{styleClass} xyz")
-
-     @localThemeManager.removeStyleClassFromElement(editorElement)
-    #  console.log "new class = #{editorElement.getAttribute('class')}"
-
-     expect(editorElement.getAttribute('class').match(///#{styleClass}///)).toBeFalsy()
-     expect(editorElement.getAttribute('class').match(/editor normal-mode xyz/)).toBeTruthy()
-
-     # date key is not 10 chars or greater. Should not be removed.
-     styleClass = "mta-editor-style-1234"
-     editorElement.setAttribute('class', "editor normal-mode #{styleClass} xyz")
-
-     @localThemeManager.removeStyleClassFromElement(editorElement)
-     console.log "new class = #{editorElement.getAttribute('class')}"
-
-     expect(editorElement.getAttribute('class').match(///#{styleClass}///)).toBeTruthy()
-
-     # we are the first class
-     styleClass = "mta-editor-style-1234567890123"
-     editorElement.setAttribute('class', "#{styleClass} xyz")
-
-     @localThemeManager.removeStyleClassFromElement(editorElement)
-    #  console.log "new class = #{editorElement.getAttribute('class')}"
-     expect(editorElement.getAttribute('class').match(///#{styleClass}///)).toBeFalsy()
-     expect(editorElement.getAttribute('class').match(/xyz/)).toBeTruthy()
-
-     # we are the only class
-     styleClass = "mta-editor-style-1234567890123"
-     editorElement.setAttribute('class', "#{styleClass}")
-
-     #Note: defunct
-     @localThemeManager.removeStyleClassFromElement(editorElement)
-    #  console.log "new class = #{editorElement.getAttribute('class')}"
-     expect(editorElement.getAttribute('class').match(///#{styleClass}///)).toBeFalsy()
-     expect(editorElement.getAttribute('class')).toEqual('')
-
-     # empty class
-     styleClass = ""
-     editorElement.setAttribute('class', "")
-
-     @localThemeManager.removeStyleClassFromElement(editorElement)
-    #  console.log "new class = #{editorElement.getAttribute('class')}"
-     expect(editorElement.getAttribute('class')).toEqual('')
-
-     # no class at all
-     #note: we can't use 'atom-text-editor' because it somehow is automatically
-     # assigned a class of 'editor'.  Thus we use our own dummy tag
-     # editorElement = document.createElement('atom-text-editor')
-     editorElement = document.createElement('my-text-editor')
-     @localThemeManager.removeStyleClassFromElement(editorElement)
-
-     console.log "ut: class=#{editorElement.getAttribute('class')}"
-     expect(editorElement.getAttribute('class')).toBeFalsy()
+  # defunct
+  #  it 'removeStyleFromElement works', ->
+  #    editorElement = document.createElement('atom-text-editor')
+   #
+  #    # archetypal use case
+  #    styleClass = "mta-editor-style-1234567890123"
+  #    editorElement.setAttribute('class', "editor normal-mode #{styleClass} xyz")
+   #
+  #    @localThemeManager.removeStyleClassFromElement(editorElement)
+  #   #  console.log "new class = #{editorElement.getAttribute('class')}"
+   #
+  #    expect(editorElement.getAttribute('class').match(///#{styleClass}///)).toBeFalsy()
+  #    expect(editorElement.getAttribute('class').match(/editor normal-mode xyz/)).toBeTruthy()
+   #
+  #    # date key is not 10 chars or greater. Should not be removed.
+  #    styleClass = "mta-editor-style-1234"
+  #    editorElement.setAttribute('class', "editor normal-mode #{styleClass} xyz")
+   #
+  #    @localThemeManager.removeStyleClassFromElement(editorElement)
+  #    console.log "new class = #{editorElement.getAttribute('class')}"
+   #
+  #    expect(editorElement.getAttribute('class').match(///#{styleClass}///)).toBeTruthy()
+   #
+  #    # we are the first class
+  #    styleClass = "mta-editor-style-1234567890123"
+  #    editorElement.setAttribute('class', "#{styleClass} xyz")
+   #
+  #    @localThemeManager.removeStyleClassFromElement(editorElement)
+  #   #  console.log "new class = #{editorElement.getAttribute('class')}"
+  #    expect(editorElement.getAttribute('class').match(///#{styleClass}///)).toBeFalsy()
+  #    expect(editorElement.getAttribute('class').match(/xyz/)).toBeTruthy()
+   #
+  #    # we are the only class
+  #    styleClass = "mta-editor-style-1234567890123"
+  #    editorElement.setAttribute('class', "#{styleClass}")
+   #
+  #    #Note: defunct
+  #    @localThemeManager.removeStyleClassFromElement(editorElement)
+  #   #  console.log "new class = #{editorElement.getAttribute('class')}"
+  #    expect(editorElement.getAttribute('class').match(///#{styleClass}///)).toBeFalsy()
+  #    expect(editorElement.getAttribute('class')).toEqual('')
+   #
+  #    # empty class
+  #    styleClass = ""
+  #    editorElement.setAttribute('class', "")
+   #
+  #    @localThemeManager.removeStyleClassFromElement(editorElement)
+  #   #  console.log "new class = #{editorElement.getAttribute('class')}"
+  #    expect(editorElement.getAttribute('class')).toEqual('')
+   #
+  #    # no class at all
+  #    #note: we can't use 'atom-text-editor' because it somehow is automatically
+  #    # assigned a class of 'editor'.  Thus we use our own dummy tag
+  #    # editorElement = document.createElement('atom-text-editor')
+  #    editorElement = document.createElement('my-text-editor')
+  #    @localThemeManager.removeStyleClassFromElement(editorElement)
+   #
+  #    console.log "ut: class=#{editorElement.getAttribute('class')}"
+  #    expect(editorElement.getAttribute('class')).toBeFalsy()
 
    it 'removeStyleElementFromHead works', ->
      styleClass = 'mta-editor-style-1234567890123'
@@ -412,3 +456,72 @@ atom-text-editor .gutter,
 
     result = @localThemeManager.getCssBgColor css
     expect(result).toEqual("#5A5475")
+
+   it 'normalizeSyntaxScope properly add .syntax-- to non atom 1.13 compatible themes', ->
+
+     css = """
+atom-text-editor,
+:host {
+  background-color: #212020;
+  color: #fff0ed;
+}
+.comment {
+  color: #7C7C7C;
+}
+     """
+
+    #  debugger
+     result = @localThemeManager.normalizeSyntaxScope css
+
+     # lines with 'atom' should be unaffected
+     expectedCssFrag = "^atom-text-editor,"
+     re = new RegExp(expectedCssFrag, 'gm')
+
+     expect(result.match re).toBeTruthy()
+
+     # non-atom elements should have 'syntax--' format
+     expectedCssFrag = "^.syntax--comment"
+     re = new RegExp(expectedCssFrag, 'gm')
+
+     expect(result.match re).toBeTruthy()
+
+describe "LocalThemeManager scoped theme removal tests", () ->
+
+  beforeEach ->
+    @localThemeManager = new LocalThemeManager()
+
+    # setup textEditor
+    @textEditor = atom.workspace.buildTextEditor()
+    atom.workspace.buildTextEditor()
+
+    textEditorSpy = spyOn(atom.workspace, "getActiveTextEditor")
+      .andReturn(@textEditor)
+
+    # mock up an 'atom-text-editor' element
+    @styleClass = 'mta-editor-style-1234567890123'
+
+    $editorElem = $('<atom-text-editor></atom-text-editor')
+    $editorElem.attr('class', @styleClass)
+    editorElem = $editorElem[0]
+    spyOn(@textEditor, "getElement")
+      .andReturn(editorElem)
+
+    # setup Base.ElementLookup
+    #  Base.ElementLookup.get(editorElem)
+    Base.ElementLookup.set editorElem, {"editor" : {'styleClass' : @styleClass} }
+    # Base.ElementLookup.set editorElem, {"file" : {'styleClass' : @styleClass} }
+    Base.ElementLookup.get(editorElem)['file'] = {'styleClass' : @styleClass}
+
+    # Setup head style element
+    headStyleElement = document.createElement('style')
+
+    headStyleElement.setAttribute('context', 'atom-text-editor' )
+    headStyleElement.setAttribute('class', @styleClass )
+
+    $('head atom-styles').append(headStyleElement)
+
+  it 'removeScopedTheme removes the theme properly from an editor', ->
+    @localThemeManager.removeScopedTheme('editor')
+    # console.log "styleClass=" + @styleClass
+
+    expect($('head').find(".#{@styleClass}").length ).toEqual(0)

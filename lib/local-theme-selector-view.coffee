@@ -29,6 +29,7 @@
 # i.e. It is not used for keeping track of what theme is applied to what file etc.
 
 # @elementLookup
+# defined in Base
 # Used to keep track of elements that we have styled.  It's a WeakMap.  The key
 # is the dom element (not jquery Element). We associate a js object with this key.
 # The keys in the js object are:
@@ -46,6 +47,7 @@ $ = jQuery = require 'jquery'
 Utils = require './utils'
 LocalThemeManager = require './local-theme-manager'
 LocalStylesElement  = require './local-styles-element'
+Base = require './base'
 fs = require('fs-plus')
 
 
@@ -65,18 +67,42 @@ module.exports =
       @multiThemeApplicator =  multiThemeApplicator
       # restore the prior fileLookupState, if any
       @fileLookup = fileLookupState
-      @elementLookup = new WeakMap()
+      # @elementLookup = new WeakMap()
+      @elementLookup = Base.ElementLookup
 
       # create all the supporting services we may need to call
       @localThemeManager = new LocalThemeManager()
       @localStylesElement = new LocalStylesElement()
       @utils = new Utils()
 
+      this.initThemeSelectorForm()
       # setup the pane listener, so we can automatically apply the local theme to any
       # new editors that show up.
       #vt tmp comment out
       #vt-x @localThemeManager.initPaneEventHandler(this)
+      # seed the initial active element.  This value will change as the user
+      # selects via key bindings or mouse the selected theme in the dropdown.
+      @themeLookupActiveIndex = 0
 
+      @subscriptions = new CompositeDisposable
+
+      # Register command that toggles this view
+      @subscriptions.add atom.commands.add 'atom-workspace',
+        #vt 'multi-theme-applicator:applyLocalTheme':  => @applyLocalTheme()
+        'multi-theme-applicator:applyLocalTheme':  => @applyLocalTheme()
+        'local-theme-selector-view:focusModalPanel':  => @focusModalPanel()
+
+      @subscriptions.add atom.commands.add '.local-theme-selector-view',
+        #vt'local-theme-selector-view:applyLocalTheme':  => @applyLocalTheme()
+        'local-theme-selector-view:applyLocalTheme':  => @applyLocalTheme()
+        'local-theme-selector-view:selectPrevTheme':  => @selectPrevTheme()
+        'local-theme-selector-view:selectNextTheme':  => @selectNextTheme()
+        'local-theme-selector-view:expandThemeDropdown':  => @expandThemeDropdown()
+        'local-theme-selector-view:multiThemeApplicatorToggle': => @multiThemeApplicator.toggle()
+
+    # end ctor
+
+    initThemeSelectorForm: ->
       # create container element for the form
       @selectorView = document.createElement('div')
       @selectorView.classList.add('multi-theme-applicator','local-theme-selector-view')
@@ -89,7 +115,10 @@ module.exports =
 
       $form.appendTo(@selectorView)
 
-      $('<label>').text('Syntax Theme:').appendTo($form)
+      $themeDiv = $('<div class="theme"></div>')
+      $form.append($themeDiv)
+
+      $('<label>').text('Syntax Theme:').appendTo($themeDiv)
 
       @dropDownBorderWidthDefault
       $themeDropdown = $('<select id="themeDropdown" name="selectTheme">')
@@ -129,49 +158,68 @@ module.exports =
         $('#input-form span.error').text('')
         $('#input-form span.error').css("visibility", "hidden") )
 
-      $themeDropdown.appendTo($form)
+      # $themeDropdown.appendTo($form)
+      $themeDropdown.appendTo($themeDiv)
 
       closeModalDialogButton = $("<span>")
       closeModalDialogButton.attr(id: 'close-modal-dialog')
       closeModalDialogButton.text('x')
-      closeModalDialogButton.appendTo($form)
+      # closeModalDialogButton.appendTo($form)
+      closeModalDialogButton.appendTo($themeDiv)
       closeModalDialogButton.click(
         @multiThemeApplicator.toggle.bind(@multiThemeApplicator)
       )
 
+  # <input type="radio" name="gender" value="male"> Male<br>
+  # <input type="radio" name="gender" value="female"> Female<br>
+  # <input type="radio" name="gender" value="other"> Other
+      # $('<br></br>').appendTo($form)
+      $scopeDiv = $('<div class="scope"></div>').appendTo($form)
+      $('<label>').text('Scope:').appendTo($scopeDiv)
+      $('<input type="radio" name="scope" value="window">Window</input>').appendTo($scopeDiv)
+      $('<input type="radio" name="scope" value="pane">Pane</input>').appendTo($scopeDiv)
+      $('<input type="radio" name="scope" value="file" checked>File</input>').appendTo($scopeDiv)
+      $('<input type="radio" name="scope" value="editor">Editor</input>').appendTo($scopeDiv)
+
+      # $scopeDiv.mouseover () => 
+      #   console.log "now in mouseover"
+      #   $('#input-form div.scope input').focus()
       # var sp = document.createElement('span');
       # put in an error message box
       # $form.append("<br />")
-      $('<span class="error"></span>').appendTo($form)
+      # $('<span class="error"></span>').appendTo($form)
       # $('#themeDropdown .error').text('hi')
-      $form.find('span.error')
+      # $form.find('span.error')
 
-      $('<input id="apply-theme-submit"/>').attr(
-        type: 'submit'
-        value: 'Apply Local Theme'
-      ).appendTo($form)
+      $submitDiv = $('<div class="submit"></div>')
+      $form.append $submitDiv
 
-      # seed the initial active element.  This value will change as the user
-      # selects via key bindings or mouse the selected theme in the dropdown.
-      @themeLookupActiveIndex = 0
+      # $('<input id="apply-theme-submit"/>').attr(
+      #   type: 'submit'
+      #   value: 'Apply Theme'
+      # ).appendTo($submitDiv)
+      $submitBtn = $('<button type="submit" form="input-form" value="Apply Scoped Theme">Apply Theme</button>')
+      $submitBtn.appendTo $submitDiv
 
-      @subscriptions = new CompositeDisposable
+      # $('<input id="apply-theme-submit"/>').attr(
+      #   type: 'submit'
+      #   value: 'Remove Scoped Theme'
+      # ).appendTo($submitDiv)
+      $removeScopedThemeBtn = $('<button type="button"></button>')
+      $removeScopedThemeBtn.text('Remove Scoped Theme')
+      # $removeScopedThemeBtn.text('abc')
+      $removeScopedThemeBtn.attr('id', 'remove-scoped-theme')
+      $removeScopedThemeBtn.appendTo($submitDiv)
+      # $removeScopedThemeBtn.appendTo($form)
+      $removeScopedThemeBtn.click () => 
+        console.log "you pressed the remove button"
+        @localThemeManager.removeScopedTheme('editor')
+        console.log "successfully called removeScopedTheme"
+        # return false so the main submit action is not applied
+        return false
+ 
 
-      # Register command that toggles this view
-      @subscriptions.add atom.commands.add 'atom-workspace',
-        #vt 'multi-theme-applicator:applyLocalTheme':  => @applyLocalTheme()
-        'multi-theme-applicator:applyLocalTheme':  => @applyLocalTheme()
-        'local-theme-selector-view:focusModalPanel':  => @focusModalPanel()
-
-      @subscriptions.add atom.commands.add '.local-theme-selector-view',
-        #vt'local-theme-selector-view:applyLocalTheme':  => @applyLocalTheme()
-        'local-theme-selector-view:applyLocalTheme':  => @applyLocalTheme()
-        'local-theme-selector-view:selectPrevTheme':  => @selectPrevTheme()
-        'local-theme-selector-view:selectNextTheme':  => @selectNextTheme()
-        'local-theme-selector-view:expandThemeDropdown':  => @expandThemeDropdown()
-        'local-theme-selector-view:multiThemeApplicatorToggle': => @multiThemeApplicator.toggle()
-    # end ctor
-
+     
     selectNextTheme: ->
       @themeLookupActiveIndex++
       @themeLookupActiveIndex %= @themeLookup.length
@@ -203,7 +251,11 @@ module.exports =
     # This is the key method of the whole package.  This basically drives all the
     # other supporting modules.
     applyLocalTheme: (fn, themePath) ->
-      console.log "LocalThemeSelectorView.applyLocalTheme: entered"
+      # themeScope = 'editor'
+      # themeScope = 'pane'
+      # themeScope = 'window'
+      themeScope = $("input[type='radio'][name='scope']:checked").val()
+      console.log "LocalThemeSelectorView.applyLocalTheme: themeScope=#{themeScope}"
       baseCssPath = themePath || $( "#themeDropdown" ).val();
       sourcePath = baseCssPath + '/index.less'
 
@@ -221,15 +273,21 @@ module.exports =
           (result) =>
             css = result
 
+            # attempt to normalize normalize pre atom 1.13 themes
+            if !css.match /\.syntax--comment/gm
+              css = @localThemeManager.normalizeSyntaxScope css
+
+            # if our normalizing worked properly this should be redundant...but put
+            # up an error if our normalzing somehow failed.
             # put up a warning in the selection box if this theme is not atom >= 1.13
             # compatible
-            if !css.match /\.syntax--comment/gm
-              # $('#input-form span.error').text("#{@themeLookup[bassCssPath]} is not fully compatible with atom >=1.13. Some styling, such as font color, may not be properly applied.")
-              $('#input-form span.error').text("This theme is not fully compatible with atom >=1.13. Some styling, such as font color, may not be properly applied.")
-              $('#input-form span.error').css("visibility", "visible")
-            else
-              $('#input-form span.error').text('')
-              $('#input-form span.error').css("visibility", "hidden")
+            # if !css.match /\.syntax--comment/gm
+            #   # $('#input-form span.error').text("#{@themeLookup[bassCssPath]} is not fully compatible with atom >=1.13. Some styling, such as font color, may not be properly applied.")
+            #   $('#input-form span.error').text("This theme is not fully compatible with atom >=1.13. Some styling, such as font color, may not be properly applied.")
+            #   $('#input-form span.error').css("visibility", "visible")
+            # else
+            #   $('#input-form span.error').text('')
+            #   $('#input-form span.error').css("visibility", "hidden")
 
             # css = $(styleElement).text()
             # hexBgColor = @localThemeManager.getCssBgColor css
@@ -238,76 +296,107 @@ module.exports =
             # console.log "LocalThemeSelectorView.applyLocalTheme: bgColorRgbStr=#{bgColorRgbStr}"
             # bgColorRgbStr = @utils.hexToRgb( @localThemeManager.getCssBgColor css)
 
-            params = {}
-
-            params.uri = fn || @utils.getActiveFile()
-
-            #vt add
             newStyleElement = @localStylesElement.createStyleElement(css, sourcePath)
-            styleClass = @localThemeManager.addStyleElementToHead(newStyleElement, editor)
 
-            narrowedCss = @localThemeManager.narrowStyleScope(css, styleClass)
-            $(newStyleElement).text(narrowedCss)
-            #vt end
+            switch themeScope
+              when "file", "editor"
+                styleClass = @localThemeManager.addStyleElementToHead(newStyleElement, 'file')
 
-            # get all the textEditors open for this file
-            editors = @utils.getTextEditors params
+                narrowedCss = @localThemeManager.narrowStyleScope(css, styleClass, "file")
+                $(newStyleElement).text(narrowedCss)
 
-            for editor in editors
-              # We have to get a new styleElement each time i.e. we need to clone
-              # it.  If we create just one styleElement outside of this loop, it will simply get reassigned
-              # to the last editor we attach it too, and it won't be assigned to any of
-              # the previous editors
-              # css = cssResult
-              # newStyleElement = @localStylesElement.createStyleElement(css, sourcePath)
-              editorElem = editor.getElement();
-              
-              if !@elementLookup.get editorElem 
-                @elementLookup.set( editorElem, {} ) 
-                # editorElem = @elementLookup.get(editorElem)
+                params = {}
 
-              # prevStyleClass = editorElem['styleClass'] 
-              prevStyleClass = @elementLookup.get(editorElem)['styleClass'] 
+                params.uri = fn || @utils.getActiveFile()
 
-              # since multiple editors can be associated with one head style
-              # we will typically be deleting the head style multiple times, but the
-              # operation is idempotent, so this is safe.  By the time we determine 
-              # that we don't need to delete it, we could have already gone ahead and
-              # just deleted it.  So it's easier and simpler to just delete it multiple times.
-              if prevStyleClass
-                @localThemeManager.removeStyleElementFromHead(prevStyleClass)
+                editors = []
+                if themeScope == "file"
+                  # get all the textEditors open for this file
+                  editors = @utils.getTextEditors params
+                else
+                  editors.push atom.workspace.getActiveTextEditor() 
 
-              #TODO: allow a theme to be passed as well
-              # @localThemeManager.removeStyleClassFromElement editorElem
-              $(editorElem).removeClass(prevStyleClass)
-              # removeClassFn= (i, elem) =>
-              # $(editorElem)
-              #   .find('[gutter-name]')
-              #   .each((i,elem) => 
-              #     $(elem).removeClass(prevStyleClass) )
 
-              # @localThemeManager.deleteThemeStyleNode(editor)
-              # @localThemeManager.deleteThemeStyleNodeFromHead(editor)
-              # @localThemeManager.addStyleElementToEditor(newStyleElement, editor)
-              $(editorElem).addClass(styleClass)
-              # $(editorElem)
-              #   .find('[gutter-name]')
-              #   .each((i,elem) => 
-              #     $(elem).addClass(styleClass) )
+                for editor in editors
+                  # We have to get a new styleElement each time i.e. we need to clone
+                  # it.  If we create just one styleElement outside of this loop, it will simply get reassigned
+                  # to the last editor we attach it too, and it won't be assigned to any of
+                  # the previous editors
+                  # css = cssResult
+                  # newStyleElement = @localStylesElement.createStyleElement(css, sourcePath)
+                  editorElem = editor.getElement();
+                  
+                  if !@elementLookup.get editorElem 
+                    # create a two-tier lookup element->'file'
+                    # @elementLookup.set( editorElem, { file: {} } ) 
+                    # subLookup = if themeScope == 'file' then {'file': {}} else {'editor: {}'}
+                    # subLookup = {"#{themeScope} : {}"}
+                    # @elementLookup.set( editorElem, { subLookup } ) 
+                    @elementLookup.set editorElem, {"#{themeScope}" : {} } 
+                    # editorElem = @elementLookup.get(editorElem)
 
-              # save the current element state in @elementLookup
-              elemState = @elementLookup.get(editorElem)
+                  # prevStyleClass = editorElem['styleClass'] 
+                  prevStyleClass = @elementLookup.get(editorElem)[themeScope]['styleClass'] 
+                  console.log "prevStyleClass=#{prevStyleClass}"
 
-              elemState['type'] = 'editor'
-              elemState['styleClass'] = styleClass 
-              
-              # $(editor.getElement()).parent().addClass(styleClass)
-              #vt @localThemeManager.syncEditorBackgroundColor(editor)
-              # do all the stragglers on the gutter div that for some reason have
-              # a hard-coded style, and thus are not affected by the parent editors style
+                  # since multiple editors can be associated with one head style
+                  # we will typically be deleting the head style multiple times, but the
+                  # operation is idempotent, so this is safe.  By the time we determine 
+                  # that we don't need to delete it, we could have already gone ahead and
+                  # just deleted it.  So it's easier and simpler to just delete it multiple times.
+                  if prevStyleClass
+                    @localThemeManager.removeStyleElementFromHead(prevStyleClass)
 
-              # @localThemeManager.changeBgColorOnGutterDivs(editorElem, bgColorRgbStr)
+                  #TODO: allow a theme to be passed as well
+                  # @localThemeManager.removeStyleClassFromElement editorElem
+                  $(editorElem).removeClass(prevStyleClass)
+                  $(editorElem).addClass(styleClass)
 
+                  # save the current element state in @elementLookup
+                  elemState = @elementLookup.get(editorElem)
+
+                  elemState[themeScope]['type'] = themeScope
+                  elemState[themeScope]['styleClass'] = styleClass 
+
+              when "pane"
+                styleClass = @localThemeManager.addStyleElementToHead(newStyleElement, 'pane')
+
+                narrowedCss = @localThemeManager.narrowStyleScope(css, styleClass, "pane")
+                $(newStyleElement).text(narrowedCss)
+
+                # paneElem = atom.workspace.getActivePane()
+                paneElem = $('atom-pane.active')[0]
+
+                if !@elementLookup.get paneElem 
+                  @elementLookup.set( paneElem, {} ) 
+
+                prevStyleClass = @elementLookup.get(paneElem)['styleClass'] 
+
+                if prevStyleClass
+                  @localThemeManager.removeStyleElementFromHead(prevStyleClass)
+
+                $(paneElem).removeClass(prevStyleClass)
+                $(paneElem).addClass(styleClass)
+
+              when "window"
+                styleClass = @localThemeManager.addStyleElementToHead(newStyleElement, 'window')
+
+                narrowedCss = @localThemeManager.narrowStyleScope(css, styleClass, "window")
+                $(newStyleElement).text(narrowedCss)
+
+                # paneElem = atom.workspace.getActivePane()
+                windowElem = $('atom-pane-container.panes')[0]
+
+                if !@elementLookup.get windowElem 
+                  @elementLookup.set( windowElem, {} ) 
+
+                prevStyleClass = @elementLookup.get(windowElem)['styleClass'] 
+
+                if prevStyleClass
+                  @localThemeManager.removeStyleElementFromHead(prevStyleClass)
+
+                $(windowElem).removeClass(prevStyleClass)
+                $(windowElem).addClass(styleClass)
             # Reset all panes to avoid sympathetic bleed over effects that occasionally
             # happens when updating a non-activated (not currently focused) textEditor
             # in a pane.

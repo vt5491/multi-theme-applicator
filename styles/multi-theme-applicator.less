@@ -44,12 +44,69 @@
   }
 
   //Style the main input form
+  // Note: the width of the main popup dialog is fixed by atom itself.  You can shrink the size
+  // of the items in the form, but it won't affect the undelying panel popup panel size
+  //#input-form {
+  //  width: 300px;
+  //}
   #input-form span.error {
     display: inline-block;   
     color: #9F6000;
     background-color: #FEEFB3;
     font-style: italic;
     visibility: hidden;
+    height: 20px;
+  }
+
+  #input-form div.theme {
+    //width: 200px;
+    height: 30px;
+    //align: left; 
+  }
+
+  #input-form div.scope {
+    //text-align: center;
+    //border: 2px solid green;
+    align-items: left;
+    height: 30px;
+  }
+
+  #input-form div.scope input[type="radio"] {
+    margin-right: 0px;
+    margin-left: 10px;
+  }
+
+  #input-form div.scope label {
+    margin-right: 30px;
+  }
+
+  #input-form div.submit {
+    // background-color: yellow;
+    // color: red;
+    //align-items: center;
+    //margin-left: auto;
+    //margin-right: auto;
+    width: 75%;
+    margin: auto;
+    // border: 1px;
+    // outline: #00FF00 dotted thick;
+  }
+
+  // #input-form div.submit button #remove-scoped-theme {
+  //   //align-items: right;
+  //   //margin-left: 100px;
+  //   color: green;
+  // }
+
+  #input-form div.submit button[type='submit'] {
+    border: 2px solid #bbb;
+  }
+
+  #remove-scoped-theme {
+    // color: blue;
+    // margin-right: auto;
+    // display: inline-block;
+    float: right;
   }
 
 }

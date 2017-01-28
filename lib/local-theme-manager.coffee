@@ -3,6 +3,7 @@ Utils = require './utils'
 fs = require 'fs-plus'
 path = require 'path'
 less = require 'less'
+Base = require './base'
 
 module.exports =
   class LocalThemeManager
@@ -28,36 +29,36 @@ module.exports =
 
       activeTheme
 
-    addStyleElementToEditor: (styleElement, editor)->
-      console.log "LocalThemeManager.addStyleElementToEditor: entered"
-      editorElement
+    # addStyleElementToEditor: (styleElement, editor)->
+    #   console.log "LocalThemeManager.addStyleElementToEditor: entered"
+    #   editorElement
 
-      if editor?
-        # editorElement = @utils.geteditorElement editor
-        editorElement = @utils.getEditorElement editor
-      else
-        editorElement = @utils.getActiveEditorElement()
+    #   if editor?
+    #     # editorElement = @utils.geteditorElement editor
+    #     editorElement = @utils.getEditorElement editor
+    #   else
+    #     editorElement = @utils.getActiveEditorElement()
 
-      $editorElement = $(editorElement)
-      # create the atom-styles element if it doesn't exist
+    #   $editorElement = $(editorElement)
+    #   # create the atom-styles element if it doesn't exist
 
-      if !$editorElement.find('atom-styles').length
-        $editorElement.append($('<atom-styles context="atom-text-editor"></atom-styles>'))
-      # add "priority=1" attribute to the styleElement
-      # TODO: also add context=atom-text-editor to the style element
-      # only the style element has the priority=1 though
-      $(styleElement).attr("priority", "1");
+    #   if !$editorElement.find('atom-styles').length
+    #     $editorElement.append($('<atom-styles context="atom-text-editor"></atom-styles>'))
+    #   # add "priority=1" attribute to the styleElement
+    #   # TODO: also add context=atom-text-editor to the style element
+    #   # only the style element has the priority=1 though
+    #   $(styleElement).attr("priority", "1");
 
-      themeNode = $editorElement
-        .find('[context="atom-text-editor"]')
-        .filter('atom-styles')
-        .append(styleElement)
-      # themeName = $editorElement.parent().append(styleElement)
+    #   themeNode = $editorElement
+    #     .find('[context="atom-text-editor"]')
+    #     .filter('atom-styles')
+    #     .append(styleElement)
+    #   # themeName = $editorElement.parent().append(styleElement)
 
-    addStyleElementToHead: (styleElement, editor)->
+    addStyleElementToHead: (styleElement, scope)->
       # document.getElementsByTagName('head')[0]
       #   .appendChild(styleElement)
-      styleClass = 'mta-editor-style-' + Date.now()
+      styleClass = "mta-#{scope}-style-" + Date.now()
       $(styleElement).addClass(styleClass)
       $('head').find('atom-styles').append(styleElement)
 
@@ -69,41 +70,60 @@ module.exports =
       if $.find("head atom-styles style.#{styleClass}").length > 0 
         $.find("head atom-styles style.#{styleClass}")[0].remove()
       
-    deleteThemeStyleNode: (editor) ->
-      editorElement
+    # Remove the scoped theme from the active scope.  This involves deleting the css
+    # from head->atom-styles as well as removing the class tag from any elements
+    # tagged in the scope (for example, "file" scope will include multiper editor elements) 
+    removeScopedTheme: (scope) ->
+      console.log "LocalThemeManager.removeScopedTheme: entered"
+      switch scope
+        when "editor"
+          editorElem = atom.workspace.getActiveTextEditor().getElement()
+          # get the class associated with this element
+          styleClass = Base.ElementLookup.get(editorElem)[scope]['styleClass']
 
-      if editor?
-        editorElement = @utils.getEditorElement editor
-      else
-        editorElement = @utils.getActiveEditorElement()
+          # remove from head
+          if styleClass
+            this.removeStyleElementFromHead(styleClass)
 
-      $editorElement = $(editorElement)
-      themeNode = $editorElement
-        .find('[context="atom-text-editor"]')
-        .filter('atom-styles')
-        .find('[priority="1"]')
-        .filter('[source-path*="index.less"]')
+          # and remove from the element itself
+          $(editorElem).removeClass(styleClass)
 
-      if (themeNode.length != 1)
-        return -1
+    # defunct
+    # deleteThemeStyleNode: (editor) ->
+    #   editorElement
 
-      themeNode.remove()
+    #   if editor?
+    #     editorElement = @utils.getEditorElement editor
+    #   else
+    #     editorElement = @utils.getActiveEditorElement()
+
+    #   $editorElement = $(editorElement)
+    #   themeNode = $editorElement
+    #     .find('[context="atom-text-editor"]')
+    #     .filter('atom-styles')
+    #     .find('[priority="1"]')
+    #     .filter('[source-path*="index.less"]')
+
+    #   if (themeNode.length != 1)
+    #     return -1
+
+    #   themeNode.remove()
     
     # remove the "mta style" class from the given dom element.  The element will
     # be an editor, pane, or "window" html element.
     # Defunct: replaced by simple call to jquery.removeClass
-    removeStyleClassFromElement: (element) ->
-      elemClass = element.getAttribute('class')
-      # console.log "ut: element=#{elemClass}"
+    # removeStyleClassFromElement: (element) ->
+    #   elemClass = element.getAttribute('class')
+    #   # console.log "ut: element=#{elemClass}"
 
-      # tmp = elemClass.replace(/\s?mta-\w+-style-\d{10,}/, '')
-      # console.log "ut: tmp=#{tmp}"
-      # typical mta style class: mta-editor-style-1484974763214
-      # element.setAttribute('class', elemClass.replace(\s?/mta-\w+-style-\d{10,}/, ''))
-      # since we should have inserted one leading padding space and some text, we remove
-      # one leading space (or zero, if it's the beginning of the line) and some text
-      if elemClass
-        element.setAttribute('class', elemClass.replace(/\s?mta-\w+-style-\d{10,}/, ''))
+    #   # tmp = elemClass.replace(/\s?mta-\w+-style-\d{10,}/, '')
+    #   # console.log "ut: tmp=#{tmp}"
+    #   # typical mta style class: mta-editor-style-1484974763214
+    #   # element.setAttribute('class', elemClass.replace(\s?/mta-\w+-style-\d{10,}/, ''))
+    #   # since we should have inserted one leading padding space and some text, we remove
+    #   # one leading space (or zero, if it's the beginning of the line) and some text
+    #   if elemClass
+    #     element.setAttribute('class', elemClass.replace(/\s?mta-\w+-style-\d{10,}/, ''))
 
     getThemeCss: (basePath) ->
       lessPath = basePath + "/index.less"
@@ -220,7 +240,7 @@ module.exports =
     # adding a style at the editor level, the editor element class will have
     # a unique styleKey added to it.  We then need to add this class to the css
     # selector, so the style is applied to only that one editor 
-    narrowStyleScope: (css, styleClass) ->
+    narrowStyleScope: (css, styleClass, scope) ->
       # console.log "narrowStyleScope.css=#{css}"
       # narrowedCss = css
 
@@ -228,8 +248,19 @@ module.exports =
       # narrowedCss = css.replace(/^(atom-text-editor.*),$/gm, "$1." + styleClass + ",")
       # # narrowedCss = narrowedCss.replace(/^(.*\{$)/gm, ".#{styleClass} $1")
       # narrowedCss = narrowedCss.replace(/^(.*) \{$/gm, "$1." + styleClass + " {")
-      narrowedCss = css.replace(/atom-text-editor/gm, "atom-text-editor.#{styleClass}")
-      narrowedCss = narrowedCss.replace(/^(\.syntax--\w+)/gm, ".#{styleClass} $1")
+      # Note: regex replace is not destructive, so css var is unaffected
+      switch scope
+        # when "editor" then narrowedCss = css.replace(/atom-text-editor/gm, "atom-text-editor.#{styleClass}")
+        # when "pane", "window" then narrowedCss = css.replace(/atom-text-editor/gm, ".#{styleClass} atom-text-editor")
+        when "editor", "file"
+          # note how we tack on a class of '.editor' to more narrowly target to the editor only
+          narrowedCss = css.replace(/atom-text-editor/gm, "atom-text-editor.#{styleClass}.editor")
+          narrowedCss = narrowedCss.replace(/^(\.syntax--\w+)/gm, ".#{styleClass}.editor $1")
+        when "pane", "window"
+          narrowedCss = css.replace(/atom-text-editor/gm, ".#{styleClass} atom-text-editor")
+          narrowedCss = narrowedCss.replace(/^(\.syntax--\w+)/gm, ".#{styleClass} $1")
+
+      # narrowedCss = narrowedCss.replace(/^(\.syntax--\w+)/gm, ".#{styleClass} $1")
 
       narrowedCss
 
@@ -256,3 +287,27 @@ module.exports =
     #   $(editorElem)
     #     .find('div.gutter div.custom-decorations')
     #     .each(changeBgColor)
+
+   # This method adds "syntax--" to themes that are not compliant with the new
+   # >atom 1.13 style syntax.  e.g
+   # ".comment {"  -> ".syntax--comment {"
+   # We skip any element that has "atom" in it.
+    normalizeSyntaxScope: (css) ->
+      console.log "LocalThemeManager.normalizeSyntaxScope: entered"
+
+      lines = css.split "\n"
+      normalizedCss = ''
+
+      # for i in [0..lines.length -1]
+      for line in lines
+        if line.match /atom/
+          normalizedCss += line + "\n" 
+          continue
+
+        normalizedLine = line
+        if line.match /^\..*\{/
+          normalizedLine = line.replace /^\.(\w+)/, ".syntax--$1"
+
+         normalizedCss += normalizedLine + "\n"
+
+      normalizedCss
