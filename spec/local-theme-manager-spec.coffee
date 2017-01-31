@@ -252,7 +252,7 @@ atom-text-editor.#{styleKey}.editor .gutter {
 
      result = @localThemeManager.narrowStyleScope(css, styleKey, 'editor')
 
-     console.log "ut: result=\n#{result}"
+    #  console.log "ut: result=\n#{result}"
      expect(result).toEqual(expectedCss)
 
    it 'narrowStyleScope works with "syntax--" keyword', ->
@@ -339,6 +339,10 @@ atom-text-editor.#{styleKey}.editor .gutter {
 
    it 'removeStyleElementFromHead works', ->
      styleClass = 'mta-editor-style-1234567890123'
+     console.log('ut-x: hi14')
+
+     $('head atom-styles .' + styleClass).remove()
+
      headStyleElement = document.createElement('style')
 
      headStyleElement.setAttribute('context', 'atom-text-editor' )
@@ -490,38 +494,83 @@ describe "LocalThemeManager scoped theme removal tests", () ->
   beforeEach ->
     @localThemeManager = new LocalThemeManager()
 
-    # setup textEditor
-    @textEditor = atom.workspace.buildTextEditor()
-    atom.workspace.buildTextEditor()
+    # setup textEditors
+    @textEditor_1 = atom.workspace.buildTextEditor()
+    # atom.workspace.buildTextEditor()
+
+    @textEditor_2 = atom.workspace.buildTextEditor()
 
     textEditorSpy = spyOn(atom.workspace, "getActiveTextEditor")
-      .andReturn(@textEditor)
+      .andReturn(@textEditor_1)
 
     # mock up an 'atom-text-editor' element
-    @styleClass = 'mta-editor-style-1234567890123'
+    @styleClass_editor = 'mta-editor-style-1234567890123'
+    @styleClass_file = 'mta-file-style-1234567890123'
 
-    $editorElem = $('<atom-text-editor></atom-text-editor')
-    $editorElem.attr('class', @styleClass)
-    editorElem = $editorElem[0]
-    spyOn(@textEditor, "getElement")
-      .andReturn(editorElem)
+    $editorElem_1 = $('<atom-text-editor></atom-text-editor')
+    $editorElem_1.attr('class', @styleClass_editor)
+    $editorElem_1.addClass(@styleClass_file)
+    editorElem_1 = $editorElem_1[0]
+    spyOn(@textEditor_1, "getElement").andReturn(editorElem_1)
+    spyOn(@textEditor_1, "getURI").andReturn("/mydir/abc.txt")
 
+    $editorElem_2 = $('<atom-text-editor></atom-text-editor')
+    $editorElem_2.attr('class', @styleClass_file)
+    # $editorElem_2.addClass(@styleClass_file)
+    editorElem_2 = $editorElem_2[0]
+    spyOn(@textEditor_2, "getElement").andReturn(editorElem_2)
+    spyOn(@textEditor_2, "getURI").andReturn("/mydir/abc.txt")
     # setup Base.ElementLookup
     #  Base.ElementLookup.get(editorElem)
-    Base.ElementLookup.set editorElem, {"editor" : {'styleClass' : @styleClass} }
-    # Base.ElementLookup.set editorElem, {"file" : {'styleClass' : @styleClass} }
-    Base.ElementLookup.get(editorElem)['file'] = {'styleClass' : @styleClass}
+    Base.ElementLookup.set editorElem_1, {"editor" : {'styleClass' : @styleClass_editor} }
+    Base.ElementLookup.get(editorElem_1)['file'] = {'styleClass' : @styleClass_file}
+
+    # Base.ElementLookup.get(editorElem_2)['file'] = {'styleClass' : @styleClass_file}
+    Base.ElementLookup.set editorElem_2, {"file" : {'styleClass' : @styleClass_file} }
 
     # Setup head style element
-    headStyleElement = document.createElement('style')
+    headStyleElement_editor = document.createElement('style')
+    headStyleElement_file = document.createElement('style')
 
-    headStyleElement.setAttribute('context', 'atom-text-editor' )
-    headStyleElement.setAttribute('class', @styleClass )
+    headStyleElement_editor.setAttribute('context', 'atom-text-editor' )
+    headStyleElement_editor.setAttribute('class', @styleClass_editor )
 
-    $('head atom-styles').append(headStyleElement)
+    headStyleElement_file.setAttribute('class', @styleClass_file )
+
+    # We have to manually remove from head since beforeEach doesn't automatically
+    # clean up the DOM.
+    $('head atom-styles .' + @styleClass_editor).remove()
+    $('head atom-styles .' + @styleClass_file).remove()
+
+    $('head atom-styles ').append(headStyleElement_editor)
+    $('head atom-styles').append(headStyleElement_file)
+
+    editors = []
+    editors.push @textEditor_1
+    editors.push @textEditor_2
+
+    spyOn(atom.workspace, 'getTextEditors').andReturn(editors)
 
   it 'removeScopedTheme removes the theme properly from an editor', ->
+    # debugger
+    console.log "hi3"
     @localThemeManager.removeScopedTheme('editor')
     # console.log "styleClass=" + @styleClass
 
-    expect($('head').find(".#{@styleClass}").length ).toEqual(0)
+    # verify head element removed
+    expect($('head').find(".#{@styleClass_editor}").length ).toEqual(0)
+    expect($('head').find(".#{@styleClass_file}").length > 0 ).toBeTruthy()
+
+    #verify element class is removed
+    expect($("atom-text-editor.#{@styleClass_editor}").length).toEqual(0)
+
+  it 'removeScopedTheme removes the theme properly from a file scope', ->
+    # debugger
+    @localThemeManager.removeScopedTheme('file')
+
+    # verify head element removed
+    expect($('head').find(".#{@styleClass_editor}").length ).toEqual(1)
+    expect($('head').find(".#{@styleClass_file}").length).toEqual(0)
+
+    #verify element class is removed
+    expect($("atom-text-editor.#{@styleClass_file}").length).toEqual(0)

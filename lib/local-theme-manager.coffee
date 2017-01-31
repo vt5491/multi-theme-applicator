@@ -76,17 +76,36 @@ module.exports =
     removeScopedTheme: (scope) ->
       console.log "LocalThemeManager.removeScopedTheme: entered"
       switch scope
-        when "editor"
-          editorElem = atom.workspace.getActiveTextEditor().getElement()
+        when "file", "editor"
+          activeEditor = atom.workspace.getActiveTextEditor()
+          editorElem = activeEditor.getElement()
           # get the class associated with this element
-          styleClass = Base.ElementLookup.get(editorElem)[scope]['styleClass']
+          if Base.ElementLookup.get(editorElem) && Base.ElementLookup.get(editorElem)[scope]
+            styleClass = Base.ElementLookup.get(editorElem)[scope]['styleClass']
 
           # remove from head
           if styleClass
             this.removeStyleElementFromHead(styleClass)
 
-          # and remove from the element itself
-          $(editorElem).removeClass(styleClass)
+          editors = []
+
+          if scope == "file"
+            # editors = @utils.getTextEditors {uri : activeEditor.getURI()} 
+            editors = @utils.getTextEditors {uri : @utils.getActiveFile()} 
+          else
+            editors.push activeEditor 
+
+          for editor in editors
+            # and remove from the element itself
+            # if scope == "editor"
+            editorElem = editor.getElement()
+            
+            $(editorElem).removeClass(styleClass)
+
+        # when "file"
+        #   editorElem = atom.workspace.getActiveTextEditor().getElement()
+        #   # get the class associated with this element
+        #   styleClass = Base.ElementLookup.get(editorElem)[scope]['styleClass']
 
     # defunct
     # deleteThemeStyleNode: (editor) ->

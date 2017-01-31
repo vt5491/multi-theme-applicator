@@ -198,7 +198,7 @@ module.exports =
       #   type: 'submit'
       #   value: 'Apply Theme'
       # ).appendTo($submitDiv)
-      $submitBtn = $('<button type="submit" form="input-form" value="Apply Scoped Theme">Apply Theme</button>')
+      $submitBtn = $('<button type="submit" form="input-form" value="Apply Scoped Theme">Apply Scoped Theme</button>')
       $submitBtn.appendTo $submitDiv
 
       # $('<input id="apply-theme-submit"/>').attr(
@@ -213,7 +213,8 @@ module.exports =
       # $removeScopedThemeBtn.appendTo($form)
       $removeScopedThemeBtn.click () => 
         console.log "you pressed the remove button"
-        @localThemeManager.removeScopedTheme('editor')
+        scope = $('input[name=scope]:checked').val()
+        @localThemeManager.removeScopedTheme(scope)
         console.log "successfully called removeScopedTheme"
         # return false so the main submit action is not applied
         return false
@@ -277,25 +278,6 @@ module.exports =
             if !css.match /\.syntax--comment/gm
               css = @localThemeManager.normalizeSyntaxScope css
 
-            # if our normalizing worked properly this should be redundant...but put
-            # up an error if our normalzing somehow failed.
-            # put up a warning in the selection box if this theme is not atom >= 1.13
-            # compatible
-            # if !css.match /\.syntax--comment/gm
-            #   # $('#input-form span.error').text("#{@themeLookup[bassCssPath]} is not fully compatible with atom >=1.13. Some styling, such as font color, may not be properly applied.")
-            #   $('#input-form span.error').text("This theme is not fully compatible with atom >=1.13. Some styling, such as font color, may not be properly applied.")
-            #   $('#input-form span.error').css("visibility", "visible")
-            # else
-            #   $('#input-form span.error').text('')
-            #   $('#input-form span.error').css("visibility", "hidden")
-
-            # css = $(styleElement).text()
-            # hexBgColor = @localThemeManager.getCssBgColor css
-            # console.log "LocalThemeSelectorView.applyLocalTheme: bgColorRgbStr=#{bgColorRgbStr}"
-            # bgColorRgbStr = @utils.hexToRgb(hexBgColor)
-            # console.log "LocalThemeSelectorView.applyLocalTheme: bgColorRgbStr=#{bgColorRgbStr}"
-            # bgColorRgbStr = @utils.hexToRgb( @localThemeManager.getCssBgColor css)
-
             newStyleElement = @localStylesElement.createStyleElement(css, sourcePath)
 
             switch themeScope
@@ -336,7 +318,8 @@ module.exports =
                     # editorElem = @elementLookup.get(editorElem)
 
                   # prevStyleClass = editorElem['styleClass'] 
-                  prevStyleClass = @elementLookup.get(editorElem)[themeScope]['styleClass'] 
+                  if @elementLookup.get(editorElem) && @elementLookup.get(editorElem)[themeScope]
+                    prevStyleClass = @elementLookup.get(editorElem)[themeScope]['styleClass'] 
                   console.log "prevStyleClass=#{prevStyleClass}"
 
                   # since multiple editors can be associated with one head style
@@ -355,6 +338,9 @@ module.exports =
                   # save the current element state in @elementLookup
                   elemState = @elementLookup.get(editorElem)
 
+                  if !elemState[themeScope]
+                    elemState[themeScope] = {}
+                    
                   elemState[themeScope]['type'] = themeScope
                   elemState[themeScope]['styleClass'] = styleClass 
 
