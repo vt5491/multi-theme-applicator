@@ -29,32 +29,6 @@ module.exports =
 
       activeTheme
 
-    # addStyleElementToEditor: (styleElement, editor)->
-    #   console.log "LocalThemeManager.addStyleElementToEditor: entered"
-    #   editorElement
-
-    #   if editor?
-    #     # editorElement = @utils.geteditorElement editor
-    #     editorElement = @utils.getEditorElement editor
-    #   else
-    #     editorElement = @utils.getActiveEditorElement()
-
-    #   $editorElement = $(editorElement)
-    #   # create the atom-styles element if it doesn't exist
-
-    #   if !$editorElement.find('atom-styles').length
-    #     $editorElement.append($('<atom-styles context="atom-text-editor"></atom-styles>'))
-    #   # add "priority=1" attribute to the styleElement
-    #   # TODO: also add context=atom-text-editor to the style element
-    #   # only the style element has the priority=1 though
-    #   $(styleElement).attr("priority", "1");
-
-    #   themeNode = $editorElement
-    #     .find('[context="atom-text-editor"]')
-    #     .filter('atom-styles')
-    #     .append(styleElement)
-    #   # themeName = $editorElement.parent().append(styleElement)
-
     addStyleElementToHead: (styleElement, scope)->
       # document.getElementsByTagName('head')[0]
       #   .appendChild(styleElement)
@@ -77,11 +51,26 @@ module.exports =
       console.log "LocalThemeManager.removeScopedTheme: entered"
       switch scope
         when "file", "editor"
-          activeEditor = atom.workspace.getActiveTextEditor()
-          editorElem = activeEditor.getElement()
+          # activeEditor = atom.workspace.getActiveTextEditor()
+          editor = atom.workspace.getActiveTextEditor()
+          # editorElem = activeEditor.getElement()
+          editorElem = editor.getElement()
           # get the class associated with this element
-          if Base.ElementLookup.get(editorElem) && Base.ElementLookup.get(editorElem)[scope]
-            styleClass = Base.ElementLookup.get(editorElem)[scope]['styleClass']
+          # if Base.ElementLookup.get(editorElem) && Base.ElementLookup.get(editorElem)[scope]
+          #   styleClass = Base.ElementLookup.get(editorElem)[scope]['styleClass']
+          styleClass
+          if Base.ElementLookup.get(editor) && Base.ElementLookup.get(editor)[scope]
+            styleClass = Base.ElementLookup.get(editor)[scope]['styleClass']
+          else
+            # kind of a hack here
+            # this should be a "does not occur" condition, but resort to this hack
+            # to at least clean up, until I can close down this path from occurring
+            # Here, we just pull the scope class name directly from the editor element
+            re = new RegExp("mta-#{scope}-style-\d{10,}")
+            match = $(editor).attr('class').match(re)
+            if (match.length > 0)
+              styleClass = match[0]              
+              console.log "LocalThemeManager.removeScopedTheme: hacked styleClass=#{styleClass}"
 
           # remove from head
           if styleClass
@@ -93,7 +82,8 @@ module.exports =
             # editors = @utils.getTextEditors {uri : activeEditor.getURI()} 
             editors = @utils.getTextEditors {uri : @utils.getActiveFile()} 
           else
-            editors.push activeEditor 
+            # editors.push activeEditor 
+            editors.push editor 
 
           for editor in editors
             # and remove from the element itself
@@ -102,47 +92,39 @@ module.exports =
             
             $(editorElem).removeClass(styleClass)
 
-        # when "file"
-        #   editorElem = atom.workspace.getActiveTextEditor().getElement()
-        #   # get the class associated with this element
-        #   styleClass = Base.ElementLookup.get(editorElem)[scope]['styleClass']
+            #remove from ElementLookup
+            Base.ElementLookup.delete(editor)
+          
+        when "pane"
+          pane = atom.workspace.getActivePane()
+          $activePane = $('atom-pane.active')
+          paneElem = $activePane[0]
 
-    # defunct
-    # deleteThemeStyleNode: (editor) ->
-    #   editorElement
+          # if Base.ElementLookup.get(paneElem)
+          #   styleClass = Base.ElementLookup.get(paneElem)['styleClass']
+          if Base.ElementLookup.get(pane)
+            styleClass = Base.ElementLookup.get(pane)['styleClass']
 
-    #   if editor?
-    #     editorElement = @utils.getEditorElement editor
-    #   else
-    #     editorElement = @utils.getActiveEditorElement()
+          # remove from head
+          if styleClass
+            this.removeStyleElementFromHead(styleClass)
 
-    #   $editorElement = $(editorElement)
-    #   themeNode = $editorElement
-    #     .find('[context="atom-text-editor"]')
-    #     .filter('atom-styles')
-    #     .find('[priority="1"]')
-    #     .filter('[source-path*="index.less"]')
+          $(paneElem).removeClass(styleClass)
 
-    #   if (themeNode.length != 1)
-    #     return -1
+          # remove from ElementLookup
+          Base.ElementLookup.delete(pane)
 
-    #   themeNode.remove()
-    
-    # remove the "mta style" class from the given dom element.  The element will
-    # be an editor, pane, or "window" html element.
-    # Defunct: replaced by simple call to jquery.removeClass
-    # removeStyleClassFromElement: (element) ->
-    #   elemClass = element.getAttribute('class')
-    #   # console.log "ut: element=#{elemClass}"
+        when "window"
+          windowElem = $('atom-pane-container.panes')[0]
 
-    #   # tmp = elemClass.replace(/\s?mta-\w+-style-\d{10,}/, '')
-    #   # console.log "ut: tmp=#{tmp}"
-    #   # typical mta style class: mta-editor-style-1484974763214
-    #   # element.setAttribute('class', elemClass.replace(\s?/mta-\w+-style-\d{10,}/, ''))
-    #   # since we should have inserted one leading padding space and some text, we remove
-    #   # one leading space (or zero, if it's the beginning of the line) and some text
-    #   if elemClass
-    #     element.setAttribute('class', elemClass.replace(/\s?mta-\w+-style-\d{10,}/, ''))
+          if Base.ElementLookup.get(windowElem)
+            styleClass = Base.ElementLookup.get(windowElem)['styleClass']
+
+          # remove from head
+          if styleClass
+            this.removeStyleElementFromHead(styleClass)
+
+          $(windowElem).removeClass(styleClass)
 
     getThemeCss: (basePath) ->
       lessPath = basePath + "/index.less"
@@ -249,28 +231,66 @@ module.exports =
             if localThemePath
               handlerObj.applyLocalTheme(fn, localThemePath)
 
-# atom-text-editor,
-# :host {
-#   background-color: #212020;
-#   color: #fff0ed;
-# }
+    initOnDidDestroyPaneHandler: () ->
+      console.log "LocalThemeManager.initOnDidDestroyPaneHandler: entered"
+      atom.workspace.onDidDestroyPane (event) =>
+        console.log "onDidDestroyPane.handler: event.pane=#{event.pane}"
+        pane = event.pane
+
+        if Base.ElementLookup.get(pane)
+          styleClass = Base.ElementLookup.get(pane)['styleClass']
+
+        # remove from head
+        if styleClass
+          this.removeStyleElementFromHead(styleClass)
+
+        # remove from ElementLookup
+        Base.ElementLookup.delete(pane)
+
+    initOnDidDestroyPaneItem: () ->
+      console.log "LocalThemeManager.initOnDidDestroyPane: entered"
+      atom.workspace.onDidDestroyPaneItem (event) =>
+        console.log "onDidDestroyPaneItem: Base.ElementLookup=#{Base.ElementLookup}"
+        console.log "onDidDestroyPaneItem.handler: event.item=#{event.item}"
+
+        # return if !(event.item instanceof "TextEditor")
+        return if (event.item.constructor.name != "TextEditor")
+
+        editor = event.item
+
+        editorStyleClass = ''
+        if Base.ElementLookup.get(editor) && Base.ElementLookup.get(editor)['editor']
+          editorStyleClass = Base.ElementLookup.get(editor)['editor']['styleClass']
+
+        fileStyleClass = ''
+        if Base.ElementLookup.get(editor) && Base.ElementLookup.get(editor)['file']
+          fileStyleClass = Base.ElementLookup.get(editor)['file']['styleClass']
+
+        # always remove editor level from head
+        if editorStyleClass
+          this.removeStyleElementFromHead(editorStyleClass)
+
+        # if file level, only remove from head if no other editors exist for the file
+        # associated with this editor
+        if fileStyleClass
+          # uri = editor.getPath()
+          uri = @utils.normalizePath editor.getPath()
+          editors = @utils.getTextEditors {uri : uri} 
+
+          if editors.length == 0
+            this.removeStyleElementFromHead fileStyleClass
+
+        # remove from ElementLookup
+        Base.ElementLookup.delete(editor)
+
     # parse the css and decorate with the styleKey in the selectors to narrow
     # the scope in which this style sheet applies.  For incstance, if we are
     # adding a style at the editor level, the editor element class will have
     # a unique styleKey added to it.  We then need to add this class to the css
     # selector, so the style is applied to only that one editor 
     narrowStyleScope: (css, styleClass, scope) ->
-      # console.log "narrowStyleScope.css=#{css}"
-      # narrowedCss = css
-
-      # # narrowedCss = css.replace(/^(.*,$)/gm, ".#{styleClass} $1")
-      # narrowedCss = css.replace(/^(atom-text-editor.*),$/gm, "$1." + styleClass + ",")
-      # # narrowedCss = narrowedCss.replace(/^(.*\{$)/gm, ".#{styleClass} $1")
-      # narrowedCss = narrowedCss.replace(/^(.*) \{$/gm, "$1." + styleClass + " {")
       # Note: regex replace is not destructive, so css var is unaffected
       switch scope
-        # when "editor" then narrowedCss = css.replace(/atom-text-editor/gm, "atom-text-editor.#{styleClass}")
-        # when "pane", "window" then narrowedCss = css.replace(/atom-text-editor/gm, ".#{styleClass} atom-text-editor")
         when "editor", "file"
           # note how we tack on a class of '.editor' to more narrowly target to the editor only
           narrowedCss = css.replace(/atom-text-editor/gm, "atom-text-editor.#{styleClass}.editor")
@@ -279,33 +299,7 @@ module.exports =
           narrowedCss = css.replace(/atom-text-editor/gm, ".#{styleClass} atom-text-editor")
           narrowedCss = narrowedCss.replace(/^(\.syntax--\w+)/gm, ".#{styleClass} $1")
 
-      # narrowedCss = narrowedCss.replace(/^(\.syntax--\w+)/gm, ".#{styleClass} $1")
-
       narrowedCss
-
-    # defunct
-    # alter the 'background-color' on the style elements of the editor gutter divs.
-    # The rgbColorStr is a string that looks like "rgb(xx, yy, zz)"
-    # e.g "rgb(90, 84, 117)"
-    # A global style change on the root editor element doesn't change these as 
-    # for some reason, they have a hard-coded style attribute with a 
-    # 'background-color' from the previos themeG
-    # changeBgColorOnGutterDivs: (editorElem, rgbColorStr) ->
-
-    #   changeBgColor = (i, elem) => 
-    #     if $(elem).prop('style') && $(elem).prop('style')['background-color'] 
-	  #       console.log("i=" + i + ",elem=" + elem + ",style=" + $(elem).prop('style')['background-color']);
-	  #       $(elem).prop('style')['background-color']= rgbColorStr      
-
-    #   # do the line-numbes
-    #   $(editorElem)
-    #     .find('div.gutter div.line-numbers div:not(.line-number,.icon-right)')
-    #     .each(changeBgColor)
-
-    #   # do the linter
-    #   $(editorElem)
-    #     .find('div.gutter div.custom-decorations')
-    #     .each(changeBgColor)
 
    # This method adds "syntax--" to themes that are not compliant with the new
    # >atom 1.13 style syntax.  e.g

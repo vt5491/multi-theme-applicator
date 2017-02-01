@@ -522,11 +522,14 @@ describe "LocalThemeManager scoped theme removal tests", () ->
     spyOn(@textEditor_2, "getURI").andReturn("/mydir/abc.txt")
     # setup Base.ElementLookup
     #  Base.ElementLookup.get(editorElem)
-    Base.ElementLookup.set editorElem_1, {"editor" : {'styleClass' : @styleClass_editor} }
-    Base.ElementLookup.get(editorElem_1)['file'] = {'styleClass' : @styleClass_file}
+    # Base.ElementLookup.set editorElem_1, {"editor" : {'styleClass' : @styleClass_editor} }
+    # Base.ElementLookup.get(editorElem_1)['file'] = {'styleClass' : @styleClass_file}
+    Base.ElementLookup.set @textEditor_1, {"editor" : {'styleClass' : @styleClass_editor} }
+    Base.ElementLookup.get(@textEditor_1)['file'] = {'styleClass' : @styleClass_file}
 
     # Base.ElementLookup.get(editorElem_2)['file'] = {'styleClass' : @styleClass_file}
-    Base.ElementLookup.set editorElem_2, {"file" : {'styleClass' : @styleClass_file} }
+    # Base.ElementLookup.set editorElem_2, {"file" : {'styleClass' : @styleClass_file} }
+    Base.ElementLookup.set @textEditor_2, {"file" : {'styleClass' : @styleClass_file} }
 
     # Setup head style element
     headStyleElement_editor = document.createElement('style')
@@ -553,7 +556,7 @@ describe "LocalThemeManager scoped theme removal tests", () ->
 
   it 'removeScopedTheme removes the theme properly from an editor', ->
     # debugger
-    console.log "hi3"
+    console.log "hi4"
     @localThemeManager.removeScopedTheme('editor')
     # console.log "styleClass=" + @styleClass
 
