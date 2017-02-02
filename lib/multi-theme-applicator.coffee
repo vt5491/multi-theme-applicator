@@ -8,11 +8,9 @@ module.exports = MultiThemeApplicator =
   subscriptions: null
 
   activate: (state) ->
-    console.log "MultiThemeApplicator.activiate: entered3"
+    console.log "MultiThemeApplicator.activiate: entered"
     @localThemeSelectorView = new LocalThemeSelectorView(this, state)
 
-    # console.log `MultiThemeApplicator.activiate: LocalThemeSelectorView=${@localThemeSelectorView}`
-    console.log 'MultiThemeApplicator.activiate: LocalThemeSelectorView=' + @localThemeSelectorView
     @localThemeSelectorPanel = atom.workspace.addModalPanel(
       item: @localThemeSelectorView.getElement(),
       visible: false

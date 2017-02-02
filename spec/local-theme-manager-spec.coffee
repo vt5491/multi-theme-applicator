@@ -26,10 +26,6 @@ buildEditorTestEvironment = () ->
   themeStyle.setAttribute('source-path', '/tmp/.atom/packages/test-theme/index.less')
   themeStyle.setAttribute('priority', '1')
 
-  # textEditor.getElement().shadowRoot.querySelector('atom-styles').appendChild(spellCheckStyle)
-  # textEditor.getElement().shadowRoot.querySelector('atom-styles').appendChild(gutterStyle)
-  # textEditor.getElement().shadowRoot.querySelector('atom-styles').appendChild(themeStyle)
-
   textEditorSpy = spyOn(atom.workspace, "getActiveTextEditor")
   .andReturn(textEditor)
 
@@ -49,7 +45,6 @@ describe 'LocalThemeManager', () ->
     atom.workspace.buildTextEditor()
     themeStyle = document.createElement('style')
     themeStyle.setAttribute('source-path', '/tmp/.atom/packages/test-theme/index.less')
-    #textEditor.getElement().shadowRoot.querySelector('atom-styles').appendChild(themeStyle)
 
     textEditorSpy = spyOn(atom.workspace, "getActiveTextEditor")
       .andReturn(@textEditor)
@@ -58,7 +53,6 @@ describe 'LocalThemeManager', () ->
     expect(@localThemeManager.utils).toBeInstanceOf(Utils)
 
   it 'doIt works', () ->
-    # console.log('local-theme-manager-spec.doIt: getActivePackages=' + atom.packages.getActivePackages)
     atom.packages.getActivePackages()
     expect(@localThemeManager.doIt()).toEqual 7
 
@@ -101,44 +95,10 @@ describe 'LocalThemeManager with complex atom-text-editor style tree', () ->
 
     @textEditor = buildEditorTestEvironment()
 
-  # defunct
-  # xit 'deleteThemeStyleNode works', () ->
-  #   @localThemeManager.deleteThemeStyleNode()
-  #
-  #   shadowRoot = @utils.getActiveShadowRoot()
-  #   expect($(shadowRoot).find('atom-styles').find('style').length).toEqual(2)
-  #   expect($(shadowRoot)
-  #     .find('atom-styles')
-  #     .find('style')
-  #     .eq(0)
-  #     .attr('source-path')).toMatch("spellCheck")
-  #
-  #   expect($(shadowRoot)
-  #     .find('atom-styles')
-  #     .find('style')
-  #     .eq(1)
-  #     .attr('source-path')).toMatch("gutter")
-
-  # xit 'addStyleElementToEditor', () ->
-  #   # create a simple style node to append
-  #   styleElement = $('<style>')
-  #     .attr('source-path', '/tmp/dummy-path')
-  #     .attr('context', 'atom-text-editor')
-  #     .attr('priority', '1')
-  #
-  #   @localThemeManager.addStyleElementToEditor(styleElement)
-  #
-  #   shadowRoot = @utils.getActiveShadowRoot()
-  #   expect($(shadowRoot).find('atom-styles').find('style').length).toEqual(4)
-
   it 'addStyleElementToHead', () ->
-    # styleElem = $('<style></style>')
     styleElem = document.createElement('style')
 
     # editor scope
-    # verify it's not there beforehand
-    # expect($('head').find("atom-styles .#{styleClass}")[0]).toBeFalsy()
-
     styleClass = @localThemeManager.addStyleElementToHead styleElem, 'editor'
 
     # verify it's now there
@@ -174,7 +134,6 @@ describe "LocalThemeManager getSyntaxThemeLookup tests", () ->
 
    beforeEach ->
      @localThemeManager = new LocalThemeManager()
-    #  @textEditor = buildEditorTestEvironment()
      @textEditor = atom.workspace.buildTextEditor()
 
      spyOn(atom.packages, "getAvailablePackageMetadata")
@@ -206,13 +165,6 @@ atom-text-editor,
 }
      """
 
-#      expectedCss = """
-# atom-text-editor.#{styleKey}.editor,
-# :host {
-#   background-color: #212020;
-#   color: #fff0ed;
-# }
-#      """
      expectedCssFrag_1 = "atom-text-editor.#{styleKey}.editor"
      re_1 = new RegExp(expectedCssFrag_1, 'gm')
 
@@ -221,8 +173,6 @@ atom-text-editor,
 
      result = @localThemeManager.narrowStyleScope(css, styleKey, "file")
 
-    #  console.log "ut: result=#{result}"
-    #  expect(result).toEqual(expectedCss)
      expect(result.match re_1).toBeTruthy()
      expect(result.match re_2).toBeTruthy()
 
@@ -252,7 +202,6 @@ atom-text-editor.#{styleKey}.editor .gutter {
 
      result = @localThemeManager.narrowStyleScope(css, styleKey, 'editor')
 
-    #  console.log "ut: result=\n#{result}"
      expect(result).toEqual(expectedCss)
 
    it 'narrowStyleScope works with "syntax--" keyword', ->
@@ -273,73 +222,10 @@ atom-text-editor.#{styleKey}.editor .gutter {
 
      result = @localThemeManager.narrowStyleScope(css, styleKey, 'pane')
 
-    #  console.log "ut: result=\n#{result}"
      expect(result).toEqual(expectedCss)
-
-
-  # defunct
-  #  it 'removeStyleFromElement works', ->
-  #    editorElement = document.createElement('atom-text-editor')
-   #
-  #    # archetypal use case
-  #    styleClass = "mta-editor-style-1234567890123"
-  #    editorElement.setAttribute('class', "editor normal-mode #{styleClass} xyz")
-   #
-  #    @localThemeManager.removeStyleClassFromElement(editorElement)
-  #   #  console.log "new class = #{editorElement.getAttribute('class')}"
-   #
-  #    expect(editorElement.getAttribute('class').match(///#{styleClass}///)).toBeFalsy()
-  #    expect(editorElement.getAttribute('class').match(/editor normal-mode xyz/)).toBeTruthy()
-   #
-  #    # date key is not 10 chars or greater. Should not be removed.
-  #    styleClass = "mta-editor-style-1234"
-  #    editorElement.setAttribute('class', "editor normal-mode #{styleClass} xyz")
-   #
-  #    @localThemeManager.removeStyleClassFromElement(editorElement)
-  #    console.log "new class = #{editorElement.getAttribute('class')}"
-   #
-  #    expect(editorElement.getAttribute('class').match(///#{styleClass}///)).toBeTruthy()
-   #
-  #    # we are the first class
-  #    styleClass = "mta-editor-style-1234567890123"
-  #    editorElement.setAttribute('class', "#{styleClass} xyz")
-   #
-  #    @localThemeManager.removeStyleClassFromElement(editorElement)
-  #   #  console.log "new class = #{editorElement.getAttribute('class')}"
-  #    expect(editorElement.getAttribute('class').match(///#{styleClass}///)).toBeFalsy()
-  #    expect(editorElement.getAttribute('class').match(/xyz/)).toBeTruthy()
-   #
-  #    # we are the only class
-  #    styleClass = "mta-editor-style-1234567890123"
-  #    editorElement.setAttribute('class', "#{styleClass}")
-   #
-  #    #Note: defunct
-  #    @localThemeManager.removeStyleClassFromElement(editorElement)
-  #   #  console.log "new class = #{editorElement.getAttribute('class')}"
-  #    expect(editorElement.getAttribute('class').match(///#{styleClass}///)).toBeFalsy()
-  #    expect(editorElement.getAttribute('class')).toEqual('')
-   #
-  #    # empty class
-  #    styleClass = ""
-  #    editorElement.setAttribute('class', "")
-   #
-  #    @localThemeManager.removeStyleClassFromElement(editorElement)
-  #   #  console.log "new class = #{editorElement.getAttribute('class')}"
-  #    expect(editorElement.getAttribute('class')).toEqual('')
-   #
-  #    # no class at all
-  #    #note: we can't use 'atom-text-editor' because it somehow is automatically
-  #    # assigned a class of 'editor'.  Thus we use our own dummy tag
-  #    # editorElement = document.createElement('atom-text-editor')
-  #    editorElement = document.createElement('my-text-editor')
-  #    @localThemeManager.removeStyleClassFromElement(editorElement)
-   #
-  #    console.log "ut: class=#{editorElement.getAttribute('class')}"
-  #    expect(editorElement.getAttribute('class')).toBeFalsy()
 
    it 'removeStyleElementFromHead works', ->
      styleClass = 'mta-editor-style-1234567890123'
-     console.log('ut-x: hi14')
 
      $('head atom-styles .' + styleClass).remove()
 
@@ -351,7 +237,6 @@ atom-text-editor.#{styleKey}.editor .gutter {
      $.find('head atom-styles')[0].appendChild(headStyleElement)
 
      # verify it's there before we delete
-    #  debugger
      expect($.find("head atom-styles style.#{styleClass}").length).toEqual(1)
 
      # and now verify it was deleted
@@ -361,50 +246,6 @@ atom-text-editor.#{styleKey}.editor .gutter {
      # idempotency test: verify there are no problems when remove is called
      # multiple times
      expect($.find("head atom-styles style.#{styleClass}").length).toEqual(0)
-
-  #defunct
-  #  it 'changeBgColorOnGutterDivs works', ->
-  #   # add some gutter divs to our test textEditor
-  #   # the @textEditor actually has its own gutter, but it doesn't have any style
-  #   # elements.  We are going to attached our own styled gutters immediately below
-  #   # the editor.  We just have to remember when reading back the results to only
-  #   # look for gutter divs that are immediate descendents of the atom-text-editor
-  #   # parent
-  #   # gutterLineNumberDiv document.createElement('div')
-  #   $gutterLineNumberDiv = $("<div class='gutter' gutter-name='line-number'></div>");
-  #   $lineNumberDiv = $('<div class="line-numbers" style="height: 718px; background-color: rgb(90, 84, 117);"></div>')
-  #   $lineNumberChildDiv = $('<div style="position: absolute; display: block; top: 0px; height: 126px; transform: translate3d(0px, 1134px, 0px); z-index: 0; background-color: rgb(90,84,117);"></div>')
-   #
-  #   $lineNumberDiv.append($lineNumberChildDiv)
-  #   $gutterLineNumberDiv.append($lineNumberDiv)
-   #
-  #   $gutterLinterDiv = $("<div class='gutter' gutter-name='linter'></div>");
-  #   $gutterLinterChildDiv= $('<div class="custom-decorations" style="height: 6854px; transform: translate3d(0px, 0px, 0px); background-color: rgb(90, 84, 117);"></div>')
-   #
-  #   $gutterLinterDiv.append($gutterLinterChildDiv)
-   #
-  #   # append to our test test editor
-  #   editorElem = @textEditor.getElement()
-  #   $(editorElem).append($gutterLineNumberDiv)
-  #   $(editorElem).append($gutterLinterDiv)
-   #
-  #   # debugger
-  #   @localThemeManager.changeBgColorOnGutterDivs editorElem, "rgb(10, 20, 30)"
-   #
-  #   # console.log "editorElem.html=" + $(editorElem).html()
-  #   # editorElemHtml = $(editorElem).html()
-  #   #
-  #   # console.log 'result=' + editorElemHtml.match(/background-color:.*\(90, 84, 117\)/gm)
-   #
-  #   lineDivHtml = $(editorElem).children()[1].innerHTML
-  #   console.log "lineDivHtml=#{lineDivHtml}"
-  #   expect(lineDivHtml.match(/background-color:.*\(90, 84, 117\)/gm)).toBeNull()
-  #   expect(lineDivHtml.match(/background-color:.*\(10, 20, 30\)/gm)).toBeTruthy()
-   #
-  #   linterDivHtml = $(editorElem).children()[2].innerHTML
-  #   console.log "linterDivHtml=#{linterDivHtml}"
-  #   expect(linterDivHtml.match(/background-color:.*\(90, 84, 117\)/gm)).toBeNull()
-  #   expect(linterDivHtml.match(/background-color:.*\(10, 20, 30\)/gm)).toBeTruthy()
 
    it 'getCssBgColor returns the proper background-color', ->
     css = """
@@ -441,7 +282,6 @@ atom-text-editor.is-focused .line.cursor-line {
     # make sure it handles a non-matching case gracefully
     css = "nada match"
     result = @localThemeManager.getCssBgColor css
-    console.log "result=#{result}"
     expect(result).toBeNull()
 
     # upper case hex test
@@ -516,19 +356,13 @@ describe "LocalThemeManager scoped theme removal tests", () ->
 
     $editorElem_2 = $('<atom-text-editor></atom-text-editor')
     $editorElem_2.attr('class', @styleClass_file)
-    # $editorElem_2.addClass(@styleClass_file)
     editorElem_2 = $editorElem_2[0]
     spyOn(@textEditor_2, "getElement").andReturn(editorElem_2)
     spyOn(@textEditor_2, "getURI").andReturn("/mydir/abc.txt")
     # setup Base.ElementLookup
-    #  Base.ElementLookup.get(editorElem)
-    # Base.ElementLookup.set editorElem_1, {"editor" : {'styleClass' : @styleClass_editor} }
-    # Base.ElementLookup.get(editorElem_1)['file'] = {'styleClass' : @styleClass_file}
     Base.ElementLookup.set @textEditor_1, {"editor" : {'styleClass' : @styleClass_editor} }
     Base.ElementLookup.get(@textEditor_1)['file'] = {'styleClass' : @styleClass_file}
 
-    # Base.ElementLookup.get(editorElem_2)['file'] = {'styleClass' : @styleClass_file}
-    # Base.ElementLookup.set editorElem_2, {"file" : {'styleClass' : @styleClass_file} }
     Base.ElementLookup.set @textEditor_2, {"file" : {'styleClass' : @styleClass_file} }
 
     # Setup head style element
@@ -555,10 +389,7 @@ describe "LocalThemeManager scoped theme removal tests", () ->
     spyOn(atom.workspace, 'getTextEditors').andReturn(editors)
 
   it 'removeScopedTheme removes the theme properly from an editor', ->
-    # debugger
-    console.log "hi4"
     @localThemeManager.removeScopedTheme('editor')
-    # console.log "styleClass=" + @styleClass
 
     # verify head element removed
     expect($('head').find(".#{@styleClass_editor}").length ).toEqual(0)
@@ -568,7 +399,6 @@ describe "LocalThemeManager scoped theme removal tests", () ->
     expect($("atom-text-editor.#{@styleClass_editor}").length).toEqual(0)
 
   it 'removeScopedTheme removes the theme properly from a file scope', ->
-    # debugger
     @localThemeManager.removeScopedTheme('file')
 
     # verify head element removed

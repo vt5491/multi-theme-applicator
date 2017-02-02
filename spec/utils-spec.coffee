@@ -6,23 +6,12 @@ describe 'Utils', () ->
 
     textEditor = atom.workspace.buildTextEditor()
     textEditorEl = textEditor.getElement()
-    # shadowRoot = document.createElement("shadow-root")
-    # textEditorEl = {'shadowRoot': 'shadowRoot'}
 
     textEditorSpy = spyOn(atom.workspace, "getActiveTextEditor")
     textEditorSpy.andReturn(textEditor)
 
   it 'doIt works', () ->
     expect(@utils.doIt()).toEqual 7
-
-  xit 'getActiveShadowRoot works', () ->
-    expect(@utils.getActiveShadowRoot().toString()).toMatch(/ShadowRoot/)
-
-  xit 'getWindowElement works', () ->
-    console.log "hi"
-    result = @utils.getWindowElement()
-    console.log "result=#{result}"
-    expect(@utils.getWindowElement().toString()).toMatch(/atom-pane-container/)
 
 describe 'Utils2', () ->
   beforeEach ->
@@ -47,10 +36,7 @@ describe 'Utils2', () ->
   it 'getActiveFile works', () ->
     result = @utils.getActiveFile()
     # we expect it to be normalized to unix format even its in window format
-    # expect(result).toMatch(/#{@editorFile}/)
     expect(result).toMatch( new RegExp(@editorFile) )
-
-    console.log("result.stringify2=#{JSON.stringify(result)}")
 
   it 'getTextEditors works', () ->
     params = {}

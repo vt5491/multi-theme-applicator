@@ -63,11 +63,9 @@ module.exports =
     elementLookup: WeakMap 
 
     constructor: (multiThemeApplicator, fileLookupState) ->
-      console.log "LocalThemeSelectorView.ctor: entered"
       @multiThemeApplicator =  multiThemeApplicator
       # restore the prior fileLookupState, if any
       @fileLookup = fileLookupState
-      # @elementLookup = new WeakMap()
       @elementLookup = Base.ElementLookup
 
       # create all the supporting services we may need to call
@@ -92,12 +90,10 @@ module.exports =
 
       # Register command that toggles this view
       @subscriptions.add atom.commands.add 'atom-workspace',
-        #vt 'multi-theme-applicator:applyLocalTheme':  => @applyLocalTheme()
         'multi-theme-applicator:applyLocalTheme':  => @applyLocalTheme()
         'local-theme-selector-view:focusModalPanel':  => @focusModalPanel()
 
       @subscriptions.add atom.commands.add '.local-theme-selector-view',
-        #vt'local-theme-selector-view:applyLocalTheme':  => @applyLocalTheme()
         'local-theme-selector-view:applyLocalTheme':  => @applyLocalTheme()
         'local-theme-selector-view:selectPrevTheme':  => @selectPrevTheme()
         'local-theme-selector-view:selectNextTheme':  => @selectNextTheme()
@@ -185,10 +181,8 @@ module.exports =
       $removeScopedThemeBtn.attr('id', 'remove-scoped-theme')
       $removeScopedThemeBtn.appendTo($submitDiv)
       $removeScopedThemeBtn.click () => 
-        console.log "you pressed the remove button"
         scope = $('input[name=scope]:checked').val()
         @localThemeManager.removeScopedTheme(scope)
-        console.log "successfully called removeScopedTheme"
         # return false so the main submit action is not applied
         return false
      
@@ -224,7 +218,6 @@ module.exports =
     # other supporting modules.
     applyLocalTheme: (fn, themePath) ->
       themeScope = $("input[type='radio'][name='scope']:checked").val()
-      console.log "LocalThemeSelectorView.applyLocalTheme: themeScope=#{themeScope}"
 
       if !themeScope
         console.log "LocalThemeSelectorView.applyLocalTheme: skipping because no themeScope"
@@ -255,10 +248,8 @@ module.exports =
 
             switch themeScope
               when "file", "editor"
-                # styleClass = @localThemeManager.addStyleElementToHead(newStyleElement, 'file')
                 styleClass = @localThemeManager.addStyleElementToHead(newStyleElement, themeScope)
 
-                # narrowedCss = @localThemeManager.narrowStyleScope(css, styleClass, "file")
                 narrowedCss = @localThemeManager.narrowStyleScope(css, styleClass, themeScope)
                 $(newStyleElement).text(narrowedCss)
 
@@ -273,25 +264,18 @@ module.exports =
                 else
                   editors.push atom.workspace.getActiveTextEditor() 
 
-
                 for editor in editors
                   # We have to get a new styleElement each time i.e. we need to clone
                   # it.  If we create just one styleElement outside of this loop, it will simply get reassigned
                   # to the last editor we attach it too, and it won't be assigned to any of
                   # the previous editors
-                  # css = cssResult
-                  # newStyleElement = @localStylesElement.createStyleElement(css, sourcePath)
                   editorElem = editor.getElement();
                   
-                  # if !@elementLookup.get editorElem 
                   if !@elementLookup.get editor
                     # create a two-tier lookup element->'file'
-                    # @elementLookup.set editorElem, {"#{themeScope}" : {} } 
                     @elementLookup.set editor, {"#{themeScope}" : {} } 
 
-                  # if @elementLookup.get(editorElem) && @elementLookup.get(editorElem)[themeScope]
                   if @elementLookup.get(editor) && @elementLookup.get(editor)[themeScope]
-                    # prevStyleClass = @elementLookup.get(editorElem)[themeScope]['styleClass'] 
                     prevStyleClass = @elementLookup.get(editor)[themeScope]['styleClass'] 
 
                   # since multiple editors can be associated with one head style
@@ -302,13 +286,10 @@ module.exports =
                   if prevStyleClass
                     @localThemeManager.removeStyleElementFromHead(prevStyleClass)
 
-                  #TODO: allow a theme to be passed as well
-                  # @localThemeManager.removeStyleClassFromElement editorElem
                   $(editorElem).removeClass(prevStyleClass)
                   $(editorElem).addClass(styleClass)
 
                   # save the current element state in @elementLookup
-                  # elemState = @elementLookup.get(editorElem)
                   elemState = @elementLookup.get(editor)
 
                   if !elemState[themeScope]
@@ -326,12 +307,9 @@ module.exports =
                 pane = atom.workspace.getActivePane()
                 paneElem = $('atom-pane.active')[0]
 
-                # if !@elementLookup.get paneElem 
-                #   @elementLookup.set( paneElem, {} ) 
                 if !@elementLookup.get pane 
                   @elementLookup.set( pane, {} ) 
 
-                # prevStyleClass = @elementLookup.get(paneElem)['styleClass'] 
                 prevStyleClass = @elementLookup.get(pane)['styleClass'] 
 
                 if prevStyleClass
@@ -341,7 +319,6 @@ module.exports =
                 $(paneElem).addClass(styleClass)
 
                 # save the current element state in @elementLookup
-                # elemState = @elementLookup.get(paneElem)
                 elemState = @elementLookup.get(pane)
 
                 if !elemState[themeScope]
@@ -356,7 +333,6 @@ module.exports =
                 narrowedCss = @localThemeManager.narrowStyleScope(css, styleClass, "window")
                 $(newStyleElement).text(narrowedCss)
 
-                # paneElem = atom.workspace.getActivePane()
                 windowElem = $('atom-pane-container.panes')[0]
 
                 if !@elementLookup.get windowElem 
@@ -385,7 +361,6 @@ module.exports =
           ,(err) ->
             console.log "promise returner err" + err
         )
-
 
     destroy: ->
       @selectorView.remove()

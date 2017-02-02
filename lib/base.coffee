@@ -14,8 +14,3 @@ module.exports =
     # ElementLookup = new WeakMap()
     # refer to this class var as Base.ElementLookup in other classes (not as Base.@ElementLookup)
     @ElementLookup = new WeakMap()
-    # @ElementLookup = 10 
-    # ElementLookup = 20 
-
-    # constructor: ->
-    #   console.log "Base.ctor: entered"

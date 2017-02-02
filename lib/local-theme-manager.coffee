@@ -30,8 +30,6 @@ module.exports =
       activeTheme
 
     addStyleElementToHead: (styleElement, scope)->
-      # document.getElementsByTagName('head')[0]
-      #   .appendChild(styleElement)
       styleClass = "mta-#{scope}-style-" + Date.now()
       $(styleElement).addClass(styleClass)
       $('head').find('atom-styles').append(styleElement)
@@ -40,7 +38,6 @@ module.exports =
       styleClass
     
     removeStyleElementFromHead: (styleClass) ->
-      # $.find('head atom-styles style.vt')[0].remove()
       if $.find("head atom-styles style.#{styleClass}").length > 0 
         $.find("head atom-styles style.#{styleClass}")[0].remove()
       
@@ -48,16 +45,11 @@ module.exports =
     # from head->atom-styles as well as removing the class tag from any elements
     # tagged in the scope (for example, "file" scope will include multiper editor elements) 
     removeScopedTheme: (scope) ->
-      console.log "LocalThemeManager.removeScopedTheme: entered"
       switch scope
         when "file", "editor"
-          # activeEditor = atom.workspace.getActiveTextEditor()
           editor = atom.workspace.getActiveTextEditor()
-          # editorElem = activeEditor.getElement()
           editorElem = editor.getElement()
           # get the class associated with this element
-          # if Base.ElementLookup.get(editorElem) && Base.ElementLookup.get(editorElem)[scope]
-          #   styleClass = Base.ElementLookup.get(editorElem)[scope]['styleClass']
           styleClass
           if Base.ElementLookup.get(editor) && Base.ElementLookup.get(editor)[scope]
             styleClass = Base.ElementLookup.get(editor)[scope]['styleClass']
@@ -79,15 +71,12 @@ module.exports =
           editors = []
 
           if scope == "file"
-            # editors = @utils.getTextEditors {uri : activeEditor.getURI()} 
             editors = @utils.getTextEditors {uri : @utils.getActiveFile()} 
           else
-            # editors.push activeEditor 
             editors.push editor 
 
           for editor in editors
             # and remove from the element itself
-            # if scope == "editor"
             editorElem = editor.getElement()
             
             $(editorElem).removeClass(styleClass)
@@ -100,8 +89,6 @@ module.exports =
           $activePane = $('atom-pane.active')
           paneElem = $activePane[0]
 
-          # if Base.ElementLookup.get(paneElem)
-          #   styleClass = Base.ElementLookup.get(paneElem)['styleClass']
           if Base.ElementLookup.get(pane)
             styleClass = Base.ElementLookup.get(pane)['styleClass']
 
@@ -148,13 +135,6 @@ module.exports =
     # parse the rendered less css text to determine the 'atom-text-editor'
     # background-color
     getCssBgColor: (css) ->
-      # console.log "LocalThemeManager.getCssBgColor: entered"
-      # # match = css.match(/(atom-text-editor\s*[,\{])(.*background-color:\s*)(#\d{6})/)
-      # regExp = /(atom-text-editor\s*[,\{])(.*background-color:\s*)(#\d{6})/n
-      # match = regExp.exec(css)
-      # console.log "LocalThemeManager.getCssBgColor:match[3]=#{match[3]}"
-
-      # match[3] 
       # we just take the first background-color find and assume it the bg color
       # for the entire editor.  It just too hard to parse in the most general case.
       regExp = /(.*background-color:\s*)(#[0-9a-fA-F]{6})/m
@@ -203,7 +183,6 @@ module.exports =
       while i < packageMetadata.length
         pm = packageMetadata[i]
         if pm.theme? && pm.theme == 'syntax'
-          #vtsyntaxThemeLookup.push {themeName: pm.name, baseDir: packagePaths[i]}
           syntaxThemeLookup.push {themeName: pm.name, baseDir: packagePaths[i].replace(/\\/g, '/')}
         i++
 
@@ -232,7 +211,6 @@ module.exports =
               handlerObj.applyLocalTheme(fn, localThemePath)
 
     initOnDidDestroyPaneHandler: () ->
-      console.log "LocalThemeManager.initOnDidDestroyPaneHandler: entered"
       atom.workspace.onDidDestroyPane (event) =>
         console.log "onDidDestroyPane.handler: event.pane=#{event.pane}"
         pane = event.pane
@@ -248,10 +226,7 @@ module.exports =
         Base.ElementLookup.delete(pane)
 
     initOnDidDestroyPaneItem: () ->
-      console.log "LocalThemeManager.initOnDidDestroyPane: entered"
       atom.workspace.onDidDestroyPaneItem (event) =>
-        console.log "onDidDestroyPaneItem: Base.ElementLookup=#{Base.ElementLookup}"
-        console.log "onDidDestroyPaneItem.handler: event.item=#{event.item}"
 
         # return if !(event.item instanceof "TextEditor")
         return if (event.item.constructor.name != "TextEditor")
@@ -273,7 +248,6 @@ module.exports =
         # if file level, only remove from head if no other editors exist for the file
         # associated with this editor
         if fileStyleClass
-          # uri = editor.getPath()
           uri = @utils.normalizePath editor.getPath()
           editors = @utils.getTextEditors {uri : uri} 
 
@@ -306,12 +280,9 @@ module.exports =
    # ".comment {"  -> ".syntax--comment {"
    # We skip any element that has "atom" in it.
     normalizeSyntaxScope: (css) ->
-      console.log "LocalThemeManager.normalizeSyntaxScope: entered"
-
       lines = css.split "\n"
       normalizedCss = ''
 
-      # for i in [0..lines.length -1]
       for line in lines
         if line.match /atom/
           normalizedCss += line + "\n" 
