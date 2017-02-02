@@ -1,4 +1,6 @@
 # multi-theme-applicator package
+-> 2017-02-02:  Support for Atom 1.13 added.  Updated documentation is pending.
+
 A package for the atom editor that allows you to apply multiple syntax themes to your editing session.  
 
 ![fig 1](https://github.com/vt5491/multi-theme-applicator/blob/master/assets/img/mta_overview_minimap.png?raw=true)
