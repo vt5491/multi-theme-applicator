@@ -29,21 +29,23 @@ module.exports =
 
       activeTheme
 
-    addStyleElementToHead: (styleElement, scope)->
-      styleClass = "mta-#{scope}-style-" + Date.now()
+    #vt-x addStyleElementToHead: (styleElement, scope )->
+    addStyleElementToHead: (styleElement, scope, themeName )->
+      #vt-xstyleClass = "mta-#{scope}-style-" + Date.now()
+      styleClass = "mta-#{scope}-#{themeName}-style-" + Date.now()
       $(styleElement).addClass(styleClass)
       $('head').find('atom-styles').append(styleElement)
 
       # return styleKey to the user
       styleClass
-    
+
     removeStyleElementFromHead: (styleClass) ->
-      if $.find("head atom-styles style.#{styleClass}").length > 0 
+      if $.find("head atom-styles style.#{styleClass}").length > 0
         $.find("head atom-styles style.#{styleClass}")[0].remove()
-      
+
     # Remove the scoped theme from the active scope.  This involves deleting the css
     # from head->atom-styles as well as removing the class tag from any elements
-    # tagged in the scope (for example, "file" scope will include multiper editor elements) 
+    # tagged in the scope (for example, "file" scope will include multiper editor elements)
     removeScopedTheme: (scope) ->
       switch scope
         when "file", "editor"
@@ -61,7 +63,7 @@ module.exports =
             re = new RegExp("mta-#{scope}-style-\d{10,}")
             match = $(editor).attr('class').match(re)
             if (match.length > 0)
-              styleClass = match[0]              
+              styleClass = match[0]
               console.log "LocalThemeManager.removeScopedTheme: hacked styleClass=#{styleClass}"
 
           # remove from head
@@ -71,19 +73,19 @@ module.exports =
           editors = []
 
           if scope == "file"
-            editors = @utils.getTextEditors {uri : @utils.getActiveFile()} 
+            editors = @utils.getTextEditors {uri : @utils.getActiveFile()}
           else
-            editors.push editor 
+            editors.push editor
 
           for editor in editors
             # and remove from the element itself
             editorElem = editor.getElement()
-            
+
             $(editorElem).removeClass(styleClass)
 
             #remove from ElementLookup
             Base.ElementLookup.delete(editor)
-          
+
         when "pane"
           pane = atom.workspace.getActivePane()
           $activePane = $('atom-pane.active')
@@ -144,7 +146,7 @@ module.exports =
         match[2]
       else
         null
-      
+
 
     syncEditorBackgroundColor: (editor) ->
       editorElement
@@ -187,6 +189,27 @@ module.exports =
         i++
 
       syntaxThemeLookup
+
+    getThemeDropdownHtml: (themeLookup) ->
+      themeLookup.sort (a,b) ->
+        nameA=a.themeName.toLowerCase()
+        nameB=b.themeName.toLowerCase()
+        if nameA < nameB
+          return -1
+        if nameA > nameB
+          return 1
+        return 0
+
+      html = ''
+
+      for theme in themeLookup
+        html += $('<option>', {
+          value: theme.baseDir,
+          text: theme.themeName})
+        .prop('outerHTML')
+
+      html
+
 
     # this method sets up a listener for pane events that insert new
     # TextEditors.  For example, if someone invokes a
@@ -249,7 +272,7 @@ module.exports =
         # associated with this editor
         if fileStyleClass
           uri = @utils.normalizePath editor.getPath()
-          editors = @utils.getTextEditors {uri : uri} 
+          editors = @utils.getTextEditors {uri : uri}
 
           if editors.length == 0
             this.removeStyleElementFromHead fileStyleClass
@@ -261,7 +284,7 @@ module.exports =
     # the scope in which this style sheet applies.  For incstance, if we are
     # adding a style at the editor level, the editor element class will have
     # a unique styleKey added to it.  We then need to add this class to the css
-    # selector, so the style is applied to only that one editor 
+    # selector, so the style is applied to only that one editor
     narrowStyleScope: (css, styleClass, scope) ->
       # Note: regex replace is not destructive, so css var is unaffected
       switch scope
@@ -285,7 +308,7 @@ module.exports =
 
       for line in lines
         if line.match /atom/
-          normalizedCss += line + "\n" 
+          normalizedCss += line + "\n"
           continue
 
         normalizedLine = line

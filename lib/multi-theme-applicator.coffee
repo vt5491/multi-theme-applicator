@@ -18,13 +18,23 @@ module.exports = MultiThemeApplicator =
 
     @subscriptions = new CompositeDisposable
 
-    # Register command that toggles this view
+    # Register the commands we want to appear in the palette.  These will only
+    # show once MTA has been initialized e.g. after you've done a shift-ctrl-v
+    # to bring up the theme dropdown.
     cmdObj = {
       'multi-theme-applicator:toggle': => @toggle(),
-      'multi-theme-applicator:reset': => @reset()
+      'multi-theme-applicator:reset': => @reset(),
+      'multi-theme-applicator:refresh-theme-info': => @refreshThemeInfo()
     }
 
     @subscriptions.add atom.commands.add('atom-workspace', cmdObj)
+
+    #vt add
+    # atom.commands.add 'multi-theme-applicator',
+    #   'refresh-theme-info': (event) =>
+    #     @localThemeSelectorView.refreshThemeInfo()
+
+    #vt end
 
   deactivate: () ->
     @subscriptions.dispose()
@@ -53,3 +63,8 @@ module.exports = MultiThemeApplicator =
 
   reset: () ->
     @localThemeSelectorView.fileLookup = {}
+
+  #vt add
+  refreshThemeInfo: () ->
+    @localThemeSelectorView.refreshThemeInfo()
+  #vt end

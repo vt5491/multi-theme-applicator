@@ -1,4 +1,5 @@
 Utils = require '../lib/utils'
+Base = require '../lib/Base'
 
 describe 'Utils', () ->
   beforeEach ->
@@ -15,6 +16,8 @@ describe 'Utils', () ->
 
 describe 'Utils2', () ->
   beforeEach ->
+    # Base.ThemeLookup.push {baseDir: '/tmp/abc.theme', themeName: 'abc'}
+    # Base.ThemeLookup.push {baseDir: '/tmp/def.theme', themeName: 'def'}
     @utils = new Utils()
 
     @textEditor = atom.workspace.buildTextEditor()
@@ -77,3 +80,42 @@ describe 'Utils2', () ->
     result = @utils.hexToRgb("#A0B0C0")
 
     expect(result).toEqual("rgb(160, 176, 192)")
+
+  # I just cannot get Base properly setup to test this
+  xit 'getThemeName works', () ->
+    # @utils.Base.ThemeLookup.push {baseDir: '/tmp/abc.theme', themeName: 'abc'}
+    # @utils.Base.ThemeLookup.push {baseDir: '/tmp/def.theme', themeName: 'def'}
+    # Base.ThemeLookup.push {baseDir: '/tmp/abc.theme', themeName: 'abc'}
+    # Base.ThemeLookup.push {baseDir: '/tmp/def.theme', themeName: 'def'}
+    # Base::ThemeLookup.push {baseDir: '/tmp/abc.theme', themeName: 'abc'}
+    # Base::ThemeLookup.push {baseDir: '/tmp/def.theme', themeName: 'def'}
+    # themes = []
+    # themes.push {baseDir: '/tmp/abc.theme', themeName: 'abc'}
+    # themes.push {baseDir: '/tmp/def.theme', themeName: 'def'}
+    # spyOn(@utils, "Base.ThemeLookup").andReturn(themes)
+    # Base.ThemeLookup = themes
+    # console.log "@utils.Base=#{@utils.Base}"
+    # utilsClosure = function () {
+    #   Base = Base;
+    #   getThemeName = @utils.getThemeName
+    # }
+    # utilsClosure: (arg) ->
+    utilsClosure = (arg) =>
+      # Base = Base;
+      console.log "now in utilsClosure: arg=#{arg}"
+      # require '../base'
+      Base.ThemeLookup.push {baseDir: '/tmp/abc.theme', themeName: 'abc'}
+      Base.ThemeLookup.push {baseDir: '/tmp/def.theme', themeName: 'def'}
+      # @utils.getThemeName arg;
+      utils = new Utils()
+      # debugger
+      # @utils.getThemeName arg
+      utils.getThemeName arg
+
+    # debugger
+    result = @utils.getThemeName '/tmp/abc.theme'
+    # result = utilsClosure( '/tmp/abc.theme')
+    console.log "result=#{result}"
+    # expect(@utils.getThemeName '/tmp/abc.theme').toEqual('abc')
+    # expect(@utils.getThemeName '/tmp/def.theme').toEqual('def')
+    # expect(@utils.getThemeName '/tmp/ghi.theme').toBeFalsy()

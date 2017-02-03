@@ -8,7 +8,7 @@ module.exports =
     doIt: ->
       7
 
-    # create an html stle element suitable for injection onto an atom-text-editor
+    # create an html style element suitable for injection onto an atom-text-editor
     createStyleElement: (css, sourcePath) ->
       styleElement = $('<style>')
         .attr('source-path', sourcePath)

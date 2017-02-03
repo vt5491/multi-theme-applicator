@@ -1,20 +1,11 @@
 $ = jQuery = require 'jquery'
+Base = require './base'
 
 module.exports =
   class Utils
 
     constructor: ->
-
-    # # shaddowRoot is defunct
-    # getActiveShadowRoot: ->
-    #   atom.workspace.getActiveTextEditor().getElement().shadowRoot
-
-    # # Return the shadowRoot for the passed textEditor
-    # getShadowRoot: (editor) ->
-    #   editor.getElement().shadowRoot
-    #   console.log "Utils.getShadowRoot: entered"
-
-    # adding the theme at editor level I could only get to work partial post- 
+    # adding the theme at editor level I could only get to work partial post-
     # Atom 1.13.  Leaving in as a template
     getActiveEditorElement: ->
       atom.workspace.getActiveTextEditor().getElement()
@@ -87,4 +78,13 @@ module.exports =
 
        "rgb(#{r}, #{g}, #{b})"
 
-       
+    # get the themeName from Base.ThemeLookup given a theme path
+    getThemeName: (themePath)->
+      # console.log "Utils.getThemeName: entered"
+      themeName = ''
+      for themeObj in Base.ThemeLookup
+        if themeObj['baseDir'] == themePath
+          themeName = themeObj['themeName']
+          break
+
+      themeName
