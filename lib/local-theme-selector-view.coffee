@@ -50,6 +50,10 @@ fs = require('fs-plus')
 # theme: the theme applied e.g "fairyfloss"
 # styleClass: the style tag that has been added to the element's class e.g. 'mta-editor-style-1484974763214'
 
+# Base.FileTypeLookup:
+# key: the file extension e.g. 'ts', 'js'
+# value: the fully qualified css path to the theme for this file type
+
 module.exports =
   class LocalThemeSelectorView
     selectorView: null
@@ -64,12 +68,16 @@ module.exports =
     # keep track of the state of each element we apply a local theme to.
     elementLookup: WeakMap
 
-    constructor: (multiThemeApplicator, fileLookupState) ->
+    constructor: (multiThemeApplicator, prevSessionFileLookupState, prevSessionFileTypeLookupState) ->
       @multiThemeApplicator =  multiThemeApplicator
       # restore the prior fileLookupState, if any
-      @fileLookup = fileLookupState
+      # @fileLookup = fileLookupState
+      @fileLookup = prevSessionFileLookupState || {}
       @elementLookup = Base.ElementLookup
       # vt-x@themeLookup = Base.ThemeLookup
+      #vt add
+      Base.FileTypeLookup = prevSessionFileTypeLookupState || {}
+      #vt end
 
       # create all the supporting services we may need to call
       @localThemeManager = new LocalThemeManager()
@@ -173,6 +181,7 @@ module.exports =
       $('<label>').text('Scope:').appendTo($scopeDiv)
       $('<input type="radio" name="scope" value="window">Window</input>').appendTo($scopeDiv)
       $('<input type="radio" name="scope" value="pane">Pane</input>').appendTo($scopeDiv)
+      $('<input type="radio" name="scope" value="fileType" checked>FileType</input>').appendTo($scopeDiv)
       $('<input type="radio" name="scope" value="file" checked>File</input>').appendTo($scopeDiv)
       $('<input type="radio" name="scope" value="editor">Editor</input>').appendTo($scopeDiv)
 
@@ -236,8 +245,8 @@ module.exports =
     # level.
     # This is the key method of the whole package.  This basically drives all the
     # other supporting modules.
-    applyLocalTheme: (fn, themePath) ->
-      themeScope = $("input[type='radio'][name='scope']:checked").val()
+    applyLocalTheme: (fn, themePath, scope) ->
+      themeScope = scope || $("input[type='radio'][name='scope']:checked").val()
 
       if !themeScope
         console.log "LocalThemeSelectorView.applyLocalTheme: skipping because no themeScope"
@@ -250,9 +259,21 @@ module.exports =
       #vt end
       sourcePath = baseCssPath + '/index.less'
 
-      # Remember what theme is applied to what file.
       targetFile = fn || @utils.getActiveFile()
-      @fileLookup[targetFile] = baseCssPath
+      # get the "ts" from "myfile.ts", for example
+      fileExt = targetFile.match(/\.(.*)$/)[1]
+
+      # an fn arg means this is an application to a file that falls under an
+      # existing rule.  Therefore, we don't need to save it's theme state, as it
+      # should already be covered by another file or fileExt.
+      if !fn
+      # if true
+        if themeScope == "file" || themeScope == "editor"
+          # Remember what theme is applied to what file.
+          @fileLookup[targetFile] = baseCssPath
+
+        else if themeScope == "fileType"
+          Base.FileTypeLookup[fileExt] = baseCssPath
 
       promise = @localThemeManager.getThemeCss baseCssPath
 
@@ -271,7 +292,7 @@ module.exports =
             newStyleElement = @localStylesElement.createStyleElement(css, sourcePath)
 
             switch themeScope
-              when "file", "editor"
+              when "fileType", "file", "editor"
                 #vt-xstyleClass = @localThemeManager.addStyleElementToHead(newStyleElement, themeScope)
                 styleClass = @localThemeManager.addStyleElementToHead(newStyleElement, themeScope, themeName)
 
@@ -280,11 +301,14 @@ module.exports =
 
                 params = {}
 
-                params.uri = fn || @utils.getActiveFile()
-
                 editors = []
                 if themeScope == "file"
+                  params.uri = fn || @utils.getActiveFile()
                   # get all the textEditors open for this file
+                  editors = @utils.getTextEditors params
+                else if themeScope == "fileType" && !fn
+                  params.fileExt = fileExt
+                  # get all the textEditors open for this file ext
                   editors = @utils.getTextEditors params
                 else
                   editors.push atom.workspace.getActiveTextEditor()
@@ -296,6 +320,12 @@ module.exports =
                   # the previous editors
                   editorElem = editor.getElement();
 
+                  #vt add
+                  # if the editor element already has the new styleClass applied, skip it.
+                  # We only want to update new elements.  If we update already updated elements, then
+                  # the new class can override lower styles that should be taking effect.
+                  continue if $(editorElem).attr('class').match( new RegExp styleClass)
+                  #vt end
                   if !@elementLookup.get editor
                     # create a two-tier lookup element->'file'
                     @elementLookup.set editor, {"#{themeScope}" : {} }
@@ -304,6 +334,7 @@ module.exports =
                     prevStyleClass = @elementLookup.get(editor)[themeScope]['styleClass']
 
                   # since multiple editors can be associated with one head style
+
                   # we will typically be deleting the head style multiple times, but the
                   # operation is idempotent, so this is safe.  By the time we determine
                   # that we don't need to delete it, we could have already gone ahead and

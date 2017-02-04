@@ -39,6 +39,11 @@ module.exports =
       if params.uri?
         result = (editor for editor in editors when editor.getURI() && editor.getURI().replace(/\\/g, '/') == params.uri)
 
+      else if params.fileExt?
+        re = new RegExp ".#{params.fileExt}$"
+
+        result = (editor for editor in editors when editor.getURI() && editor.getURI().match re)
+
       result
 
     # reset all panes.  This is just a way to reset the panes to elminate any
@@ -88,3 +93,19 @@ module.exports =
           break
 
       themeName
+
+    # This is a work in progress.  I actually don't need it at the moment.
+    # The problem is it's very hard to distinguish between 'mta-file' and
+    # 'mta-file-type'
+    # TODO: give 'file-type' a different unique key like 'mta-fileType'
+    hasMtaFileClass: (element)->
+      console.log "Utils.hasMtaFileClass: entered"
+      elemClass = $(element).attr 'class'
+      # hasMtaFile = element.attr('class').match(/mta-file-/)
+      # hasMtaFileType =
+      # return elemClass.match(/mta-file-/) && !elemClass.match /mta-file-type-/
+      # mtaFileClassCandidate = elemClass.math(/mat-fil)
+      elemClass.match /mta-file-/
+
+    hasMtaFileTypeClass: (element)->
+      elemClass.match /mta-fileType-/

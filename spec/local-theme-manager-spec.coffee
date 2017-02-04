@@ -95,11 +95,15 @@ describe 'LocalThemeManager with complex atom-text-editor style tree', () ->
 
     @textEditor = buildEditorTestEvironment()
 
-  it 'addStyleElementToHead', () ->
+  it 'addStyleElementToHead works', () ->
     styleElem = document.createElement('style')
 
     # editor scope
-    styleClass = @localThemeManager.addStyleElementToHead styleElem, 'editor'
+    # debugger
+    styleClass = @localThemeManager.addStyleElementToHead styleElem, 'editor', "mystyle"
+    firstStyleClass = styleClass
+    # debugger
+    console.log "styleClass=#{styleClass}"
 
     # verify it's now there
     elem = $('head').find("atom-styles .#{styleClass}")[0]
@@ -107,12 +111,22 @@ describe 'LocalThemeManager with complex atom-text-editor style tree', () ->
     expect(elem.getAttribute('class').match(/editor/)).toBeTruthy()
 
     # pane scope
-    styleClass = @localThemeManager.addStyleElementToHead styleElem, 'pane'
+    styleClass = @localThemeManager.addStyleElementToHead styleElem, 'pane', "mystyle"
 
     # verify it's now there
     elem = $('head').find("atom-styles .#{styleClass}")[0]
     expect(elem).toBeTruthy()
-    expect(elem.getAttribute('class').match(/pane/)).toBeTruthy()
+
+    # Verify it re-uses existing styleClass from head if a previous one is found
+    # oldStyleClass = styleClass
+    console.log "hi"
+    oldHeadCnt = $('head atom-styles style').length
+    # debugger
+    styleClass = @localThemeManager.addStyleElementToHead styleElem, 'editor', "mystyle"
+    expect(styleClass).toEqual(firstStyleClass)
+    expect($('head atom-styles style').length).toEqual(oldHeadCnt)
+
+  # it 'addStyleElementToHead re-uses existing styleClass from head if a previous one is found', () ->
 
   # this is too hard to unit-test.  The code is expecting the bg color to be
   # at this location:

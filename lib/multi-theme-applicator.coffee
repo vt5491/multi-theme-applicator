@@ -1,4 +1,5 @@
 $ = jQuery = require 'jquery'
+Base = require './base'
 
 LocalThemeSelectorView = require './local-theme-selector-view'
 {CompositeDisposable} = require 'atom'
@@ -9,7 +10,10 @@ module.exports = MultiThemeApplicator =
 
   activate: (state) ->
     console.log "MultiThemeApplicator.activiate: entered"
-    @localThemeSelectorView = new LocalThemeSelectorView(this, state)
+    # @localThemeSelectorView = new LocalThemeSelectorView(this, state)
+    @localThemeSelectorView = new LocalThemeSelectorView(this, state['fileLookup'], state['FileTypeLookup'])
+    # atom.deserializers.deserialize(state)
+    # @localThemeSelectorView = new LocalThemeSelectorView(this, state['fileLookup'])
 
     @localThemeSelectorPanel = atom.workspace.addModalPanel(
       item: @localThemeSelectorView.getElement(),
@@ -42,12 +46,17 @@ module.exports = MultiThemeApplicator =
     @localThemeSelectorPanel.destroy()
 
   serialize: () ->
-    state
+    # state
+    state = {}
 
     if(@localThemeSelectorView && @localThemeSelectorView.fileLookup)
-      state = @localThemeSelectorView.fileLookup
+      # state = @localThemeSelectorView.fileLookup
+      state['fileLookup'] = @localThemeSelectorView.fileLookup
+
+    state['FileTypeLookup'] = Base.FileTypeLookup
 
     state
+    # state.serialize()
 
   doIt: () ->
     7
@@ -63,6 +72,7 @@ module.exports = MultiThemeApplicator =
 
   reset: () ->
     @localThemeSelectorView.fileLookup = {}
+    Base.FileTypeLookup = {}
 
   #vt add
   refreshThemeInfo: () ->

@@ -9,6 +9,7 @@ module.exports =
   class LocalThemeManager
 
     constructor: ->
+      console.log "LocalThemeManager.ctor: entered"
       @utils = new Utils()
 
     doIt: ->
@@ -30,11 +31,36 @@ module.exports =
       activeTheme
 
     #vt-x addStyleElementToHead: (styleElement, scope )->
+    # addStyleElementToHead: (styleElement, scope, themeName )->
+    #   #vt-xstyleClass = "mta-#{scope}-style-" + Date.now()
+    #   styleClass = "mta-#{scope}-#{themeName}-style-" + Date.now()
+    #   $(styleElement).addClass(styleClass)
+    #   $('head').find('atom-styles').append(styleElement)
+    #
+    #   # return styleKey to the user
+    #   styleClass
+
+    # add style to head.  If a previous entry of the same type is found, then
+    # do not add to head, and return the prior styleClass instead.
     addStyleElementToHead: (styleElement, scope, themeName )->
-      #vt-xstyleClass = "mta-#{scope}-style-" + Date.now()
-      styleClass = "mta-#{scope}-#{themeName}-style-" + Date.now()
+      console.log "LocalThemeManager.addStyleElementToHead: entered"
+      styleClassStem = "mta-#{scope}-#{themeName}-style-"
+      # $('head').find("atom-styles #{styleClassStem}")
+      prevStyle = $('head').find('atom-styles style')
+        .filter () ->
+          this.className.match(new RegExp styleClassStem)
+
+      console.log "prevStyle=#{prevStyle[0]}"
+      styleClass
+      if prevStyle[0]
+        # re = new RegExp(styleClassStem + "\d{10,}" )
+        re = new RegExp "(#{styleClassStem}\\d{10,})"
+        styleClass = prevStyle.attr('class').match(re)[1]
+      else
+        styleClass = "mta-#{scope}-#{themeName}-style-" + Date.now()
+        $('head').find('atom-styles').append(styleElement)
+
       $(styleElement).addClass(styleClass)
-      $('head').find('atom-styles').append(styleElement)
 
       # return styleKey to the user
       styleClass
@@ -48,7 +74,7 @@ module.exports =
     # tagged in the scope (for example, "file" scope will include multiper editor elements)
     removeScopedTheme: (scope) ->
       switch scope
-        when "file", "editor"
+        when "fileType", "file", "editor"
           editor = atom.workspace.getActiveTextEditor()
           editorElem = editor.getElement()
           # get the class associated with this element
@@ -223,6 +249,7 @@ module.exports =
     # the method wil fail)
     # Note: in our case, the handlerObj is an instance of 'LocalThemeManagerSelectorView'
     initPaneEventHandler: (handlerObj) ->
+      # console.log "LocalThemeManager.initPaneEventHandler: entered"
       atom.workspace.observePaneItems (item) ->
 
         # apply local theme if item instanceof atom.TextEditor.constructor
@@ -230,8 +257,17 @@ module.exports =
           if item.buffer.file
             fn = item.buffer.file.path.replace(/\\/g, '/')
             localThemePath = handlerObj.fileLookup[fn]
+            #vt add
+            fileExt = fn.match(/\.(.*)$/)[1]
+            fileExtThemePath = Base.FileTypeLookup[fileExt]
+            #vt end
+            # apply any fileType theme, then any file level.  If both are active, then
+            # by applying the file type last, it will take precedence.  We have to
+            # apply both in order to make remove work properly in the most general cases.
+            if fileExtThemePath
+              handlerObj.applyLocalTheme(fn, fileExtThemePath, 'fileType')
             if localThemePath
-              handlerObj.applyLocalTheme(fn, localThemePath)
+              handlerObj.applyLocalTheme(fn, localThemePath, 'file')
 
     initOnDidDestroyPaneHandler: () ->
       atom.workspace.onDidDestroyPane (event) =>
@@ -288,7 +324,7 @@ module.exports =
     narrowStyleScope: (css, styleClass, scope) ->
       # Note: regex replace is not destructive, so css var is unaffected
       switch scope
-        when "editor", "file"
+        when "editor", "file", "fileType"
           # note how we tack on a class of '.editor' to more narrowly target to the editor only
           narrowedCss = css.replace(/atom-text-editor/gm, "atom-text-editor.#{styleClass}.editor")
           narrowedCss = narrowedCss.replace(/^(\.syntax--\w+)/gm, ".#{styleClass}.editor $1")

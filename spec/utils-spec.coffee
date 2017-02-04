@@ -1,5 +1,6 @@
 Utils = require '../lib/utils'
 Base = require '../lib/Base'
+$ = jQuery = require 'jquery'
 
 describe 'Utils', () ->
   beforeEach ->
@@ -24,9 +25,18 @@ describe 'Utils2', () ->
     @textEditor2 = atom.workspace.buildTextEditor()
     @textEditor3 = atom.workspace.buildTextEditor()
 
+    # add a file type class
+    $(@textEditor.getElement()).addClass('mta-file-type-atom-light-syntax-style-1486192129232')
+
+    # add a file class
+    $(@textEditor.getElement()).addClass('mta-file-dracula-theme-style-1486192106901')
+
+    # add an editor class
+    $(@textEditor.getElement()).addClass('mta-editor-fairyfloss-style-1486192106901')
+
     @editorFile = "/tmp/utils-spec-dummy.ts"
     @editorFileWinFormat= "\\tmp\\utils-spec-dummy.ts"
-    @editorFile2 = "/tmp/utils-spec-dummy2.ts"
+    @editorFile2 = "/tmp/utils-spec-dummy2.js"
 
     spyOn(@textEditor, "getURI").andReturn(@editorFileWinFormat);
     # note: editor and editor2 need to use the same format to mimic a real test
@@ -41,7 +51,7 @@ describe 'Utils2', () ->
     # we expect it to be normalized to unix format even its in window format
     expect(result).toMatch( new RegExp(@editorFile) )
 
-  it 'getTextEditors works', () ->
+  it 'getTextEditors works by file', () ->
     params = {}
     params.uri = @editorFile
 
@@ -50,6 +60,15 @@ describe 'Utils2', () ->
     expect(result.length).toEqual(2)
     expect(result[0].getURI()).toEqual(@editorFileWinFormat)
     expect(result[1].getURI()).toEqual(@editorFileWinFormat)
+
+  it 'getTextEditors works by file type', () ->
+    params = {}
+    params.fileExt = "js"
+
+    result = @utils.getTextEditors params
+
+    expect(result.length).toEqual(1)
+    expect(result[0].getURI().match(/utils-spec-dummy2\.js/)).toBeTruthy()
 
   it 'normalizePath works', () ->
     # windows path
@@ -119,3 +138,12 @@ describe 'Utils2', () ->
     # expect(@utils.getThemeName '/tmp/abc.theme').toEqual('abc')
     # expect(@utils.getThemeName '/tmp/def.theme').toEqual('def')
     # expect(@utils.getThemeName '/tmp/ghi.theme').toBeFalsy()
+
+  # TODO: finish later
+  it 'hasMtaFileClass works', () ->
+    expect(@utils.hasMtaFileClass @textEditor.getElement()).toBeTruthy()
+    expect(@utils.hasMtaFileClass @textEditor2.getElement()).toBeFalsy()
+
+  it 'hasMtaFileTypeClass works', () ->
+    expect(@utils.hasMtaFileClass @textEditor.getElement()).toBeTruthy()
+    expect(@utils.hasMtaFileClass @textEditor2.getElement()).toBeFalsy()

@@ -17,3 +17,4 @@ module.exports =
     # @ThemeLookup = []
     # ThemeLookup = new Array()
     @ThemeLookup = []
+    @FileTypeLookup = {}
