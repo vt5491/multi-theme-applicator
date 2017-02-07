@@ -68,7 +68,7 @@ module.exports =
     # keep track of the state of each element we apply a local theme to.
     elementLookup: WeakMap
 
-    constructor: (multiThemeApplicator, prevSessionFileLookupState, prevSessionFileTypeLookupState) ->
+    constructor: (multiThemeApplicator, prevSessionFileLookupState, prevSessionFileTypeLookupState, prevThemeLookupState) ->
       @multiThemeApplicator =  multiThemeApplicator
       # restore the prior fileLookupState, if any
       # @fileLookup = fileLookupState
@@ -77,6 +77,7 @@ module.exports =
       # vt-x@themeLookup = Base.ThemeLookup
       #vt add
       Base.FileTypeLookup = prevSessionFileTypeLookupState || {}
+      Base.ThemeLookup = prevThemeLookupState || []
       #vt end
 
       # create all the supporting services we may need to call
@@ -84,6 +85,9 @@ module.exports =
       @localStylesElement = new LocalStylesElement()
       @utils = new Utils()
 
+      #vt add
+      this.reapplyThemes()
+      #vt end
       this.initThemeSelectorForm()
       # setup the pane listener, so we can automatically apply the local theme to any
       # new editors that show up.
@@ -202,6 +206,31 @@ module.exports =
         return false
 
     #vt add
+    reapplyThemes: () ->
+      # if state['FileTypeLookup'] && Object.keys(state['FileTypeLookup']).length > 0
+      # fileType
+      if Base.FileTypeLookup && Object.keys(Base.FileTypeLookup).length > 0
+        for fileType in Object.keys Base.FileTypeLookup
+          themePath = Base.FileTypeLookup[fileType]
+          for editor in atom.workspace.getTextEditors()
+            editorFile = @utils.getActiveFile editor
+            fileExt = @utils.getFileExt editorFile
+
+            if fileExt == fileType
+              this.applyLocalTheme editorFile, themePath, 'fileType', editor
+
+      # file scope files
+      if @fileLookup && Object.keys(@fileLookup).length > 0
+        for filePath in Object.keys @fileLookup
+          themePath = @fileLookup[filePath]
+          for editor in atom.workspace.getTextEditors()
+            # editorFile = @utils.getActiveFile editor
+            # fileExt = @utils.getFileExt editorFile
+            if @utils.getActiveFile(editor) == filePath
+              this.applyLocalTheme filePath, themePath, 'file', editor
+
+      true
+
     refreshThemeInfo: ($themeDropdown) ->
       console.log "LocalThemeManagerSelectorView.refreshThemeInfo: entered"
       $dropDown = $themeDropdown ? $('#themeDropdown')
@@ -245,7 +274,7 @@ module.exports =
     # level.
     # This is the key method of the whole package.  This basically drives all the
     # other supporting modules.
-    applyLocalTheme: (fn, themePath, scope) ->
+    applyLocalTheme: (fn, themePath, scope, ed) ->
       themeScope = scope || $("input[type='radio'][name='scope']:checked").val()
 
       if !themeScope
@@ -261,7 +290,8 @@ module.exports =
 
       targetFile = fn || @utils.getActiveFile()
       # get the "ts" from "myfile.ts", for example
-      fileExt = targetFile.match(/\.(.*)$/)[1]
+      # fileExt = targetFile.match(/\.(.*)$/)[1]
+      fileExt = @utils.getFileExt targetFile
 
       # an fn arg means this is an application to a file that falls under an
       # existing rule.  Therefore, we don't need to save it's theme state, as it
@@ -311,7 +341,8 @@ module.exports =
                   # get all the textEditors open for this file ext
                   editors = @utils.getTextEditors params
                 else
-                  editors.push atom.workspace.getActiveTextEditor()
+                  #vteditors.push atom.workspace.getActiveTextEditor()
+                  editors.push ed || atom.workspace.getActiveTextEditor()
 
                 for editor in editors
                   # We have to get a new styleElement each time i.e. we need to clone
@@ -355,8 +386,7 @@ module.exports =
                   elemState[themeScope]['styleClass'] = styleClass
 
               when "pane"
-                styleClass = @localThemeManager.addStyleEleme
-                ntToHead(newStyleElement, 'pane', themeName)
+                styleClass = @localThemeManager.addStyleElementToHead(newStyleElement, 'pane', themeName)
 
                 narrowedCss = @localThemeManager.narrowStyleScope(css, styleClass, "pane")
                 $(newStyleElement).text(narrowedCss)
@@ -411,6 +441,9 @@ module.exports =
 
                 elemState['type'] = themeScope
                 elemState['styleClass'] = styleClass
+                #vt add
+                elemState['themePath'] = baseCssPath
+                #vt end
             # Reset all panes to avoid sympathetic bleed over effects that occasionally
             # happens when updating a non-activated (not currently focused) textEditor
             # in a pane.

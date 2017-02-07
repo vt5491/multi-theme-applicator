@@ -69,13 +69,15 @@ module.exports =
       if $.find("head atom-styles style.#{styleClass}").length > 0
         $.find("head atom-styles style.#{styleClass}")[0].remove()
 
-    # Remove the scoped theme from the active scope.  This involves deleting the css
+    # Remove the scoped theme from the active scope, or the passed artifact (editor, pane , or window element).
+    # This involves deleting the css
     # from head->atom-styles as well as removing the class tag from any elements
     # tagged in the scope (for example, "file" scope will include multiper editor elements)
-    removeScopedTheme: (scope) ->
+    # removeScopedTheme: (scope) ->
+    removeScopedTheme: (scope, artifact) ->
       switch scope
         when "fileType", "file", "editor"
-          editor = atom.workspace.getActiveTextEditor()
+          editor = artifact || atom.workspace.getActiveTextEditor()
           editorElem = editor.getElement()
           # get the class associated with this element
           styleClass
@@ -86,11 +88,12 @@ module.exports =
             # this should be a "does not occur" condition, but resort to this hack
             # to at least clean up, until I can close down this path from occurring
             # Here, we just pull the scope class name directly from the editor element
-            re = new RegExp("mta-#{scope}-style-\d{10,}")
-            match = $(editor).attr('class').match(re)
-            if (match.length > 0)
-              styleClass = match[0]
-              console.log "LocalThemeManager.removeScopedTheme: hacked styleClass=#{styleClass}"
+            # re = new RegExp("mta-#{scope}-style-\d{10,}")
+            # match = $(editor).attr('class').match(re)
+            # if (match.length > 0)
+            #   styleClass = match[0]
+            #   console.log "LocalThemeManager.removeScopedTheme: hacked styleClass=#{styleClass}"
+            console.log "LocalThemeManager.removeScopedTheme: unable to find styleClass"
 
           # remove from head
           if styleClass
@@ -110,10 +113,31 @@ module.exports =
             $(editorElem).removeClass(styleClass)
 
             #remove from ElementLookup
-            Base.ElementLookup.delete(editor)
+          #   if scope == 'file' || scope == 'editor'
+          #     Base.ElementLookup.delete(editor)
+          #   # Base.ElementLookup.delete(editor)[scope]
+          # else if scope = 'fileType'
+            # Base.ElementLookup.get(editor)[scope] = {}
+            # if Base.ElementLookup.get(editor)['editor']
+            #   && Object.keys(Base.ElementLookup.get(editor)['editor']).length == 0
+            #   && Base.ElementLookup.get(editor)['file']
+            #   && Object.keys(Base.ElementLookup.get(editor)['file']).length == 0
+            #   && Base.ElementLookup.get(editor)['fileType']
+            #   && Object.keys(Base.ElementLookup.get(editor)['fileType']).length == 0
+              # if we've cleared out all subkeys, then delete the whole thing
+              # Base.ElementLookup.delete(editor)
+            # delete the subkey
+            delete Base.ElementLookup.get(editor)[scope]
+
+            # if we've cleared out all subkeys, then delete the whole thing
+            if Object.keys( Base.ElementLookup.get editor ).length == 0
+              Base.ElementLookup.delete(editor)
+                # body...
+
+              # body...
 
         when "pane"
-          pane = atom.workspace.getActivePane()
+          pane = artifact || atom.workspace.getActivePane()
           $activePane = $('atom-pane.active')
           paneElem = $activePane[0]
 
@@ -252,6 +276,7 @@ module.exports =
       # console.log "LocalThemeManager.initPaneEventHandler: entered"
       atom.workspace.observePaneItems (item) ->
 
+        console.log "LocalThemeManager.observePaneItems: entered"
         # apply local theme if item instanceof atom.TextEditor.constructor
         if item.constructor.name is 'TextEditor'
           if item.buffer.file

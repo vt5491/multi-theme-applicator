@@ -25,8 +25,11 @@ module.exports =
     # This returns the active file in the editor
     # e.g ""C:\vtstuff\tmp\dummy2.js""
     # normalized to unix format
-    getActiveFile: ->
-      atom.workspace.getActiveTextEditor().getURI().replace(/\\/g, '/')
+    # getActiveFile: ->
+    getActiveFile: (ed) ->
+      editor = ed || atom.workspace.getActiveTextEditor()
+      # atom.workspace.getActiveTextEditor().getURI().replace(/\\/g, '/')
+      editor.getURI().replace(/\\/g, '/') if editor
 
     # return all the textEditors for a given parm type.  e.g if
     # params = {uri : '/myPath/abc.txt'}
@@ -109,3 +112,12 @@ module.exports =
 
     hasMtaFileTypeClass: (element)->
       elemClass.match /mta-fileType-/
+
+    getFileExt: (fileName) ->
+      # fileExt = fileName.match(/\.(.*)$/)[1]
+      # fileExt = fileName.match(/\.(\w*)\s*$/)[1]
+      fileExt = ''
+      if match = fileName.match(/\.(\w*)\s*$/)
+        fileExt = match[1]
+
+      fileExt

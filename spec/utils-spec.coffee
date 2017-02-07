@@ -147,3 +147,9 @@ describe 'Utils2', () ->
   it 'hasMtaFileTypeClass works', () ->
     expect(@utils.hasMtaFileClass @textEditor.getElement()).toBeTruthy()
     expect(@utils.hasMtaFileClass @textEditor2.getElement()).toBeFalsy()
+
+  it 'getFileExt works', () ->
+    expect(@utils.getFileExt "abc.txt").toEqual "txt"
+    expect(@utils.getFileExt "abc.txt ").toEqual "txt"
+    expect(@utils.getFileExt "abc.def.txt").toEqual "txt"
+    expect(@utils.getFileExt "abc").toEqual ""
