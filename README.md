@@ -1,5 +1,4 @@
 # multi-theme-applicator package
--> 2017-02-02:  Support for Atom 1.13 added.  Updated documentation is pending.
 
 A package for the atom editor that allows you to apply multiple syntax themes to your editing session.  
 
@@ -27,7 +26,8 @@ Additionally, since you don't have to commit to one all-encompassing theme, it a
 Allowing editor level theming is also useful when your global themes looks good on one file type, but not so good on others.  Having this problem?  Simply pick another theme that looks good on the other file type and your problem is solved.  No more trying to find that one perfect theme that works across all your file types.
 
 ## Requirements
-Tested on Atom 1.8.0, and 1.10.0 on Mac, Windows 10, and Linux Mint 17.3.
+Requires Atom >=1.13.0.
+Tested on Atom 1.13.0 on Mac, Windows 10, and Linux Mint 18.
 
 ## Installation
 Install from the Atom control panel as you would for any standard Atom package.
@@ -37,6 +37,8 @@ Install from the Atom control panel as you would for any standard Atom package.
 When you activate the _multi-theme-applicator_ (MTA) panel with _shift-ctrl-v_ (windows/linux) or _shift-cmd-v_ (mac), you are presented with a list of the currently available themes.  The panel and theme selection can be entirely controlled with home-row friendly key bindings or via mouse.  Select the theme you want and click _Apply Local Theme_ or press _Enter_. You will then see all the editors associated with the file of the active editor assume that theme.  Having selected a new theme, the dialog will still remain active, allowing you to quickly iterate through and apply several themes until you find just the right one.  When you're done, toggle the _multi-theme-applicator_ to close by pressing the _escape_ key, _ctrl-shift-v_, or clicking the "x" button, and resume working.
 
 #### Typical Workflow
+--> 2017-02-08: Note this describes how to use MTA v 0.9.0.  This will be updated in the future to support MTA v1.1.0.
+
 1) We start in a session with three open files across three panes in the default monolithic theme _atom-dark_.    
 
   Note how two of the panes are open on one file and the third pane on another file and how relatively difficult it is to visually distinguish between them:  
@@ -103,12 +105,28 @@ Note 2: Quite frankly, some of these are kind of tricky key bindings.  I have em
 Note 3: to change the keybindings, edit $HOME/.atom/packages/mult-theme-applicator/multi-theme-applicator.cson, or use the keybindings section of the Settings panel.
 
 #### Limitations
-1) The package does not yet currently allow for any higher-level grouping such as by file type, or by window.  
-
-Future enhancements such as specifying a theme at the file level, or by file type (say all '.js' files are light themed, all 'java' are dark-themed etc), or physical theming at the window level are certainly possible.  
+1. Sticky themes does not work on window, pane, or editor scoped themes.
+2. Because Atom no longer uses a Shadow DOM, which isolated editor level themes, there can now be "bleed over" between themes.   That is to say, some elements of your theme may be overridden by a higher level theme.  This is just a property of Cascading Style Sheets.  
 
 
 ### Release History
+2017-02-08 - version 1.1.0
+1. New *File Type* Scope
+ * allows you to apply a theme by file type e.g. make all currently opened and to-be-opened javascript files be one theme, and all .html files be another theme etc.
+2. Improved reset
+ * Invoking *MTA reset* from the command pallet will remove all themes dynamically, without requiring a restart
+   * This is necessary because the theming can get very convoluted if you're not careful.  Sometimes you just want to start from scratch.
+3. New *Refresh Themes* command
+ * Selecting *MTA Refresh Thems* from the command pallet allows you to dynamically add themes for the main dropdown, without restarting Atom.
+
+2017-02-02 - version 1.0.0
+1. Atom 1.13 support
+ * Atom 1.13 [removed the shadow DOM](http://blog.atom.io/2016/11/14/removing-shadow-dom-boundary-from-text-editor-elements.html) which was relied upon by _Multi-theme-applicator_ to achive its styling.  Thus a re-architecting of the styling mechansim was required.  
+2. Scope level theming added.
+  * The new styling architecture allows for easier theming at different levels of granularity.  Thus window, pane, file, and editor level scope was added.
+3. New *Remove Scoped Theme* button.
+  * Allows for finer control over backing off applied themes.  This is necessary becuase there can now be multiple layers of themes applied.
+
 2016-09-03 - version 0.9.0  
 This release introduces quite a large amount of new functionality.  Basically, local theming has been made much more "sticky", and requires less manual intervention and re-application.  In short, it's starting to work a lot more like one "would expect", and fixes several edge cases where themes were previously not applied as expected.  
 
