@@ -30,30 +30,16 @@ module.exports =
 
       activeTheme
 
-    #vt-x addStyleElementToHead: (styleElement, scope )->
-    # addStyleElementToHead: (styleElement, scope, themeName )->
-    #   #vt-xstyleClass = "mta-#{scope}-style-" + Date.now()
-    #   styleClass = "mta-#{scope}-#{themeName}-style-" + Date.now()
-    #   $(styleElement).addClass(styleClass)
-    #   $('head').find('atom-styles').append(styleElement)
-    #
-    #   # return styleKey to the user
-    #   styleClass
-
     # add style to head.  If a previous entry of the same type is found, then
     # do not add to head, and return the prior styleClass instead.
     addStyleElementToHead: (styleElement, scope, themeName )->
-      console.log "LocalThemeManager.addStyleElementToHead: entered"
       styleClassStem = "mta-#{scope}-#{themeName}-style-"
-      # $('head').find("atom-styles #{styleClassStem}")
       prevStyle = $('head').find('atom-styles style')
         .filter () ->
           this.className.match(new RegExp styleClassStem)
 
-      console.log "prevStyle=#{prevStyle[0]}"
       styleClass
       if prevStyle[0]
-        # re = new RegExp(styleClassStem + "\d{10,}" )
         re = new RegExp "(#{styleClassStem}\\d{10,})"
         styleClass = prevStyle.attr('class').match(re)[1]
       else
@@ -84,15 +70,6 @@ module.exports =
           if Base.ElementLookup.get(editor) && Base.ElementLookup.get(editor)[scope]
             styleClass = Base.ElementLookup.get(editor)[scope]['styleClass']
           else
-            # kind of a hack here
-            # this should be a "does not occur" condition, but resort to this hack
-            # to at least clean up, until I can close down this path from occurring
-            # Here, we just pull the scope class name directly from the editor element
-            # re = new RegExp("mta-#{scope}-style-\d{10,}")
-            # match = $(editor).attr('class').match(re)
-            # if (match.length > 0)
-            #   styleClass = match[0]
-            #   console.log "LocalThemeManager.removeScopedTheme: hacked styleClass=#{styleClass}"
             console.log "LocalThemeManager.removeScopedTheme: unable to find styleClass"
 
           # remove from head
@@ -112,29 +89,12 @@ module.exports =
 
             $(editorElem).removeClass(styleClass)
 
-            #remove from ElementLookup
-          #   if scope == 'file' || scope == 'editor'
-          #     Base.ElementLookup.delete(editor)
-          #   # Base.ElementLookup.delete(editor)[scope]
-          # else if scope = 'fileType'
-            # Base.ElementLookup.get(editor)[scope] = {}
-            # if Base.ElementLookup.get(editor)['editor']
-            #   && Object.keys(Base.ElementLookup.get(editor)['editor']).length == 0
-            #   && Base.ElementLookup.get(editor)['file']
-            #   && Object.keys(Base.ElementLookup.get(editor)['file']).length == 0
-            #   && Base.ElementLookup.get(editor)['fileType']
-            #   && Object.keys(Base.ElementLookup.get(editor)['fileType']).length == 0
-              # if we've cleared out all subkeys, then delete the whole thing
-              # Base.ElementLookup.delete(editor)
             # delete the subkey
             delete Base.ElementLookup.get(editor)[scope]
 
             # if we've cleared out all subkeys, then delete the whole thing
             if Object.keys( Base.ElementLookup.get editor ).length == 0
               Base.ElementLookup.delete(editor)
-                # body...
-
-              # body...
 
         when "pane"
           pane = artifact || atom.workspace.getActivePane()
@@ -273,19 +233,15 @@ module.exports =
     # the method wil fail)
     # Note: in our case, the handlerObj is an instance of 'LocalThemeManagerSelectorView'
     initPaneEventHandler: (handlerObj) ->
-      # console.log "LocalThemeManager.initPaneEventHandler: entered"
       atom.workspace.observePaneItems (item) ->
 
-        console.log "LocalThemeManager.observePaneItems: entered"
         # apply local theme if item instanceof atom.TextEditor.constructor
         if item.constructor.name is 'TextEditor'
           if item.buffer.file
             fn = item.buffer.file.path.replace(/\\/g, '/')
             localThemePath = handlerObj.fileLookup[fn]
-            #vt add
             fileExt = fn.match(/\.(.*)$/)[1]
             fileExtThemePath = Base.FileTypeLookup[fileExt]
-            #vt end
             # apply any fileType theme, then any file level.  If both are active, then
             # by applying the file type last, it will take precedence.  We have to
             # apply both in order to make remove work properly in the most general cases.
@@ -296,7 +252,6 @@ module.exports =
 
     initOnDidDestroyPaneHandler: () ->
       atom.workspace.onDidDestroyPane (event) =>
-        console.log "onDidDestroyPane.handler: event.pane=#{event.pane}"
         pane = event.pane
 
         if Base.ElementLookup.get(pane)

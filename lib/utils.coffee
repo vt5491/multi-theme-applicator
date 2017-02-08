@@ -25,10 +25,8 @@ module.exports =
     # This returns the active file in the editor
     # e.g ""C:\vtstuff\tmp\dummy2.js""
     # normalized to unix format
-    # getActiveFile: ->
     getActiveFile: (ed) ->
       editor = ed || atom.workspace.getActiveTextEditor()
-      # atom.workspace.getActiveTextEditor().getURI().replace(/\\/g, '/')
       editor.getURI().replace(/\\/g, '/') if editor
 
     # return all the textEditors for a given parm type.  e.g if
@@ -88,7 +86,6 @@ module.exports =
 
     # get the themeName from Base.ThemeLookup given a theme path
     getThemeName: (themePath)->
-      # console.log "Utils.getThemeName: entered"
       themeName = ''
       for themeObj in Base.ThemeLookup
         if themeObj['baseDir'] == themePath
@@ -100,22 +97,14 @@ module.exports =
     # This is a work in progress.  I actually don't need it at the moment.
     # The problem is it's very hard to distinguish between 'mta-file' and
     # 'mta-file-type'
-    # TODO: give 'file-type' a different unique key like 'mta-fileType'
     hasMtaFileClass: (element)->
-      console.log "Utils.hasMtaFileClass: entered"
       elemClass = $(element).attr 'class'
-      # hasMtaFile = element.attr('class').match(/mta-file-/)
-      # hasMtaFileType =
-      # return elemClass.match(/mta-file-/) && !elemClass.match /mta-file-type-/
-      # mtaFileClassCandidate = elemClass.math(/mat-fil)
       elemClass.match /mta-file-/
 
     hasMtaFileTypeClass: (element)->
       elemClass.match /mta-fileType-/
 
     getFileExt: (fileName) ->
-      # fileExt = fileName.match(/\.(.*)$/)[1]
-      # fileExt = fileName.match(/\.(\w*)\s*$/)[1]
       fileExt = ''
       if match = fileName.match(/\.(\w*)\s*$/)
         fileExt = match[1]

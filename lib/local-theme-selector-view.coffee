@@ -58,11 +58,6 @@ module.exports =
   class LocalThemeSelectorView
     selectorView: null
 
-    # this keeps track of the theme file locations
-    # themeLookup: []
-    #vt add
-    # themeLookup = Base.ThemeLookup
-    #vt end
     # keep track of the local theme applied by file.
     fileLookup: {}
     # keep track of the state of each element we apply a local theme to.
@@ -71,23 +66,17 @@ module.exports =
     constructor: (multiThemeApplicator, prevSessionFileLookupState, prevSessionFileTypeLookupState, prevThemeLookupState) ->
       @multiThemeApplicator =  multiThemeApplicator
       # restore the prior fileLookupState, if any
-      # @fileLookup = fileLookupState
       @fileLookup = prevSessionFileLookupState || {}
       @elementLookup = Base.ElementLookup
-      # vt-x@themeLookup = Base.ThemeLookup
-      #vt add
       Base.FileTypeLookup = prevSessionFileTypeLookupState || {}
       Base.ThemeLookup = prevThemeLookupState || []
-      #vt end
 
       # create all the supporting services we may need to call
       @localThemeManager = new LocalThemeManager()
       @localStylesElement = new LocalStylesElement()
       @utils = new Utils()
 
-      #vt add
       this.reapplyThemes()
-      #vt end
       this.initThemeSelectorForm()
       # setup the pane listener, so we can automatically apply the local theme to any
       # new editors that show up.
@@ -144,23 +133,6 @@ module.exports =
       $themeDropdown.blur =>
         $('#themeDropdown').css('borderWidth', @dropDownBorderWidthDefault);
 
-      # @themeLookup = @localThemeManager.getSyntaxThemeLookup()
-      #
-      # # sort themeLookup by theme name. Note: sort is desctructive, so it alters the original
-      # @themeLookup.sort (a,b) ->
-      #   nameA=a.themeName.toLowerCase()
-      #   nameB=b.themeName.toLowerCase()
-      #   if nameA < nameB
-      #     return -1
-      #   if nameA > nameB
-      #     return 1
-      #   return 0
-      #
-      # for theme in @themeLookup
-      #   $('<option>', {
-      #     value: theme.baseDir,
-      #     text: theme.themeName})
-      #   .appendTo($themeDropdown)
       this.refreshThemeInfo($themeDropdown)
 
       # register a listener for onChange, so we can clear any error messages from
@@ -170,8 +142,6 @@ module.exports =
         $('#input-form span.error').css("visibility", "hidden") )
 
       $themeDropdown.appendTo($themeDiv)
-
-      # $themeDropdown.html('')
 
       closeModalDialogButton = $("<span>")
       closeModalDialogButton.attr(id: 'close-modal-dialog')
@@ -205,9 +175,7 @@ module.exports =
         # return false so the main submit action is not applied
         return false
 
-    #vt add
     reapplyThemes: () ->
-      # if state['FileTypeLookup'] && Object.keys(state['FileTypeLookup']).length > 0
       # fileType
       if Base.FileTypeLookup && Object.keys(Base.FileTypeLookup).length > 0
         for fileType in Object.keys Base.FileTypeLookup
@@ -224,27 +192,19 @@ module.exports =
         for filePath in Object.keys @fileLookup
           themePath = @fileLookup[filePath]
           for editor in atom.workspace.getTextEditors()
-            # editorFile = @utils.getActiveFile editor
-            # fileExt = @utils.getFileExt editorFile
             if @utils.getActiveFile(editor) == filePath
               this.applyLocalTheme filePath, themePath, 'file', editor
 
       true
 
     refreshThemeInfo: ($themeDropdown) ->
-      console.log "LocalThemeManagerSelectorView.refreshThemeInfo: entered"
       $dropDown = $themeDropdown ? $('#themeDropdown')
-      # @themeLookup = @localThemeManager.getSyntaxThemeLookup()
       Base.ThemeLookup = @localThemeManager.getSyntaxThemeLookup()
-      # themeDropdownHtml = @localThemeManager.getThemeDropdownHtml(@themeLookup)
       themeDropdownHtml = @localThemeManager.getThemeDropdownHtml(Base.ThemeLookup)
-      # $('#themeDropdown').html(themeDropdownHtml)
       $dropDown.html(themeDropdownHtml)
-    #vt end
 
     selectNextTheme: ->
       @themeLookupActiveIndex++
-      # @themeLookupActiveIndex %= @themeLookup.length
       @themeLookupActiveIndex %= Base.ThemeLookup.length
 
       $("#themeDropdown")
@@ -253,7 +213,6 @@ module.exports =
     selectPrevTheme: ->
       @themeLookupActiveIndex--
       if @themeLookupActiveIndex < 0
-        # @themeLookupActiveIndex = @themeLookup.length - 1
         @themeLookupActiveIndex = Base.ThemeLookup.length - 1
 
       $("#themeDropdown")
@@ -282,22 +241,17 @@ module.exports =
         return
 
       baseCssPath = themePath || $( "#themeDropdown" ).val();
-      console.log "LocalThemeSelectorView.applyLocalTheme: themeName=#{@utils.getThemeName(baseCssPath)}"
-      #vt add
       themeName = @utils.getThemeName baseCssPath
-      #vt end
       sourcePath = baseCssPath + '/index.less'
 
       targetFile = fn || @utils.getActiveFile()
       # get the "ts" from "myfile.ts", for example
-      # fileExt = targetFile.match(/\.(.*)$/)[1]
       fileExt = @utils.getFileExt targetFile
 
       # an fn arg means this is an application to a file that falls under an
       # existing rule.  Therefore, we don't need to save it's theme state, as it
       # should already be covered by another file or fileExt.
       if !fn
-      # if true
         if themeScope == "file" || themeScope == "editor"
           # Remember what theme is applied to what file.
           @fileLookup[targetFile] = baseCssPath
@@ -307,7 +261,6 @@ module.exports =
 
       promise = @localThemeManager.getThemeCss baseCssPath
 
-      # css = null
       styleElement = null
 
       promise
@@ -323,7 +276,6 @@ module.exports =
 
             switch themeScope
               when "fileType", "file", "editor"
-                #vt-xstyleClass = @localThemeManager.addStyleElementToHead(newStyleElement, themeScope)
                 styleClass = @localThemeManager.addStyleElementToHead(newStyleElement, themeScope, themeName)
 
                 narrowedCss = @localThemeManager.narrowStyleScope(css, styleClass, themeScope)
@@ -341,7 +293,6 @@ module.exports =
                   # get all the textEditors open for this file ext
                   editors = @utils.getTextEditors params
                 else
-                  #vteditors.push atom.workspace.getActiveTextEditor()
                   editors.push ed || atom.workspace.getActiveTextEditor()
 
                 for editor in editors
@@ -351,12 +302,10 @@ module.exports =
                   # the previous editors
                   editorElem = editor.getElement();
 
-                  #vt add
                   # if the editor element already has the new styleClass applied, skip it.
                   # We only want to update new elements.  If we update already updated elements, then
                   # the new class can override lower styles that should be taking effect.
                   continue if $(editorElem).attr('class').match( new RegExp styleClass)
-                  #vt end
                   if !@elementLookup.get editor
                     # create a two-tier lookup element->'file'
                     @elementLookup.set editor, {"#{themeScope}" : {} }
@@ -441,9 +390,7 @@ module.exports =
 
                 elemState['type'] = themeScope
                 elemState['styleClass'] = styleClass
-                #vt add
                 elemState['themePath'] = baseCssPath
-                #vt end
             # Reset all panes to avoid sympathetic bleed over effects that occasionally
             # happens when updating a non-activated (not currently focused) textEditor
             # in a pane.

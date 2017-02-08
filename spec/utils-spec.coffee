@@ -1,5 +1,5 @@
 Utils = require '../lib/utils'
-Base = require '../lib/Base'
+Base = require '../lib/base'
 $ = jQuery = require 'jquery'
 
 describe 'Utils', () ->
@@ -17,8 +17,6 @@ describe 'Utils', () ->
 
 describe 'Utils2', () ->
   beforeEach ->
-    # Base.ThemeLookup.push {baseDir: '/tmp/abc.theme', themeName: 'abc'}
-    # Base.ThemeLookup.push {baseDir: '/tmp/def.theme', themeName: 'def'}
     @utils = new Utils()
 
     @textEditor = atom.workspace.buildTextEditor()
@@ -139,7 +137,6 @@ describe 'Utils2', () ->
     # expect(@utils.getThemeName '/tmp/def.theme').toEqual('def')
     # expect(@utils.getThemeName '/tmp/ghi.theme').toBeFalsy()
 
-  # TODO: finish later
   it 'hasMtaFileClass works', () ->
     expect(@utils.hasMtaFileClass @textEditor.getElement()).toBeTruthy()
     expect(@utils.hasMtaFileClass @textEditor2.getElement()).toBeFalsy()
