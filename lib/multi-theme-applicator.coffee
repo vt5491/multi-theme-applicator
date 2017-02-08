@@ -105,6 +105,8 @@ module.exports = MultiThemeApplicator =
     console.log "MultiThemeApplicator.reset: entered"
     for editor in atom.workspace.getTextEditors()
       if editorInfo = Base.ElementLookup.get editor
+        if editorInfo['editor']
+          @localThemeSelectorView.localThemeManager.removeScopedTheme 'editor', editor
         if editorInfo['file']
           @localThemeSelectorView.localThemeManager.removeScopedTheme 'file', editor
           # styleClass = editorInfo['file']['styleClass']
@@ -140,6 +142,9 @@ module.exports = MultiThemeApplicator =
 
     @localThemeSelectorView.fileLookup = {}
     Base.FileTypeLookup = {}
+    # Note: be careful about clearing out the ElementLookup WeakMap.  There seems
+    # to be issue if you clear this out without also doing a shitf-ctrl-f5 resetPanes
+    # or cycling atom (in other words resetting with one atom session)
     # Base.ElementLookup = new WeakMap()
     # @utils.resetPanes()
     #vt add
