@@ -36,14 +36,13 @@ Install from the Atom control panel as you would for any standard Atom package.
 ### Introductory Video
 <iframe width="560" height="315" src="https://www.youtube.com/embed/7u0TVjH_C4A" frameborder="0" allowfullscreen></iframe>
 
-[Youtube Introductory Video][184b0019]
+[Youtube Introductory Video][184b0019]  
+
 fig. 2: Multi-Theme Applicator Getting Started video.
 
   [184b0019]: https://www.youtube.com/watch?v=7u0TVjH_C4A "Youtube Video"
 
 ### Introductory Presentation Slides
-<iframe src='https://onedrive.live.com/embed?cid=807A7D7EE36351F2&resid=807A7D7EE36351F2%2155085&authkey=AJC4AdzwjQTAQvQ&em=2&wdAr=1.7777777777777777' width='350px' height='221px' frameborder='0'>This is an embedded <a target='_blank' href='https://office.com'>Microsoft Office</a> presentation, powered by <a target='_blank' href='https://office.com/webapps'>Office Online</a>.</iframe>  
-
 [Presentation Slides][52f1babd]
 
   [52f1babd]: https://onedrive.live.com/embed?cid=807A7D7EE36351F2&resid=807A7D7EE36351F2%2155085&authkey=AJC4AdzwjQTAQvQ&em=2&wdAr=1.7777777777777777 "Powerpoint presentation"
