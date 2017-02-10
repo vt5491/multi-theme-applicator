@@ -367,12 +367,14 @@ describe "LocalThemeManager scoped theme removal tests", () ->
     editorElem_1 = $editorElem_1[0]
     spyOn(@textEditor_1, "getElement").andReturn(editorElem_1)
     spyOn(@textEditor_1, "getURI").andReturn("/mydir/abc.txt")
+    spyOn(@textEditor_1, "getPath").andReturn("/mydir/abc.txt")
 
     $editorElem_2 = $('<atom-text-editor></atom-text-editor')
     $editorElem_2.attr('class', @styleClass_file)
     editorElem_2 = $editorElem_2[0]
     spyOn(@textEditor_2, "getElement").andReturn(editorElem_2)
     spyOn(@textEditor_2, "getURI").andReturn("/mydir/abc.txt")
+    spyOn(@textEditor_2, "getPath").andReturn("/mydir/abc.txt")
     # setup Base.ElementLookup
     Base.ElementLookup.set @textEditor_1, {"editor" : {'styleClass' : @styleClass_editor} }
     Base.ElementLookup.get(@textEditor_1)['file'] = {'styleClass' : @styleClass_file}

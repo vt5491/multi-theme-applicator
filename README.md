@@ -1,6 +1,6 @@
 # multi-theme-applicator package
 
-A package for the Atom Editor that allows you to apply multiple syntax themes to your editing session at multiple scoping levels, including by window, by pane, by file type, by file, and by editor.
+A package for the Atom Editor that allows you to apply multiple syntax themes to your editing session at multiple  levels, including by window, by pane, by file type, by file, and by editor.
 
 ![fig 1](https://github.com/vt5491/multi-theme-applicator/blob/master/assets/img/mta_v110/mta_opening_screen.png?raw=true)
 fig. 1: Screenshot of an Atom editing session with multiple syntax themes.
@@ -12,7 +12,7 @@ The Atom editor only allows for a [single _monolithic_ theme](http://stackoverfl
 Well no more.  
 
 _Multi-theme-applicator_, in the spirit of the emacs package
-[color-theme-buffer-local](https://github.com/vic/color-theme-buffer-local) , allows you to apply any installed syntax theme, at file level granularity, to any of the editors in your editing session. With _multi-theme-applicator_, you now have this powerful capability available in Atom, making the best browser in its class that much better.
+[color-theme-buffer-local](https://github.com/vic/color-theme-buffer-local) , allows you to apply any installed syntax theme, at your chosen level of granularity, to the windows, panes, or editors in your editing session. With _multi-theme-applicator_, you now have this powerful capability available in Atom, making the best browser in its class that much better.
 
 ### Motivation  
  Experienced developers know that they can easily have dozens of separate files open over a long-lived editing session, with anywhere from 12 to 20 of those files being on the "active" workflow at any one time.  Thus being able to visually categorize your work files is essential:  decreasing the likelihood of "losing your place", and avoiding costly mistakes like editing the wrong file.  
@@ -32,12 +32,20 @@ Tested on Atom 1.13.0 on Mac, Windows 10, and Linux Mint 18.
 ## Installation
 Install from the Atom control panel as you would for any standard Atom package.
 
+## MultiMedia
+### Introductory Video
+<iframe width="560" height="315" src="https://youtu.be/7u0TVjH_C4A" frameborder="0" allowfullscreen></iframe>  
+fig. 2: Multi-Theme Applicator Getting Started video.
+
+### Introductory Presentation Slides
+<iframe src='https://onedrive.live.com/embed?cid=807A7D7EE36351F2&resid=807A7D7EE36351F2%2155085&authkey=AJC4AdzwjQTAQvQ&em=2&wdAr=1.7777777777777777' width='350px' height='221px' frameborder='0'>This is an embedded <a target='_blank' href='https://office.com'>Microsoft Office</a> presentation, powered by <a target='_blank' href='https://office.com/webapps'>Office Online</a>.</iframe>
+
 ## Usage
 #### Overview
 When you activate the _multi-theme-applicator_ (MTA) panel with _shift-ctrl-v_ (windows/linux) or _shift-cmd-v_ (mac), you are presented with a list of the currently available themes.  The panel and theme selection can be entirely controlled with home-row friendly key bindings or via mouse.  Select the theme you want and click _Apply Local Theme_ or press _Enter_. You will then see all the editors associated with the file of the active editor assume that theme.  Having selected a new theme, the dialog will still remain active, allowing you to quickly iterate through and apply several themes until you find just the right one.  When you're done, toggle the _multi-theme-applicator_ to close by pressing the _escape_ key, _ctrl-shift-v_, or clicking the "x" button, and resume working.
 
 #### Typical Workflow
---> 2017-02-08: Note this describes how to use MTA v 0.9.0.  This will be updated in the future to support MTA v1.1.0.
+--> 2017-02-08: Note this describes how to use MTA v 0.9.0.  This will be updated in the future to support MTA v1.1.0.  In the meantime, please refer to the Introductory video and slide presentation in the Multimedia section above.
 
 1) We start in a session with three open files across three panes in the default monolithic theme _atom-dark_.    
 
@@ -111,29 +119,30 @@ Note 3: to change the keybindings, edit $HOME/.atom/packages/mult-theme-applicat
 
 ### Release History
 2017-02-08 - version 1.1.0
-1. New *File Type* Scope
- * allows you to apply a theme by file type e.g. make all currently opened and to-be-opened javascript files be one theme, and all .html files be another theme etc.
-2. Improved reset
+
+* New *File Type* Scope
+ * allows you to apply a theme by file type e.g. make all currently opened and to-be-opened JavaScript files be one theme, and all .html files be another theme etc.
+* Improved reset
  * Invoking *MTA reset* from the command pallet will remove all themes dynamically, without requiring a restart
    * This is necessary because the theming can get very convoluted if you're not careful.  Sometimes you just want to start from scratch.
-3. New *Refresh Themes* command
- * Selecting *MTA Refresh Thems* from the command pallet allows you to dynamically add themes for the main dropdown, without restarting Atom.
+* New *Refresh Themes* command
+ * Selecting *MTA Refresh Themes* from the command pallet allows you to dynamically add themes for the main dropdown, without restarting Atom.
 
 2017-02-02 - version 1.0.0
 1. Atom 1.13 support
- * Atom 1.13 [removed the shadow DOM](http://blog.atom.io/2016/11/14/removing-shadow-dom-boundary-from-text-editor-elements.html) which was relied upon by _Multi-theme-applicator_ to achive its styling.  Thus a re-architecting of the styling mechansim was required.  
+ * Atom 1.13 [removed the shadow DOM](http://blog.atom.io/2016/11/14/removing-shadow-dom-boundary-from-text-editor-elements.html) which was relied upon by _Multi-theme-applicator_ to achieve its styling.  Thus a re-architecting of the styling mechanism was required.  
 2. Scope level theming added.
   * The new styling architecture allows for easier theming at different levels of granularity.  Thus window, pane, file, and editor level scope was added.
 3. New *Remove Scoped Theme* button.
-  * Allows for finer control over backing off applied themes.  This is necessary becuase there can now be multiple layers of themes applied.
+  * Allows for finer control over backing off applied themes.  This is necessary because there can now be multiple layers of themes applied.
 
 2016-09-03 - version 0.9.0  
 This release introduces quite a large amount of new functionality.  Basically, local theming has been made much more "sticky", and requires less manual intervention and re-application.  In short, it's starting to work a lot more like one "would expect", and fixes several edge cases where themes were previously not applied as expected.  
 
-1. The package now listens on pane events, such as splitting the screen, and will automatically apply the appropriate theme for that file.  In other words, you should only have to apply the file theme once, and that theme should show on all editors for that file, across all life-cycle events including adding new editors.
-2. file level theming is now persisted across atom cyclings i.e. if you close atom completely, and then start it again, once you invoke mta (shift-ctrl-v) then the local themes you supplied for any open files will be re-themed automatically.  
-3. Added a new command 'mta-reset' to reset the "theme memory", but you should normally not want to use this.
-4. Fixed a bug on mac where the "apply local theme" button was not driving the appropriate event handler.
+* The package now listens on pane events, such as splitting the screen, and will automatically apply the appropriate theme for that file.  In other words, you should only have to apply the file theme once, and that theme should show on all editors for that file, across all life-cycle events including adding new editors.
+* file level theming is now persisted across atom cyclings i.e. if you close atom completely, and then start it again, once you invoke MTA (shift-ctrl-v) then the local themes you supplied for any open files will be re-themed automatically.  
+* Added a new command 'mta-reset' to reset the "theme memory", but you should normally not want to use this.
+* Fixed a bug on mac where the "apply local theme" button was not driving the appropriate event handler.
 
 2016-06-30 - version 0.8.0  
 1. Added file level theming.  

@@ -64,6 +64,7 @@ module.exports =
     elementLookup: WeakMap
 
     constructor: (multiThemeApplicator, prevSessionFileLookupState, prevSessionFileTypeLookupState, prevThemeLookupState) ->
+      # console.log "LocalThemeSelectorView.ctor: entered"
       @multiThemeApplicator =  multiThemeApplicator
       # restore the prior fileLookupState, if any
       @fileLookup = prevSessionFileLookupState || {}

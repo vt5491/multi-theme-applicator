@@ -70,7 +70,13 @@ module.exports =
           if Base.ElementLookup.get(editor) && Base.ElementLookup.get(editor)[scope]
             styleClass = Base.ElementLookup.get(editor)[scope]['styleClass']
           else
-            console.log "LocalThemeManager.removeScopedTheme: unable to find styleClass"
+            # This is a "should not happen" condition, but empirically it was determined that
+            # sometimes a themed editor is not appearing in ElementLookup.  Until I can figure
+            # out the root cause, this will at least alllow us to clean up and not gen a stack trace.
+            console.log "LocalThemeManager.removeScopedTheme: unable to find styleClass in ElementLookup"
+            match = $(editorElem).attr('class').match(new RegExp("mta-#{scope}-.*-\\d{10,}"))
+            styleClass = match[0] if match
+            console.log "LocalThemeManager.removeScopedTheme: extracted styleClass=#{styleClass} from editor element"
 
           # remove from head
           if styleClass
@@ -79,7 +85,12 @@ module.exports =
           editors = []
 
           if scope == "file"
-            editors = @utils.getTextEditors {uri : @utils.getActiveFile()}
+            # editors = @utils.getTextEditors {uri : @utils.getActiveFile()}
+            uri = @utils.normalizePath editor.getPath()
+            editors = @utils.getTextEditors {uri : uri}
+          else if scope == "fileType"
+            fileExt = @utils.getFileExt(editor.getPath())
+            editors = @utils.getTextEditors {fileExt : fileExt}
           else
             editors.push editor
 
@@ -90,11 +101,12 @@ module.exports =
             $(editorElem).removeClass(styleClass)
 
             # delete the subkey
-            delete Base.ElementLookup.get(editor)[scope]
+            if Base.ElementLookup.get(editor)
+              delete Base.ElementLookup.get(editor)[scope]
 
-            # if we've cleared out all subkeys, then delete the whole thing
-            if Object.keys( Base.ElementLookup.get editor ).length == 0
-              Base.ElementLookup.delete(editor)
+              # if we've cleared out all subkeys, then delete the whole thing
+              if Object.keys( Base.ElementLookup.get editor ).length == 0
+                Base.ElementLookup.delete(editor)
 
         when "pane"
           pane = artifact || atom.workspace.getActivePane()
