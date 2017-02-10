@@ -34,7 +34,7 @@ Install from the Atom control panel as you would for any standard Atom package.
 
 ## MultiMedia
 ### Introductory Video
-<iframe width="560" height="315" src="https://youtu.be/7u0TVjH_C4A" frameborder="0" allowfullscreen></iframe>  
+<iframe width="560" height="315" src="https://www.youtube.com/embed/7u0TVjH_C4A" frameborder="0" allowfullscreen></iframe>
 fig. 2: Multi-Theme Applicator Getting Started video.
 
 ### Introductory Presentation Slides
