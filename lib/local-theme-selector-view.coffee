@@ -182,19 +182,30 @@ module.exports =
         for fileType in Object.keys Base.FileTypeLookup
           themePath = Base.FileTypeLookup[fileType]
           for editor in atom.workspace.getTextEditors()
-            editorFile = @utils.getActiveFile editor
-            fileExt = @utils.getFileExt editorFile
+            fs.stat themePath, (err, stats) => 
+              if err
+                console.log "LocalThemeSelectorView.reapplyThemes: skipping fileType theme reapplication: error=#{err}"
+                return
+                
+              editorFile = @utils.getActiveFile editor
+              fileExt = @utils.getFileExt editorFile
 
-            if fileExt == fileType
-              this.applyLocalTheme editorFile, themePath, 'fileType', editor
+              if fileExt == fileType
+                this.applyLocalTheme editorFile, themePath, 'fileType', editor
 
       # file scope files
       if @fileLookup && Object.keys(@fileLookup).length > 0
         for filePath in Object.keys @fileLookup
           themePath = @fileLookup[filePath]
-          for editor in atom.workspace.getTextEditors()
-            if @utils.getActiveFile(editor) == filePath
-              this.applyLocalTheme filePath, themePath, 'file', editor
+          # console.log "themePath=#{themePath},exists=#{fs.exists themePath}"
+          fs.stat themePath, (err, stats) => 
+            if err
+              console.log "LocalThemeSelectorView.reapplyThemes: skipping file theme reapplication: error=#{err}"
+              return
+
+            for editor in atom.workspace.getTextEditors()
+              if @utils.getActiveFile(editor) == filePath
+                this.applyLocalTheme filePath, themePath, 'file', editor
 
       true
 
@@ -209,7 +220,7 @@ module.exports =
       @themeLookupActiveIndex %= Base.ThemeLookup.length
 
       $("#themeDropdown")
-        .val @themeLookup[@themeLookupActiveIndex].baseDir
+        .val(Base.ThemeLookup[@themeLookupActiveIndex].baseDir).attr('name')
 
     selectPrevTheme: ->
       @themeLookupActiveIndex--
@@ -217,7 +228,7 @@ module.exports =
         @themeLookupActiveIndex = Base.ThemeLookup.length - 1
 
       $("#themeDropdown")
-        .val(@themeLookup[@themeLookupActiveIndex].baseDir)
+        .val(Base.ThemeLookup[@themeLookupActiveIndex].baseDir).attr('name')
 
     focusModalPanel: () ->
       $('#themeDropdown').focus()

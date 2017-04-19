@@ -138,23 +138,38 @@ module.exports =
           $(windowElem).removeClass(styleClass)
 
     getThemeCss: (basePath) ->
-      lessPath = basePath + "/index.less"
-
-      data = fs.readFileSync(lessPath, 'utf8')
-
-      data = data.toString()
-
-      options = {
-        paths : [basePath, basePath + '/styles']
-        filename : "index.less"
-      }
-
-      promise = new Promise (resolve, reject) ->
-        less.render data, options, (err, result) ->
+      statsPromise = new Promise (resolve, reject) ->
+        fs.stat basePath, (err, stats) ->
           if err
+            console.log "LocalThemeManager.getThemeCss: error #{err} loading path #{basePath}"
             reject err
-          else
-            resolve result.css.toString()
+            return
+
+          # proceed to here if basePath exists
+          lessPath = basePath + "/index.less"
+
+          data = fs.readFileSync(lessPath, 'utf8')
+
+          data = data.toString()
+
+          options = {
+            paths : [basePath, basePath + '/styles']
+            filename : "index.less"
+          }
+
+          promise = new Promise (resolve, reject) ->
+            less.render data, options, (err, result) ->
+              if err
+                reject err
+              else
+                resolve result.css.toString()
+
+          # wait until render finishes
+          promise.then (result) ->
+            # resolve statsPromise once file has been read (rendered)
+            resolve result
+
+      statsPromise
 
     # parse the rendered less css text to determine the 'atom-text-editor'
     # background-color

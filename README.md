@@ -125,6 +125,11 @@ Note 3: to change the keybindings, edit $HOME/.atom/packages/mult-theme-applicat
 
 
 ### Release History
+2017-04-19 - version 1.1.2  
+Minor bug fixes:  
+- fix ctrl-n and ctrl-p (scroll through theme list)  
+- add better error handling for cases where a theme no longer exists
+
 2017-02-08 - version 1.1.0
 
 * New *File Type* Scope
