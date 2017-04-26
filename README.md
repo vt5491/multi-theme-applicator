@@ -125,6 +125,11 @@ Note 3: to change the keybindings, edit $HOME/.atom/packages/mult-theme-applicat
 
 
 ### Release History
+2017-04-25 - version 1.1.3  
+Bug Fix:
+- File extension identification was not working properly on filenames with two dots e.g 'app.component.html',  causing fileType themeing to not work properly in certain cases.  This problem becomes apparent when working on Angular2 projects, which uses a lot of multi-dot-qualified file names.
+
+
 2017-04-19 - version 1.1.2  
 Minor bug fixes:  
 - fix ctrl-n and ctrl-p (scroll through theme list)  

@@ -267,7 +267,7 @@ module.exports =
           if item.buffer.file
             fn = item.buffer.file.path.replace(/\\/g, '/')
             localThemePath = handlerObj.fileLookup[fn]
-            fileExt = fn.match(/\.(.*)$/)[1]
+            fileExt = handlerObj.utils.getFileExt(fn)
             fileExtThemePath = Base.FileTypeLookup[fileExt]
             # apply any fileType theme, then any file level.  If both are active, then
             # by applying the file type last, it will take precedence.  We have to

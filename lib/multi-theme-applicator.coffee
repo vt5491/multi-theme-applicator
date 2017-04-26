@@ -10,7 +10,7 @@ module.exports = MultiThemeApplicator =
   subscriptions: null
 
   activate: (state) ->
-    console.log "MultiThemeApplicator.activiate: entered v1.1.1"
+    console.log "MultiThemeApplicator.activiate: entered v1.1.3"
     @utils = new Utils()
     @localThemeSelectorView = new LocalThemeSelectorView(
       this, state['fileLookup'], state['FileTypeLookup'], state['ThemeLookup'])
