@@ -182,11 +182,11 @@ module.exports =
         for fileType in Object.keys Base.FileTypeLookup
           themePath = Base.FileTypeLookup[fileType]
           for editor in atom.workspace.getTextEditors()
-            fs.stat themePath, (err, stats) => 
+            fs.stat themePath, (err, stats) =>
               if err
                 console.log "LocalThemeSelectorView.reapplyThemes: skipping fileType theme reapplication: error=#{err}"
                 return
-                
+
               editorFile = @utils.getActiveFile editor
               fileExt = @utils.getFileExt editorFile
 
@@ -198,7 +198,7 @@ module.exports =
         for filePath in Object.keys @fileLookup
           themePath = @fileLookup[filePath]
           # console.log "themePath=#{themePath},exists=#{fs.exists themePath}"
-          fs.stat themePath, (err, stats) => 
+          fs.stat themePath, (err, stats) =>
             if err
               console.log "LocalThemeSelectorView.reapplyThemes: skipping file theme reapplication: error=#{err}"
               return
@@ -353,7 +353,7 @@ module.exports =
                 $(newStyleElement).text(narrowedCss)
 
                 pane = atom.workspace.getActivePane()
-                paneElem = $('atom-pane.active')[0]
+                paneElem = @localThemeManager.getActivePaneElem()
 
                 if !@elementLookup.get pane
                   @elementLookup.set( pane, {} )
@@ -381,7 +381,7 @@ module.exports =
                 narrowedCss = @localThemeManager.narrowStyleScope(css, styleClass, "window")
                 $(newStyleElement).text(narrowedCss)
 
-                windowElem = $('atom-pane-container.panes')[0]
+                windowElem = @localThemeManager.getActiveWindowElem()
 
                 if !@elementLookup.get windowElem
                   @elementLookup.set( windowElem, {} )

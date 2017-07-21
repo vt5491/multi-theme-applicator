@@ -1,6 +1,7 @@
 $ = jQuery = require 'jquery'
 Base = require './base'
 Utils  = require './utils'
+LocalThemeManager = require './local-theme-manager'
 
 LocalThemeSelectorView = require './local-theme-selector-view'
 {CompositeDisposable} = require 'atom'
@@ -10,8 +11,9 @@ module.exports = MultiThemeApplicator =
   subscriptions: null
 
   activate: (state) ->
-    console.log "MultiThemeApplicator.activiate: entered v1.1.3"
+    console.log "MultiThemeApplicator.activiate: entered v1.2.0"
     @utils = new Utils()
+    @localThemeManager = new LocalThemeManager()
     @localThemeSelectorView = new LocalThemeSelectorView(
       this, state['fileLookup'], state['FileTypeLookup'], state['ThemeLookup'])
 
@@ -77,7 +79,7 @@ module.exports = MultiThemeApplicator =
       if paneInfo = Base.ElementLookup.get pane
         @localThemeSelectorView.localThemeManager.removeScopedTheme 'pane', pane
 
-    windowElem = $('atom-pane-container.panes')[0]
+    windowElem = @localThemeManager.getActiveWindowElem()
     if Base.ElementLookup.get windowElem
       @localThemeSelectorView.localThemeManager.removeScopedTheme 'window', windowElem
 

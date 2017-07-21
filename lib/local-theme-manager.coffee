@@ -111,7 +111,7 @@ module.exports =
         when "pane"
           pane = artifact || atom.workspace.getActivePane()
           $activePane = $('atom-pane.active')
-          paneElem = $activePane[0]
+          paneElem = this.getActivePaneElem()
 
           if Base.ElementLookup.get(pane)
             styleClass = Base.ElementLookup.get(pane)['styleClass']
@@ -126,7 +126,7 @@ module.exports =
           Base.ElementLookup.delete(pane)
 
         when "window"
-          windowElem = $('atom-pane-container.panes')[0]
+          windowElem = this.getActiveWindowElem()
 
           if Base.ElementLookup.get(windowElem)
             styleClass = Base.ElementLookup.get(windowElem)['styleClass']
@@ -341,10 +341,10 @@ module.exports =
 
       narrowedCss
 
-   # This method adds "syntax--" to themes that are not compliant with the new
-   # >atom 1.13 style syntax.  e.g
-   # ".comment {"  -> ".syntax--comment {"
-   # We skip any element that has "atom" in it.
+    # This method adds "syntax--" to themes that are not compliant with the new
+    # >atom 1.13 style syntax.  e.g
+    # ".comment {"  -> ".syntax--comment {"
+    # We skip any element that has "atom" in it.
     normalizeSyntaxScope: (css) ->
       lines = css.split "\n"
       normalizedCss = ''
@@ -361,3 +361,9 @@ module.exports =
          normalizedCss += normalizedLine + "\n"
 
       normalizedCss
+
+    getActivePaneElem: () ->
+      atom.workspace.getActivePane().getElement();
+
+    getActiveWindowElem: () ->
+      $('atom-workspace-axis.vertical atom-pane-container.panes')[0]
