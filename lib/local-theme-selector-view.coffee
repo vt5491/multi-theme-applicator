@@ -78,14 +78,10 @@ module.exports =
       @utils = new Utils()
 
       this.reapplyThemes()
-      #debugger
       this.initThemeSelectorForm()
       # setup the pane listener, so we can automatically apply the local theme to any
       # new editors that show up.
       @localThemeManager.initPaneEventHandler(this)
-      #vt move
-      #this.reapplyThemes()
-      #vt end
 
       # setup pane close events so we can delete any styling context
       @localThemeManager.initOnDidDestroyPaneHandler()
@@ -180,89 +176,20 @@ module.exports =
         # return false so the main submit action is not applied
         return false
 
-    reapplyThemesOld: () ->
-      console.log('vt: MultiThemeApplicator.reapplyThemes: entered')
-      this.reapplyFileExtThemes()
-      ###
-      # fileType
-      if Base.FileTypeLookup && Object.keys(Base.FileTypeLookup).length > 0
-        console.log('vt: MultiThemeApplicator.reapplyThemes: doing fileType processing')
-        for fileType in Object.keys Base.FileTypeLookup
-          #debugger
-          # Note: we have to give this a different name than the themePath variable used for
-          # file level, because when fs.stat runs asynchronously, variable themePath may have
-          # been overwritten with the file level themePath (it appears variables anwhere in
-          # this function are hoisted into function wide vars e.g no lexical scoping (?))
-          themePathFileType = Base.FileTypeLookup[fileType]
-          console.log("vt: MultiThemeApplicator.reapplyThemes: fileType processing: fileType=#{fileType} themePath=#{themePathFileType}")
-          statHandlerFactory = (themePathFileType, fileType) =>
-            themePathExists = true
-            # bind in the current themePathFileType into the async runtime environement.
-            statHandler = (err, stats) =>
-          #fs.stat themePathFileType, (err, stats) =>
-              if err
-                console.log "LocalThemeSelectorView.reapplyThemes: skipping fileType theme reapplication: error=#{err}"
-                #vtreturn
-                #continue
-                themePathExists = false
-              #debugger
-              if themePathExists
-                #vtfor editor in atom.workspace.getTextEditors()
-                #editorFile = @utils.getActiveFile editor
-                #fileExt = @utils.getFileExt editorFile
-
-                #if fileExt == fileType
-                #console.log "vt: MultiThemeApplicator.reapplyThemes.filetype2: calling applyLocalTheme #{themePathFileType} to file #{editorFile}"
-                #vtthis.applyLocalTheme editorFile, themePath, 'fileType', editor
-                # Note how we apply at the file level here not "filetype".  This is because
-                # we are taking care of the looping over the editors oursevles here.  applyLocatheme can also
-                # loop over the editors, but if we pass 'fileType' here, we'll get a double loop.
-                #this.applyLocalTheme editorFile, themePathFileType, 'file', editor
-                #this.applyLocalTheme editorFile, themePathFileType, 'fileType', editor
-                this.applyLocalTheme '', themePathFileType, 'fileType'
-            return statHandler
-
-          fs.stat themePathFileType, statHandlerFactory(themePathFileType, fileType)
-      ###
-      # file scope files
-      #debugger
-      ###
-      if @fileLookup && Object.keys(@fileLookup).length > 0
-        for filePath in Object.keys @fileLookup
-          themePath = @fileLookup[filePath]
-          themePathExists = true
-          fs.stat themePath, (err, stats) =>
-            if err
-              console.log "LocalThemeSelectorView.reapplyThemes: skipping file theme reapplication: error=#{err}"
-              themePathExists = false
-
-            if themePathExists
-              for editor in atom.workspace.getTextEditors()
-                if @utils.getActiveFile(editor) == filePath
-                  console.log "vt: MultiThemeApplicator.reapplyThemes.file: calling applyLocalTheme #{themePath} to file #{filePath}"
-                  this.applyLocalTheme filePath, themePath, 'file', editor
-        ###
-      true
-
-    #vt add
     reapplyThemes: () ->
       for editor in atom.workspace.getTextEditors()
         editorFile = @utils.getActiveFile editor
         fileExt = @utils.getFileExt editorFile
-        console.log "editorFile=#{editorFile}, fileExt=#{fileExt}"
 
         if Base.FileTypeLookup && Object.keys(Base.FileTypeLookup).length > -1
           if Base.FileTypeLookup[fileExt]
             this.applyLocalTheme editorFile, Base.FileTypeLookup[fileExt], 'file', editor
 
-        console.log "fileLookup[#{{editorFile}}=#{@fileLookup[editorFile]}]"
         if @fileLookup && Object.keys(@fileLookup).length > -1
           if @fileLookup[editorFile]
-            console.log "file: now calling applyLocalTheme for #{editorFile} with theme #{@fileLookup[editorFile]}"
             this.applyLocalTheme editorFile, @fileLookup[editorFile], 'file', editor
       true
 
-    #vt end
     refreshThemeInfo: ($themeDropdown) ->
       $dropDown = $themeDropdown ? $('#themeDropdown')
       Base.ThemeLookup = @localThemeManager.getSyntaxThemeLookup()
@@ -290,31 +217,15 @@ module.exports =
     # simulate a mouse click on the theme dropdown, so the user can see
     # a larger selection.
     expandThemeDropdown: () ->
-      console.log "vt: expandThemeDropdown: entered"
-      #vt add
       element = document.getElementById('themeDropdown')
       expandLen = element.options.length
       currentLen = element.getAttribute('size')
       # toggle if already expand
-      console.log("vt: expandLen=#{expandLen}, currentLen=#{currentLen}")
-      #debugger
       # note '+currentlen' converts a string to an int
       if +currentLen == expandLen
         expandLen = 1
-      console.log("vt: will set to expandLen=#{expandLen}")
-      #debugger
-      #element = $('#themeDropdown')[0]
-      #len = $('#themeDropdown').options.length
       element.setAttribute('size', expandLen)
-      #vt end
-      #element = $('#themeDropdown')[0]
-      #event = document.createEvent 'MouseEvents'
-      #event.initMouseEvent 'mousedown',true,true,window
-      #element.dispatchEvent event
-      #vt add
-      #event2 = new MouseEvent('mousedown');
-      #element.dispatchEvent(event2);
-      #vt end
+
     # Come here on submit.  Apply a theme at the window level, not the individual editor
     # level.
     # This is the key method of the whole package.  This basically drives all the
@@ -331,15 +242,13 @@ module.exports =
       sourcePath = baseCssPath + '/index.less'
 
       targetFile = fn || @utils.getActiveFile()
-      #vt add
-      #if !@utils.getActiveFile()
       if !targetFile
         noFilesMsg = """No active file found.
   MTA scoped themes are applied to the currently opened file.
   Please open a file and then apply a local theme."""
         atom.workspace.notificationManager.addError(noFilesMsg)
         return
-      #vt end
+
       # get the "ts" from "myfile.ts", for example
       fileExt = @utils.getFileExt targetFile
 

@@ -125,6 +125,15 @@ Note 3: to change the keybindings, edit $HOME/.atom/packages/mult-theme-applicat
 
 
 ### Release History
+2017-09-12 - version 1.3.0  
+Bix Fixes:  
+- Reworked theme restoration process  
+  - Fixed problem whereby file type restoration (e.g. a theme applied to all '.html' files) was not working.
+  - Reduced the amount of redundant application. Now restoration loops through each editor exactly once.
+- Improved alt-shift-v "theme expansion" in theme dropdown.  Use alt-shift-v to toggle it off.
+- Throw an error message when attempting to apply a local theme when no files are open.
+- Fix problem with cmd-shift-v (mta toggle) not working on startup on the Macintosh.
+
 2017-07-21 - version 1.2.0
 - Fix window and pane level theming.  
 - Improved clean up when using MTA reset.

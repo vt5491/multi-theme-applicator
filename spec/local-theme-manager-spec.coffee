@@ -96,27 +96,12 @@ describe 'LocalThemeManager with complex atom-text-editor style tree', () ->
     @textEditor = buildEditorTestEvironment()
 
   it 'addStyleElementToHead works', () ->
-    #vtadd
-    # Date.now() in uts appears to always be '1000'.  We need to mock this with a real
-    # >10 digit number to insure that regexes that work on timestamp work properly.
-    #dateNowSpy = spyOn(window.Date, "now") .andReturn('1234512345123')
-    #Date.now = jasmine.createSpy().and.returnValue('1234512345123')
-    #Date.now = jasmine.createSpy('notreal', function(){}).and.returnValue();
-    #Date.now = jasmine.createSpy('notreal', ion(){}).and.returnValue();
-    #Date. now.and.returnValue '1234512345123'
-    #spy.and.returnValue('test')
     Date.now.andReturn(1234512345123)
-    #spyOn(Date, 'now').andReturn(1387636363717);
-    console.log "Date.now=#{Date.now()}"
-    #vt end
     styleElem = document.createElement('style')
 
     # editor scope
-    # debugger
     styleClass = @localThemeManager.addStyleElementToHead styleElem, 'editor', "mystyle"
     firstStyleClass = styleClass
-    # debugger
-    console.log "styleClass=#{styleClass}"
 
     # verify it's now there
     elem = $('head').find("atom-styles .#{styleClass}")[0]
@@ -132,7 +117,6 @@ describe 'LocalThemeManager with complex atom-text-editor style tree', () ->
 
     # Verify it re-uses existing styleClass from head if a previous one is found
     # oldStyleClass = styleClass
-    console.log "hi"
     oldHeadCnt = $('head atom-styles style').length
     # debugger
     styleClass = @localThemeManager.addStyleElementToHead styleElem, 'editor', "mystyle"

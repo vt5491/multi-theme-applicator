@@ -9,7 +9,6 @@ module.exports =
   class LocalThemeManager
 
     constructor: ->
-      #vtconsole.log "LocalThemeManager.ctor: entered"
       @utils = new Utils()
 
     doIt: ->
@@ -273,13 +272,9 @@ module.exports =
             # apply any fileType theme, then any file level.  If both are active, then
             # by applying the file type last, it will take precedence.  We have to
             # apply both in order to make remove work properly in the most general cases.
-            #console.log "vt:localThemeManager.observePaneItems: fn=#{fn}, localThemePath=#{localThemePath}, fileExtThemePath=#{fileExtThemePath}"
-            #debugger
             if fileExtThemePath
-              #vthandlerObj.applyLocalTheme(fn, fileExtThemePath, 'fileType')
               handlerObj.applyLocalTheme fn, fileExtThemePath, 'fileType', item
             if localThemePath
-              #vthandlerObj.applyLocalTheme(fn, localThemePath, 'file')
               handlerObj.applyLocalTheme fn, localThemePath, 'file', item
 
     initOnDidDestroyPaneHandler: () ->
