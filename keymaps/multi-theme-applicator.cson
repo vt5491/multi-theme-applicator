@@ -1,5 +1,6 @@
 "atom-workspace":
   "ctrl-shift-v": "multi-theme-applicator:toggle"
+  "cmd-shift-v": "multi-theme-applicator:toggle"
   "alt-shift-v": "local-theme-selector-view:focusModalPanel"
 ".platform-darwin atom-text-editor":
   "cmd-shift-v": "multi-theme-applicator:toggle"
