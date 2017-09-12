@@ -9,7 +9,7 @@ module.exports =
   class LocalThemeManager
 
     constructor: ->
-      console.log "LocalThemeManager.ctor: entered"
+      #vtconsole.log "LocalThemeManager.ctor: entered"
       @utils = new Utils()
 
     doIt: ->
@@ -40,13 +40,14 @@ module.exports =
 
       styleClass
       if prevStyle[0]
+        # note timestamps are typically 13 digits, but we'll use 10 or greater as a proxy
+        # since, in the future, it could be > 13 digits and we don't want to lock in on 13.
         re = new RegExp "(#{styleClassStem}\\d{10,})"
         styleClass = prevStyle.attr('class').match(re)[1]
       else
         styleClass = "mta-#{scope}-#{themeName}-style-" + Date.now()
         $('head').find('atom-styles').append(styleElement)
-
-      $(styleElement).addClass(styleClass)
+        $(styleElement).addClass(styleClass)
 
       # return styleKey to the user
       styleClass
@@ -272,10 +273,14 @@ module.exports =
             # apply any fileType theme, then any file level.  If both are active, then
             # by applying the file type last, it will take precedence.  We have to
             # apply both in order to make remove work properly in the most general cases.
+            #console.log "vt:localThemeManager.observePaneItems: fn=#{fn}, localThemePath=#{localThemePath}, fileExtThemePath=#{fileExtThemePath}"
+            #debugger
             if fileExtThemePath
-              handlerObj.applyLocalTheme(fn, fileExtThemePath, 'fileType')
+              #vthandlerObj.applyLocalTheme(fn, fileExtThemePath, 'fileType')
+              handlerObj.applyLocalTheme fn, fileExtThemePath, 'fileType', item
             if localThemePath
-              handlerObj.applyLocalTheme(fn, localThemePath, 'file')
+              #vthandlerObj.applyLocalTheme(fn, localThemePath, 'file')
+              handlerObj.applyLocalTheme fn, localThemePath, 'file', item
 
     initOnDidDestroyPaneHandler: () ->
       atom.workspace.onDidDestroyPane (event) =>
