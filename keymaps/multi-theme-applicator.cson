@@ -1,3 +1,7 @@
+# we need to unset 'paste-without-reformatting' which also binds to 'ctrl-shift-v'
+"atom-workspace atom-text-editor":
+  "ctrl-shift-v" : "unset!"
+  "cmd-shift-v" : "unset!"
 "atom-workspace":
   "ctrl-shift-v": "multi-theme-applicator:toggle"
   "cmd-shift-v": "multi-theme-applicator:toggle"
