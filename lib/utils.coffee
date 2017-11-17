@@ -27,7 +27,11 @@ module.exports =
     # normalized to unix format
     getActiveFile: (ed) ->
       editor = ed || atom.workspace.getActiveTextEditor()
-      editor.getURI().replace(/\\/g, '/') if editor
+      fn = null
+      if editor && editor.getURI()
+        fn = editor.getURI().replace(/\\/g, '/')
+
+      fn
 
     # return all the textEditors for a given parm type.  e.g if
     # params = {uri : '/myPath/abc.txt'}

@@ -179,6 +179,8 @@ module.exports =
     reapplyThemes: () ->
       for editor in atom.workspace.getTextEditors()
         editorFile = @utils.getActiveFile editor
+        # skip to next editor if no active file
+        break if !editorFile
         fileExt = @utils.getFileExt editorFile
 
         if Base.FileTypeLookup && Object.keys(Base.FileTypeLookup).length > -1

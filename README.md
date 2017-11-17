@@ -125,7 +125,7 @@ Note 3: to change the keybindings, edit $HOME/.atom/packages/mult-theme-applicat
 
 
 ### Release History
-2017-11-15 - version 1.3.1  
+2017-11-15 - version 1.3.2  
 - It appears that, at least in the beta version of Atom, Atom now binds 'ctrl-shift-v' to 'paste-without-reformatting' which interferes with MTA's default key binding.  This fix unbinds the Atom default binding for 'ctrl-shift-v' so that that the MTA binding again takes precedence.  
 
 Note: if you want to restore Atom's default key binding for 'paste-without-reformatting' then edit file '~/.atom/packages/multi-theme-applicator/keymaps/multi-theme-applicator.cson' and delete or comment out the following lines:  
@@ -137,7 +137,9 @@ Note: if you want to restore Atom's default key binding for 'paste-without-refor
   "cmd-shift-v" : "unset!"
 ```
 
-Of course, if you do this you will then lose the 'ctrl-shift-v' bindings for MTA.  If you want to re-map MTA to a different sequence, edit all references to 'ctrl-shift-v' (Windows) or 'cmd-shift-v' (Mac) in the aforementioned 'multi-theme-applicator.cson' file, or simply edit under Atom via menu selection 'file->settings'.
+Of course, if you do this you will then lose the 'ctrl-shift-v' bindings for MTA.  If you want to re-map MTA to a different sequence, edit all references to 'ctrl-shift-v' (Windows) or 'cmd-shift-v' (Mac) in the aforementioned 'multi-theme-applicator.cson' file, or simply edit under Atom via menu selection 'file->settings'.  
+
+- Fix a problem whereby MTA crashed when starting against an editor with no actively opened file.  Noticed during Mac testing.
 
 
 
