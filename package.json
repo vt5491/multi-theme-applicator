@@ -1,7 +1,7 @@
 {
   "name": "multi-theme-applicator",
   "main": "./lib/multi-theme-applicator",
-  "version": "1.3.5",
+  "version": "1.3.6",
   "description": "Apply Multiple Syntax Themes to your Atom Editor",
   "keywords": [
     "atom",
