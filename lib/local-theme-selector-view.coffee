@@ -125,7 +125,7 @@ module.exports =
       $('<label>').text('Syntax Theme:').appendTo($themeDiv)
 
       @dropDownBorderWidthDefault
-      $themeDropdown = $('<select id="themeDropdown" name="selectTheme">')
+      $themeDropdown = $('<select id="themeDropdown" name="selectTheme"></select>')
       $themeDropdown.focus =>
         @dropDownBorderWidthDefault = $('#themeDropdown').css('borderWidth')
         newBorderWidth = parseInt(@dropDownBorderWidthDefault) * 2.0

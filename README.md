@@ -125,6 +125,16 @@ Note 3: to change the keybindings, edit $HOME/.atom/packages/mult-theme-applicat
 
 
 ### Release History
+2018-02-26 - version 1.3.5  
+Minor Bug Fixes:  
+- Upgrade to jquery 3.x as recommended per github "vulnerable dependencies".  
+- Fix problem:   
+
+`  
+ Form submission failed, as the <SELECT> element named 'selectTheme' was implicitly closed by reaching the end of the file. Please add an explicit end tag ('</SELECT>') `
+
+ When applying a window level theme on Atom 1.25-beta2 X64.
+
 2017-11-15 - version 1.3.2  
 Bug Fixes:
 - It appears, at least in the beta version of Atom, that Atom now binds 'ctrl-shift-v' to 'paste-without-reformatting' which interferes with MTA's default key binding.  This fix unbinds the Atom default binding for 'ctrl-shift-v' so that that the MTA binding again takes precedence.  
