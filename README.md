@@ -125,7 +125,7 @@ Note 3: to change the keybindings, edit $HOME/.atom/packages/mult-theme-applicat
 
 
 ### Release History
-2018-02-26 - version 1.3.5  
+2018-02-26 - version 1.3.6  
 Minor Bug Fixes:  
 - Upgrade to jquery 3.x as recommended per github "vulnerable dependencies".  
 - Fix problem:   
