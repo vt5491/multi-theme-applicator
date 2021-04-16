@@ -11,7 +11,7 @@ module.exports = MultiThemeApplicator =
   subscriptions: null
 
   activate: (state) ->
-    console.log "MultiThemeApplicator.activiate: entered v1.3.6"
+    console.log "MultiThemeApplicator.activiate: entered v1.3.6-cs"
     @utils = new Utils()
     @localThemeManager = new LocalThemeManager()
     @localThemeSelectorView = new LocalThemeSelectorView(
