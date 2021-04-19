@@ -27,7 +27,7 @@ Allowing editor level theming is also useful when your global themes looks good 
 
 ## Requirements
 Requires Atom >=1.13.0.
-Tested on Atom 1.13.0 on Mac, Windows 10, and Linux Mint 18.
+Tested on Atom 1.56.0 on Mac and Windows 10.
 
 ## Installation
 Install from the Atom control panel as you would for any standard Atom package.
@@ -49,10 +49,11 @@ fig. 2: Multi-Theme Applicator Getting Started video.
 
 ## Usage
 #### Overview
-When you activate the _multi-theme-applicator_ (MTA) panel with _shift-ctrl-v_ (windows/linux) or _shift-cmd-v_ (mac), you are presented with a list of the currently available themes.  The panel and theme selection can be entirely controlled with home-row friendly key bindings or via mouse.  Select the theme you want and click _Apply Local Theme_ or press _Enter_. You will then see all the editors associated with the file of the active editor assume that theme.  Having selected a new theme, the dialog will still remain active, allowing you to quickly iterate through and apply several themes until you find just the right one.  When you're done, toggle the _multi-theme-applicator_ to close by pressing the _escape_ key, _ctrl-shift-v_, or clicking the "x" button, and resume working.
+When you activate the _multi-theme-applicator_ (MTA) panel with _shift-ctrl-v_ (windows/linux) or _shift-cmd-v_ (mac), you are presented with a list of currently available themes.    Select the theme you want and click _Apply Local Theme_ or press _Enter_. It is not necessary to remove any prior themes before applying a new one.  If a theme has already been applied to the current active editor, then that prior theme and scope should be seeded in the dropdown as a reminder to the user, otherwise it will default to the last selected theme with a scope of "file". After applying a theme you should then see the editor update with the new theme.  If you select by "file type" then you should see all editors of the filetype update.  The panel and theme selection can be entirely controlled with home-row friendly key bindings or via mouse.  Having selected a new theme, the dialog will still remain active, allowing you to quickly iterate through and apply several themes until you find just the right one.  When you're done, toggle the _multi-theme-applicator_ to close by pressing the _escape_ key, _ctrl-shift-v_, or clicking the "x" button, and resume working.
+
+Note: MTA only works with syntax themes, not UI themes. UI themes affect the global theme of Atom and thus are not applicable to editor level application.
 
 #### Typical Workflow
---> 2017-02-08: Note this describes how to use MTA v 0.9.0.  This will be updated in the future to support MTA v1.1.0.  In the meantime, please refer to the Introductory video and slide presentation in the Multimedia section above.
 
 1) We start in a session with three open files across three panes in the default monolithic theme _atom-dark_.    
 
@@ -87,11 +88,11 @@ Here we type 'h' to quickly locate the _humane_ theme:
 
  Note 3: Observe how much easier it is to distinguish between the files with multi-themes.
 
-5) If you like your new theme, toggle the modal dialog off by by pressing _ctrl-shift-v_ or _escape_ (or invoke ctrl-shift-p and search for "multi"), or clicking the "x" button. If we swtich to pane 3 and activate the hidden tab, you'll see that it too has the new theme.  Congratulations, you now have a mixed theme session!  Repeat as desired to your other files.
+5) If you like your new theme, toggle the modal dialog off by pressing _ctrl-shift-v_ or _escape_ (or invoke ctrl-shift-p and search for "multi"), or clicking the "x" button. If we switch to pane 3 and activate the hidden tab, you'll see that it too has the new theme.  Congratulations, you now have a mixed theme session!  Repeat as desired to your other files.
 
 Note: with version 0.9.0, MTA remembers the theme applied to each file. See release notes below for more details.
 
-Screenshot showing all three editors for the selected file sucessfully themed:
+Screenshot showing all three editors for the selected file successfully themed:
 <br/>
 ![5](https://github.com/vt5491/multi-theme-applicator/blob/master/assets/img/mta_workflow_humane_post_apply_2.png?raw=true)
 <br/>
@@ -125,6 +126,22 @@ Note 3: to change the keybindings, edit $HOME/.atom/packages/mult-theme-applicat
 
 
 ### Release History
+2021-04-19 - version 2.1.0  
+- Dynamically seed the theme dropdown with the active theme and scope based on the
+   current active editor. If no prior theme applied, default to the last selected theme and scope of "file".  
+
+   I added this because I recently added a bunch new themes to my atom and I realized it would be nice if the dropdown had the prior selection and scope because I was unable to recognize the new themes by sight.  Really, this is something that should have been in there all along.  
+
+- Fix a bug noticed during testing whereby "cljs" files were being themed with ".js" file upon fileType scope being applied.  This might have been my only coffeescript conversion issue.  I had to tighten up the regex in utils.getTextEditors.
+
+   Note: 1.3.6 download count as 4/19/21 is 3307.  
+
+2021-04-16 - version 2.0.0  
+- Convert from coffeescript to Javascript ES6, using [decaffeinate](https://github.com/decaffeinate/decaffeinate).  
+- upgrade jquery and a few other package per "npm audit".
+
+In short, kind of a utilitarian update that doesn't really add any new functionality. Just trying to give the package a "little love" after three years of no updates.
+
 2018-02-26 - version 1.3.6  
 Minor Bug Fixes:  
 - Upgrade to jquery 3.x as recommended per github "vulnerable dependencies".  

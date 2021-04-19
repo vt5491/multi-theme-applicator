@@ -31,6 +31,7 @@ describe('Utils2', function() {
     this.textEditor = atom.workspace.buildTextEditor();
     this.textEditor2 = atom.workspace.buildTextEditor();
     this.textEditor3 = atom.workspace.buildTextEditor();
+    this.textEditor4 = atom.workspace.buildTextEditor();
 
     // add a file type class
     $(this.textEditor.getElement()).addClass('mta-file-type-atom-light-syntax-style-1486192129232');
@@ -44,14 +45,16 @@ describe('Utils2', function() {
     this.editorFile = "/tmp/utils-spec-dummy.ts";
     this.editorFileWinFormat= "\\tmp\\utils-spec-dummy.ts";
     this.editorFile2 = "/tmp/utils-spec-dummy2.js";
+    this.editorFile3 = "/tmp/utils-spec-dummy3.cljs";
 
     spyOn(this.textEditor, "getURI").andReturn(this.editorFileWinFormat);
     // note: editor and editor2 need to use the same format to mimic a real test
     spyOn(this.textEditor2, "getURI").andReturn(this.editorFileWinFormat);
     spyOn(this.textEditor3, "getURI").andReturn(this.editorFile2);
+    spyOn(this.textEditor4, "getURI").andReturn(this.editorFile3);
 
     spyOn(atom.workspace, "getActiveTextEditor").andReturn(this.textEditor);
-    return spyOn(atom.workspace, "getTextEditors").andReturn([this.textEditor, this.textEditor2, this.textEditor3]);
+    return spyOn(atom.workspace, "getTextEditors").andReturn([this.textEditor, this.textEditor2, this.textEditor3, this.textEditor4]);
   });
 
   it('getActiveFile works', function() {

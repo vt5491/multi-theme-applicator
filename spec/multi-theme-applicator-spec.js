@@ -7,29 +7,22 @@ import MultiThemeApplicator from '../lib/multi-theme-applicator';
 // To run a specific `it` or `describe` block add an `f` to the front (e.g. `fit`
 // or `fdescribe`). Remove the `f` to unfocus the block.
 
-// console.log('point a');
 describe('dummy test', () => {
-  // console.log('vt: now in spec 1');
   it('has one valid test', () => {
-    //expect('life').toBe('easy');
     expect(7).toEqual(7);
   });
   it('has two valid test', () => {
-    //expect('life').toBe('easy');
     expect(7).toEqual(7);
   });
   it('has three valid test', () => {
-    //expect('life').toBe('easy');
     expect(7).toEqual(7);
   });
 });
 
 describe('MultiThemeApplicator', () => {
-  // console.log('point b');
   let workspaceElement, activationPromise;
 
   beforeEach(() => {
-    // console.log('point c');
     workspaceElement = atom.views.getView(atom.workspace);
     activationPromise = atom.packages.activatePackage('multi-theme-applicator');
   });
@@ -49,10 +42,8 @@ describe('MultiThemeApplicator', () => {
       });
 
       runs(() => {
-        //expect(workspaceElement.querySelector('.multi-theme-applicator')).toExist();
         expect(workspaceElement.querySelector('.local-theme-selector-view')).toExist();
 
-        //let multiThemeApplicatorElement = workspaceElement.querySelector('.multi-theme-applicator');
         let multiThemeApplicatorElement = workspaceElement.querySelector('.local-theme-selector-view');
         expect(multiThemeApplicatorElement).toExist();
 
