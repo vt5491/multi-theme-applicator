@@ -126,6 +126,11 @@ Note 3: to change the keybindings, edit $HOME/.atom/packages/mult-theme-applicat
 
 
 ### Release History
+2022-03-29 - version 2.2.0  
+- Add support for theming files that have not yet been saved e.g. when you first open a file and the tab shows "untitled", per [this requst.](https://github.com/vt5491/multi-theme-applicator/issues/10#issue-1101898857)  
+
+   Note: 2.1.0 download count as 3/29/22 is 3981.    
+
 2021-04-19 - version 2.1.0  
 - Dynamically seed the theme dropdown with the active theme and scope based on the
    current active editor. If no prior theme applied, default to the last selected theme and scope of "file".  
