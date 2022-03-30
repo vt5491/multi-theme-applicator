@@ -126,7 +126,7 @@ Note 3: to change the keybindings, edit $HOME/.atom/packages/mult-theme-applicat
 
 
 ### Release History
-2022-03-29 - version 2.2.0  
+2022-03-29 - version 2.2.1  
 - Add support for theming files that have not yet been saved e.g. when you first open a file and the tab shows "untitled", per [this requst.](https://github.com/vt5491/multi-theme-applicator/issues/10#issue-1101898857)  
 
    Note: 2.1.0 download count as 3/29/22 is 3981.    
